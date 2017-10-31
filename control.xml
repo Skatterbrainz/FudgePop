@@ -53,4 +53,7 @@
   <permissions comment="configure security permissions on local resources">
     <permission device="d004" enabled="true" path="c:\program files\mozilla firefox" principals="users" rights="modify" />
   </permissions>
+  <updates comment="force microsoft updates download and install cycle">
+    <update device="all" enabled="false" when="11/14/2017 3:00 AM" />
+  </updates>
 </configuration>
