@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration version="1.0.0" comment="fudgepack - windows device configuration control file">
+<configuration version="1.0.1" comment="fudgepack - windows device configuration control file">
   <control enabled="true" exclude="" comment="kill switch" version="1710.31" />
+  <priority order="files,folders,deployments,removals,registry,services,shortcuts,opapps,permissions" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
     <deployment device="d004" user="Jane Doe" enabled="true" when="now">office365proplus,vlc,putty</deployment>
