@@ -30,7 +30,7 @@ CompanyName = ''
 Copyright = '(c) 2017 David Stein'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'Windows computer configuration management using Chocolatey and PowerShell and other stuff'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -98,10 +98,10 @@ PrivateData = @{
         # Tags = @()
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Skatterbrainz/Chocolatey/master/FudgePop/'
+        ProjectUri = 'https://github.com/Skatterbrainz/FudgePop/'
 
         # A URL to an icon representing this module.
         # IconUri = ''
@@ -120,4 +120,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
