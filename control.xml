@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration version="1.0.0" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1710.14" />
+  <control enabled="true" exclude="" comment="kill switch" version="1710.31" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
-    <deployment device="d004" user="Mike Hunt" enabled="true" when="now">bulk-crap-uninstaller,office365proplus</deployment>
+    <deployment device="d004" user="Mike Hunt" enabled="true" when="now">office365proplus,vlc,putty</deployment>
     <deployment device="d005" user="Mike Rotch" enabled="true" when="10/27/2017 10:00 PM">office365proplus</deployment>
-    <deployment device="d006" user="Dick Head" enabled="true" when="now">bulk-crap-uninstaller,visualstudiocode,vscode-powershell</deployment>
+    <deployment device="d006" user="Dick Head" enabled="true" when="now">visualstudiocode,vscode-powershell</deployment>
     <deployment device="nsa18" user="Skatterbrainz" enabled="true" when="10/27/2017 10:00 PM">slack,notepadplusplus,git,vlc,putty,vlc,rdcman,office365proplus,microsoft-teams,skypeforbusiness,jing,teamviewer,visualstudiocode,vscode-powershell,vscode-icons,vscode-mssqdl,vscode-azurerm-tools,microsoftazurestorageexplorer,visualstudio2017community</deployment>
   </deployments>
   <removals comment="packages to remove">
@@ -38,11 +38,11 @@
   <shortcuts comment="shortcuts to create, modify or remove. for path ref: https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx">
     <shortcut device="all" enabled="true" action="create" name="Internet Explorer" type="lnk" target="c:\program files\internet explorer\iexplore.exe" path="commondesktop" force="true" description="Internet Explorer" windowstyle="normal" args="" workingpath="" />
     <shortcut device="all" enabled="true" action="create" name="Google" type="url" target="http://www.google.com" path="commondesktop" force="true" description="Google Search" windowstyle="normal" args="" workingpath="" />
-    <shortcut device="d004" enabled="true" action="delete" name="Google 2" type="url" path="commondesktop" force="true" />
+    <shortcut device="d004" enabled="true" action="delete" name="Example Shortcut" type="url" path="commondesktop" force="true" />
   </shortcuts>
   <opapps comment="on prem application deployments">
-    <opapp device="d004" enabled="true" name="Paint.Net 4.0.17 x64" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="rule001" />
-    <opapp device="d004" enabled="true" name="Remote Desktop Connection Manager" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="rule002" />
+    <opapp device="d004" enabled="false" name="Paint.Net 4.0.17 x64" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="rule001" />
+    <opapp device="d004" enabled="false" name="Remote Desktop Connection Manager" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="rule002" />
   </opapps>
   <detectionrules comment="used for verifying app installs">
     <detectionrule name="rule001" app="Paint.Net 4.0.19 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F10AAD91-58DF-44EC-A647-810197141667}" value="" />
