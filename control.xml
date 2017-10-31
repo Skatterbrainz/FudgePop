@@ -42,11 +42,13 @@
   </shortcuts>
   <opapps comment="on prem application deployments">
     <opapp device="d004" enabled="false" name="Paint.Net 4.0.17 x64" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="rule001" />
+    <opapp device="d004" enabled="true" name="7-zip 1701 x64" action="install" run="http://www.7-zip.org/a/7z1701-x64.msi" platforms="win7x64,win10x64" restart="false" detect="7zip1701x64" />
     <opapp device="d004" enabled="false" name="Remote Desktop Connection Manager" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="rule002" />
   </opapps>
   <detectionrules comment="used for verifying app installs">
     <detectionrule name="rule001" app="Paint.Net 4.0.19 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F10AAD91-58DF-44EC-A647-810197141667}" value="" />
     <detectionrule name="rule002" app="RDC Manager 2.7" path="HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{0240359E-6A4C-4884-9E94-B397A02D893C}" value="" />
+    <detectionrule name="7zip1701x64" app="7-zip 1701 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{23170F69-40C1-2702-1701-000001000000}" value="" />
   </detectionrules>
   <permissions comment="configure security permissions on local resources">
     <permission device="d004" enabled="true" path="c:\program files\mozilla firefox" principals="users" rights="modify" />
