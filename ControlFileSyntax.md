@@ -1,4 +1,4 @@
-# FudgePop Control File Syntax 1.0.1
+# FudgePop Control File Syntax 1.0.4
 
 ## Overview
 
@@ -82,99 +82,99 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
 
 **Shortcut**
 
-* Description: Configure and Manage Shortcuts
-* Element: /configuration/shortcuts/shortcut
-* Required:
-  * device = "name" or "all"
-  * enabled = "true" or "false"
-  * name = "_name-of-shortcut_"
-  * type = "lnk" or "url"
-  * action = "create" or "delete"
-  * target = "_target-path-or-url_"
-  * path = "_where-to-create-the-shortcut_"
-* Optional:
-  * description = "_string_" (only applies to lnk shortcuts)
-  * windowstyle = "normal", "max" or "min"
-  * args = "_string_"
-  * workingpath = "_string-path_"
-* Notes:
-  * The path value can be an explicit path, an environment reference (e.g. $env:PUBLIC) or a SpecialFolders enum
-  * for a list of SpecialFolder enums, refer to [MSDN](https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx)
+  * Description: Configure and Manage Shortcuts
+  * Element: /configuration/shortcuts/shortcut
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * name = "_name-of-shortcut_"
+    * type = "lnk" or "url"
+    * action = "create" or "delete"
+    * target = "_target-path-or-url_"
+    * path = "_where-to-create-the-shortcut_"
+  * Optional:
+    * description = "_string_" (only applies to lnk shortcuts)
+    * windowstyle = "normal", "max" or "min"
+    * args = "_string_"
+    * workingpath = "_string-path_"
+  * Notes:
+    * The path value can be an explicit path, an environment reference (e.g. $env:PUBLIC) or a SpecialFolders enum
+    * for a list of SpecialFolder enums, refer to [MSDN](https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx)
   
 **Files**
 
- * Description: Configure and Manage Files
- * Element: /configuration/files/file
- * Required:
-   * device = "name" or "all"
-   * enabled = "true" or "false"
-   * action = "download","copy","move","rename","delete"
-   * source = "_path_"
-   * target = "_path_"
- * Optional: 
-   * (none)
+  * Description: Configure and Manage Files
+  * Element: /configuration/files/file
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * action = "download","copy","move","rename","delete"
+    * source = "_path_"
+    * target = "_path_"
+  * Optional: 
+    * (none)
 
 **Folders**
 
- * Description: Configure and Manage Folders
- * Element: /configuration/folders/folder
- * Required:
-   * device = "name" or "all"
-   * enabled = "true" or "false"
-   * action = "create","empty","rename","delete"
- * Optional: 
-   * (none)
+  * Description: Configure and Manage Folders
+  * Element: /configuration/folders/folder
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * action = "create","empty","rename","delete"
+  * Optional: 
+    * (none)
   
 **Services**
 
- * Description: Configure and Manage Windows Services
- * Element: /configuration/services/service
- * Required:
-   * device = "name" or "all"
-   * enabled = "true" or "false"
-   * action = "modify", "start", "stop" or "restart"
-   * name = "_name_"
- * Optional:
-   * config = "_parameters_" (example: "startup=automatic", "startup=disabled")
+  * Description: Configure and Manage Windows Services
+  * Element: /configuration/services/service
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * action = "modify", "start", "stop" or "restart"
+    * name = "_name_"
+  * Optional:
+    * config = "_parameters_" (example: "startup=automatic", "startup=disabled")
   
 **OPApps**
 
- * Description: Install or Remove apps using on-premises content sourcing
- * Element: /configuration/opapps/opapp
- * Required:
-   * device = "name" or "all"
-   * enabled = "true" or "false"
-   * when = "now", "daily" or date-time value
-   * run = "_path-and-filename_" (example: "\\fs1\apps\packages\app\setup.exe")
-   * platforms = "name,name,..." (example: "win10x64,win7x64,win7x86")
-   * detect = "_detection-rulename_"
- * Optional:
-   * params = "_parameters_" (example: "/S", "/qb! /norestart", etc.)
-   * restart = "true" or "false"
+  * Description: Install or Remove apps using on-premises content sourcing
+  * Element: /configuration/opapps/opapp
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * when = "now", "daily" or date-time value
+    * run = "_path-and-filename_" (example: "\\fs1\apps\packages\app\setup.exe")
+    * platforms = "name,name,..." (example: "win10x64,win7x64,win7x86")
+    * detect = "_detection-rulename_"
+  * Optional:
+    * params = "_parameters_" (example: "/S", "/qb! /norestart", etc.)
+    * restart = "true" or "false"
 
 **DetectionRules**
 
- * Description: Defines signatures for determining if OpApps are installed or not
- * Element: /configuration/detectionrules/detectionrule
- * Required:
-   * name = "_name_" (matches "detect" attribute for OpApp entry)
-   * app = "_caption_"
-   * path = "_path-to-folder-or-file-or-registry-key_"
- * Optional:
-   * value = "_data_"
+  * Description: Defines signatures for determining if OpApps are installed or not
+  * Element: /configuration/detectionrules/detectionrule
+  * Required:
+    * name = "_name_" (matches "detect" attribute for OpApp entry)
+    * app = "_caption_"
+    * path = "_path-to-folder-or-file-or-registry-key_"
+  * Optional:
+    * value = "_data_"
 
 **Permissions**
 
- * Description: Manage ACL permissions on files and folders
- * Element: /configuration/permissions/permission
- * Required:
-   * device = "name" or "all"
-   * enabled = "true" or "false"
-   * path = "_path-to-folder-or-file_"
-   * principals = "_user-or-group_"
-   * rights = "read","write","modify","delete","readexecute","full"
- * Optional: 
-   * (none)
+  * Description: Manage ACL permissions on files and folders
+  * Element: /configuration/permissions/permission
+  * Required:
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * path = "_path-to-folder-or-file_"
+    * principals = "_user-or-group_"
+    * rights = "read","write","modify","delete","readexecute","full"
+  * Optional: 
+    * (none)
    
 **Updates**
 
