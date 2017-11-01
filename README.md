@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.0
+# FudgePop (Module) 1.0.1
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
@@ -8,16 +8,18 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 * Start, Stop and Reconfigure Services
 * Add, Modify, Delete Shortcuts
 * Add, Modify Registry Keys and Values
-* Deploy on-prem software
+* Install or Remove Win32 Applications (on-prem sources or local)
 * Uninstall Local Apps (exe, msi)
 * Modify Folder and File Permissions
+* Force Windows Update Scan/Download/Install Cycle
 
 # Installation
 
   1. Use the Install-Module cmdlet to install FudgePop: **Install-Module FudgePop**
-  2. Manually verify configuration: execute the **Invoke-FudgePop** function (recommend -Verbose for first time use)
-  3. Configure the scheduled task using the **Set-FudgePopConfiguration** function
-  4. Confirm the scheduled task configuration and manually run the task to insure proper operation
+  2. Edit the source **control.xml** and place it somewhere accessible to the remote computers
+  3. Run **Configure-FudgePop** to configure the control XML location and scheduled task options.
+  4. Run **Invoke-FudgePop** to test on the first machine
+  5. Repeat steps 3 and 4 for other devices.
 
 # Management
 
@@ -29,27 +31,15 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
 ## Invoke-FudgePop
 
-* **ControlFile** _path-or-uri_
+* **TestMode**
 
-Path or URI to control XML file.  The default is https://raw.githubusercontent.com/Skatterbrainz/Chocolatey/master/FudgePop/control.xml
-For more information about the XML syntax, refer to [ControlFileSyntax](https://github.com/Skatterbrainz/Chocolatey/blob/master/FudgePop/ControlFileSyntax.md)
+  Switch. Invokes specialized -WhatIf processing.  Also supports -Verbose
 
-* **LogFile** _string_
-
-Optional path and filename for FudgePop client log. Default is $env:TEMP\fudgepop.log
-Note that $env:TEMP refers to the account which runs the script.  If script is set to run in a scheduled task
-under the local SYSTEM account, the temp will be related to that account.
-
-* **Payload** _string_
-
-Optional sub-group of XML control settings to apply.  The options are 'All','Installs','Removals',
-  'Folders','Files','Registry','Services',Shortcuts','OpApps','Permissions'.
-  The default is 'All'
-
-* **Configure**
-
-Switch. Invokes the scheduled task setup using default values.  To specify custom values, use the **Set-FudgePopConfiguration** function.
-
-## Set-FudgePopConfiguration
+## Configure-FudgePop
 
 Prompts for input to control FudgePop client settings.
+
+## Remove-FudgePop
+
+Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
+
