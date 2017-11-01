@@ -2,13 +2,14 @@
 .SYNOPSIS
 	Private functions for running FudgePop
 .NOTES
-	1.0.1 - 10/31/2017 - David Stein
+	1.0.3 - 10/31/2017 - David Stein
 #>
 
-$FPVersion   = "1.0.1"
-$FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
-$FPRunJob    = 'FudgePop Agent'
-$FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
+$Script:FPVersion   = "1.0.1"
+$Script:FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
+$Script:FPRunJob    = 'FudgePop Agent'
+$Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
+$Script:FPLogFile   = "c:\windows\temp\fudgepop.log"
 
 function Write-FPLog {
 	param (
@@ -20,7 +21,7 @@ function Write-FPLog {
 			[string] $Category = 'Info'
 	)
 	Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
-#	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $LogFile -Append -NoClobber -Encoding Default
+	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default
 }
 
 function Get-FPConfiguration {
