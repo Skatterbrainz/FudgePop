@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration version="1.0.1" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1710.44" />
+  <control enabled="true" exclude="" comment="kill switch" version="1710.45" />
   <priority order="files,folders,deployments,removals,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
@@ -12,7 +12,7 @@
   <removals comment="packages to remove">
     <removal device="all" user="all" enabled="false" when="now"></removal>
     <removal device="d004" user="Jane Doe" enabled="true" when="now">slack,vscode-powershell,vscode-icons,visualstudiocode</removal>
-    <removal device="d005" user="John Doe" enabled="false" when="now"></removal>
+    <removal device="nsa18" user="Skatterbrainz" enabled="true" when="now">firefox</removal>
   </removals>
   <folders comment="folders to create or manage">
     <folder device="all" enabled="false" action="create" path="c:\programdata\fudgepop" />
