@@ -13,6 +13,8 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 * Modify Folder and File Permissions
 * Force Windows Update Scan/Download/Install Cycle
 
+![FudgePop Logo](fudgepop.png)
+
 # Installation
 
   1. Use the Install-Module cmdlet to install FudgePop: **Install-Module FudgePop**
