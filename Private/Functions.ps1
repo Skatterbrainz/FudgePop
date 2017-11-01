@@ -2,65 +2,98 @@
 .SYNOPSIS
 	Private functions for running FudgePop
 .NOTES
-	1.0.0 - 10/30/2017 - David Stein
+	1.0.1 - 10/31/2017 - David Stein
 #>
 
-$FPRegPath  = "HKLM:\SOFTWARE\FudgePop"
-$FPLogFile  = "$($env:TEMP)\fudgepop.log"
+$FPVersion   = "1.0.1"
+$FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
+$FPRunJob    = 'FudgePop Agent'
+$FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
 
-<#
-.SYNOPSIS
-	Yet another custom log writing function, like all the others
-.PARAMETER Category
-	[string] [required] One of 'Info', 'Warning', or 'Error'
-.PARAMETER Message
-	[string] [required] Message text to enter into log file
-#>
-
-function Write-FudgePopLog {
+function Write-FPLog {
 	param (
 		[parameter(Mandatory=$True)]
-			[ValidateSet('Info','Warning','Error')]
-			[string] $Category,
-		[parameter(Mandatory=$True)]
 			[ValidateNotNullOrEmpty()]
-			[string] $Message
+			[string] $Message,
+		[parameter(Mandatory=$False)]
+			[ValidateSet('Info','Warning','Error')]
+			[string] $Category = 'Info'
 	)
 	Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
-	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | 
-		Out-File -FilePath $FPLogFile -Append -NoClobber -Encoding Default
+#	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $LogFile -Append -NoClobber -Encoding Default
 }
 
-<#
-.SYNOPSIS
-	Makes sure Chocolatey is installed and kept up to date
-#>
-
-function Assert-Chocolatey {
-	param ()
-	Write-FudgePopLog -Category "Info" -Message "verifying chocolatey installation"
-	if (-not(Test-Path "$($env:ProgramData)\chocolatey\choco.exe" )) {
+function Get-FPConfiguration {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$False)]
+			[ValidateNotNullOrEmpty()]
+			[string] $RegPath = $FPRegRoot,
+		[parameter(Mandatory=$True)]
+			[ValidateNotNullOrEmpty()]
+			[string] $Name,
+		[parameter(Mandatory=$False)]
+			[string] $Default = ""
+	)
+	if (Test-Path $RegPath) {
+		Write-Verbose "registry path confirmed: $RegPath ($Name)"
 		try {
-			Write-FudgePopLog -Category "Info" -Message "installing chocolatey"
-			iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+			$result = Get-ItemProperty -Path $RegPath -ErrorAction Stop |
+				Select-Object -ExpandProperty $Name -ErrorAction Stop
+			if ($result -eq $null -or $result -eq "") {
+				Write-Verbose "no data returned from query. using default: $Default"
+				$result = $Default
+			}
 		}
 		catch {
-			Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
-			break
+			Write-Verbose "error: returning $Default"
+			$result = $Default
 		}
 	}
 	else {
-		Write-FudgePopLog -Category "Info" -Message "checking for newer version of chocolatey"
-		choco upgrade chocolatey -y
+		Write-Verbose "registry path does not yet exist: $RegPath"
+		$result = $Default
 	}
+	Write-Output $result
 }
 
-<#
-.SYNOPSIS
-	Imports the XML data from the XML control file
-.PARAMETER FilePath
-	Path or URI to the control XML file
-#>
+function Set-FPConfiguration {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$False)]
+			[ValidateNotNullOrEmpty()]
+			[string] $RegPath = $FPRegRoot,
+		[parameter(Mandatory=$True)]
+			[ValidateNotNullOrEmpty()]
+			[string] $Name,
+		[parameter(Mandatory=$True)]
+			[ValidateNotNullOrEmpty()]
+			[string] $Data
+	)
+	if (!(Test-Path $RegPath)) {
+		try {
+			Write-Verbose "creating new registry key root"
+			New-Item -Path $RegPath -Force -ErrorAction Stop | Out-Null
+			$created = $True
+		}
+		catch {
+			Write-FPLog -Category 'Error' -Message $_.Exception.Message
+			break
+		}
+	}
+	if ($created) {
+		Set-ItemProperty -Path $RegPath -Name "ModuleVersion" -Value $FPVersion -ErrorAction Stop
+		Set-ItemProperty -Path $RegPath -Name "InitialSetup" -Value (Get-Date) -ErrorAction Stop
+	}
+	try {
+		Set-ItemProperty -Path $RegPath -Name $Name -Value $Data -ErrorAction Stop
+	}
+	catch {
+		Write-FPLog -Category 'Error' -Message $_.Exception.Message
+		break
+	}
+	Write-Output 0
+}
 
 function Get-FPControlData {
 	param (
@@ -68,16 +101,17 @@ function Get-FPControlData {
 		[ValidateNotNullOrEmpty()]
 		[string] $FilePath
 	)
-	Write-FudgePopLog -Category "Info" -Message "preparing to import control file: $FilePath"
+	Write-FPLog "preparing to import control file: $FilePath"
 	if ($FilePath.StartsWith("http")) {
 		try {
-			[xml]$result = Invoke-RestMethod -Uri $FilePath -UseBasicParsing
+			[xml]$result = Invoke-RestMethod -Uri "$FilePath" -UseBasicParsing
 		}
 		catch {
-			Write-FudgePopLog -Category "Error" -Message "failed to import data from Uri: $FilePath"
+			Write-FPLog -Category 'Error' -Message "failed to import data from Uri: $FilePath"
 			Write-Output -3
 			break;
 		}
+		Write-FPLog 'control data loaded successfully'
 	}
 	else {
 		if (Test-Path $FilePath) {
@@ -85,13 +119,13 @@ function Get-FPControlData {
 				[xml]$result = Get-Content -Path $FilePath
 			}
 			catch {
-				Write-FudgePopLog -Category "Error" -Message "unable to import control file: $FilePath"
+				Write-FPLog -Category 'Error' -Message "unable to import control file: $FilePath"
 				Write-Output -4
 				break;
 			}
 		}
 		else {
-			Write-FudgePopLog -Category "Error" -Message "unable to locate control file: $FilePath"
+			Write-FPLog -Category 'Error' -Message "unable to locate control file: $FilePath"
 			Write-Output -5
 			break;
 		}
@@ -99,355 +133,299 @@ function Get-FPControlData {
 	Write-Output $result
 }
 
-<#
-.SYNOPSIS
-	Execute CHOCOLATEY INSTALLATION AND UPGRADE directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
+function Get-FPFilteredSet {
+	param (
+		[parameter(Mandatory=$True)]
+		$XmlData
+	)
+	$XmlData | Where-Object {$_.enabled -eq 'true' -and ($_.device -eq $env:COMPUTERNAME -or $_.device -eq 'all')}
+}
 
-function Invoke-FPChocoInstalls {
-	[CmdletBinding()]
+function Get-FPServiceAvailable {
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- installaation assignments ---------"
-	if ($DataSet) {
-		$deviceName = $DataSet.device
-		$runtime    = $DataSet.when
-		$autoupdate = $DataSet.autoupdate
-		$username   = $DataSet.user
-		$extparams  = $DataSet.params
-		Write-FudgePopLog -Category "Info" -Message "assigned to device: $deviceName"
-		Write-FudgePopLog -Category "Info" -Message "assigned runtime: $runtime"
-		if ($runtime -eq 'now' -or (Get-Date).ToLocalTime() -ge $runtime) {
-			Write-FudgePopLog -Category "Info" -Message "run: runtime is now or already passed"
-			$pkglist = $DataSet.InnerText -split ','
-			foreach ($pkg in $pkglist) {
-				if ($extparams.length -gt 0) {
-					Write-FudgePopLog -Category "Info" -Message "package: $pkg (params: $extparams)"
-					if (-not $TestMode) {
-						choco upgrade $pkg $extparams
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE : choco upgrade $pkg $extparams"
-					}
-				}
-				else {
-					Write-FudgePopLog -Category "Info" -Message "package: $pkg"
-					if (-not $TestMode) {
-						choco upgrade $pkg -y
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE: choco upgrade $pkg -y"
-					}
-				}
-			} # foreach
+	if ($DataSet.configuration.control.enabled -eq 'true') {
+		if (($DataSet.configuration.control.exclude -split ',') -contains $MyPC) {
+			Write-FPLog 'FudgePop services are enabled, but this device is excluded'
+			break
 		}
 		else {
-			Write-FudgePopLog -Category "Info" -Message "skip: not yet time to run this assignment"
+			Write-FPLog 'FudgePop services are enabled for all devices'
+			Write-Output $True
 		}
 	}
 	else {
-		Write-FudgePopLog -Category "Info" -Message "NO installations have been assigned to this computer"
+		Write-FPLog 'FudgePop services are currently disabled for all devices'
 	}
 }
 
-<#
-.SYNOPSIS
-	Execute CHOCOLATEY REMOVALS directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPChocoRemovals {
-	[CmdletBinding()]
+function Test-FPDetectionRule {
 	param (
 		[parameter(Mandatory=$True)]
-		$DataSet
+			$DataSet,
+		[parameter(Mandatory=$True)]
+			[ValidateNotNullOrEmpty()]
+			[string] $RuleName
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- removal assignments ---------"
-	if ($DataSet) {
-		$deviceName = $DataSet.device
-		$runtime    = $DataSet.when
-		$username   = $DataSet.user
-		$extparams  = $DataSet.params
-		Write-FudgePopLog -Category "Info" -Message "assigned to device: $deviceName"
-		Write-FudgePopLog -Category "Info" -Message "assigned runtime: $runtime"
-		if ($runtime -eq 'now' -or (Get-Date).ToLocalTime() -ge $runtime) {
-			Write-FudgePopLog -Category "Info" -Message "run: runtime is now or already passed"
-			$pkglist = $DataSet.InnerText -split ','
-			foreach ($pkg in $pkglist) {
-				if ($extparams.length -gt 0) {
-					Write-FudgePopLog -Category "Info" -Message "package: $pkg (params: $extparams)"
-					if (-not $TestMode) {
-						choco uninstall $pkg $extparams
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE : choco uninstall $pkg $extparams"
-					}
+	Write-FPLog "detection rule: $RuleName"
+	try {
+		$detectionRule = $DataSet.configuration.detectionrules.detectionrule | Where-Object {$_.name -eq $RuleName}
+		$rulePath = $detectionRule.path
+		Write-FPLog "detection test: $rulePath"
+		Write-Output (Test-Path $rulePath)
+	}
+	catch {}
+}
+
+function Test-FPControlRuntime {
+	param (
+		[parameter(Mandatory=$True)]
+			[ValidateNotNullOrEmpty()]
+			[string] $RunTime,
+		[parameter(Mandatory=$False)]
+			[string] $Key = ""
+	)
+	switch ($RunTime) {
+		'now' { Write-Output $True; break }
+		'daily' {
+			$lastrun = Get-FPConfiguration -Name "$Key" -Default ""
+			if ($lastrun -ne "") {
+				$prevDate = $(Get-Date($lastrun)).ToShortDateString()
+				Write-FPLog "previous run: $prevDate"
+				if ($prevDate -ne (Get-Date).ToShortDateString()) {
+					Write-FPLog "$prevDate is not today: $((Get-Date).ToShortDateString())"
+					Write-Output $True
 				}
-				else {
-					Write-FudgePopLog -Category "Info" -Message "package: $pkg"
-					if (-not $TestMode) {
-						choco uninstall $pkg -y -r
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE : choco uninstall $pkg -y -r"
-					}
-				}
-			} # foreach
+			}
+			else {
+				Write-FPLog "no previous run"
+				Write-Output $True
+			}
+			break
 		}
-		else {
-			Write-FudgePopLog -Category "Info" -Message "skip: not yet time to run this assignment"
+		default {
+			Write-FPLog "checking explicit runtime"
+			if ((Get-Date).ToLocalTime() -ge $RunTime) {
+				Write-Output $True
+			}
+		}
+	} # switch
+}
+
+function Assert-Chocolatey {
+	param ()
+	Write-FPLog "verifying chocolatey installation"
+	if (-not(Test-Path "$($env:ProgramData)\chocolatey\choco.exe" )) {
+		try {
+			Write-FPLog "installing chocolatey"
+			iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+		}
+		catch {
+			Write-FPLog -Category "Error" -Message $_.Exception.Message
+			break
 		}
 	}
 	else {
-		Write-FudgePopLog -Category "Info" -Message "NO removals have been assigned to this computer"
+		Write-FPLog "checking for newer version of chocolatey"
+		choco upgrade chocolatey -y
 	}
 }
 
-<#
-.SYNOPSIS
-	Execute REGISTRY directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
+function Set-FPScheduledTask {
+	param (
+		$Hours,
+		$TaskName = $FPRunJob
+	)
+	$filepath = "$(Split-Path((Get-Module FudgePop).Path))\Public\Invoke-FudgePop.ps1"
+	if (Test-Path $filepath) {
+		$action = 'powershell.exe -ExecutionPolicy ByPass -NoProfile -File '+$filepath
+		Write-FPLog "action = $action"
+		#SCHTASKS /Create /RU 'SYSTEM' /SC Hourly /MO $Hours /RL 'HIGHEST' /TN "$TaskName" /F
+		try {
+			Write-Output Get-ScheduledTask -TaskName $FPRunJob -ErrorAction Stop
+		}
+		catch {
+			Write-FPLog -Category 'Error' -Message $_.Exception.Message
+		}
+	}
+	else {
+		Write-FPLog -Category 'Error' -Message "FudgePop script file not found: $filepath"
+	}
+}
 
-function Invoke-FPRegistry {
-	[CmdletBinding()]
+function Set-FPControlFiles {
+	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- registry assignments ---------"
-	if ($DataSet) {
-		Write-FudgePopLog -Category "Info" -Message "registry changes have been assigned to this computer"
-		Write-FudgePopLog -Category "Info" -Message "assigned device: $devicename"
-		foreach ($reg in $DataSet) {
-			$regpath    = $reg.path
-			$regval     = $reg.value
-			$regdata    = $reg.data
-			$regtype    = $reg.type
-			$deviceName = $reg.device
-			$regAction  = $reg.action
-			Write-FudgePopLog -Category "Info" -Message "assigned to device: $deviceName"
-			Write-FudgePopLog -Category "Info" -Message "keypath: $regpath"
-			Write-FudgePopLog -Category "Info" -Message "action: $regAction"
-			switch ($regAction) {
-				'create' {
-					if ($regdata -eq '$controlversion') { $regdata = $controlversion }
-					if ($regdata -eq '$(Get-Date)') { $regdata = Get-Date }
-					Write-FudgePopLog -Category "Info" -Message "value: $regval"
-					Write-FudgePopLog -Category "Info" -Message "data: $regdata"
-					Write-FudgePopLog -Category "Info" -Message "type: $regtype"
-					if (-not(Test-Path $regpath)) {
-						Write-FudgePopLog -Category "Info" -Message "key not found, creating registry key"
-						if (-not $TestMode) {
-							New-Item -Path $regpath -Force | Out-Null
-							Write-FudgePopLog -Category "Info" -Message "updating value assignment to $regdata"
-							New-ItemProperty -Path $regpath -Name $regval -Value "$regdata" -PropertyType $regtype -Force | Out-Null
+	Write-FPLog "--------- file assignments: begin ---------"
+	foreach ($file in $DataSet) {
+		$fileDevice = $file.device
+		$fileSource = $file.source
+		$fileTarget = $file.target
+		$action     = $file.action
+		Write-FPLog  "device name.......: $fileDevice"
+		Write-FPLog  "action............: $action"
+		Write-FPLog  "source............: $fileSource"
+		Write-FPLog  "target............: $fileTarget"
+		if ($TestMode) {
+			Write-FPLog  "TEST MODE: no changes will be applied"
+		}
+		else {
+			switch ($action) {
+				'download' {
+					Write-FPLog "downloading file"
+					if ($fileSource.StartsWith('http') -or $fileSource.StartsWith('ftp')) {
+						try {
+							$WebClient = New-Object System.Net.WebClient
+							$WebClient.DownloadFile($fileSource, $fileTarget) | Out-Null
+							if (Test-Path $fileTarget) {
+								Write-FPLog "file downloaded successfully"
+							}
+							else {
+								Write-FPLog -Category "Error" -Message "failed to download file!"
+							}
 						}
-						else {
-							Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+						catch {
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "key already exists"
-						if (-not $TestMode) {
-							try {
-								$cv = Get-ItemProperty -Path $regpath -Name $regval -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regval
+						try {
+							Copy-Item -Source $fileSource -Destination $fileTarget -Force | Out-Null
+							if (Test-Path $fileTarget) {
+								Write-FPLog "file downloaded successfully"
 							}
-							catch {
-								Write-FudgePopLog -Category "Info" -Message "$regval not found"
-								$cv = ""
+							else {
+								Write-FPLog -Category "Error" -Message "failed to download file!"
 							}
-							Write-FudgePopLog -Category "Info" -Message "current value of $regval is $cv"
-							if ($cv -ne $regdata) {
-								Write-FudgePopLog -Category "Info" -Message "updating value assignment to $regdata"
-								New-ItemProperty -Path $regpath -Name $regval -Value "$regdata" -PropertyType $regtype -Force | Out-Null
-							}
+						}
+						catch {
+							Write-FPLog -Category "Error" -Message "failed to download file!"
+						}
+					}
+					break
+				}
+				'rename' {
+					Write-FPLog "renaming file"
+					if (Test-Path $fileSource) {
+						Rename-Item -Path $fileSource -NewName $fileTarget -Force | Out-Null
+						if (Test-Path $fileTarget) {
+							Write-FPLog "file renamed successfully"
 						}
 						else {
-							Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+							Write-FPLog -Category "Error" -Message "failed to rename file!"
 						}
+					}
+					else {
+						Write-FPLog -Category "Warning" -Message "source file not found: $fileSource"
+					}
+					break
+				}
+				'move' {
+					Write-FPLog "moving file"
+					if (Test-Path $fileSource) {
+						Move-Item -Path $fileSource -Destination $fileTarget -Force | Out-Null
+						if (Test-Path $fileTarget) {
+							Write-FPLog  "file moved successfully"
+						}
+						else {
+							Write-FPLog -Category "Error" -Message "failed to move file!"
+						}
+					}
+					else {
+						Write-FPLog -Category "Warning" -Message "source file not found: $fileSource"
 					}
 					break
 				}
 				'delete' {
-					if (Test-Path $regPath) {
-						if (-not $TestMode) {
-							try {
-								Remove-Item -Path $regPath -Recurse -Force | Out-Null
-								Write-FudgePopLog -Category "Info" -Message "registry key deleted"
+					Write-FPLog "deleting file"
+					if (Test-Path $fileSource) {
+						try {
+							Remove-Item -Path $fileSource -Force | Out-Null
+							if (-not(Test-Path $fileSource)) {
+								Write-FPLog  "file deleted successfully"
 							}
-							catch {
-								Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
+							else {
+								Write-FPLog -Category "Error" -Message "failed to delete file!"
 							}
 						}
-						else {
-							Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+						catch {
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "registry key not found: $regPath"
+						Write-FPLog "source file not found: $fileSource"
 					}
 					break
 				}
 			} # switch
-		} # foreach
-	}
-	else {
-		Write-FudgePopLog -Category "Info" -Message "NO registry changes have been assigned to this computer"
-	}
-}
-
-<#
-.SYNOPSIS
-	Execute SERVICES directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPServices {
-	[CmdletBinding()]
-	param (
-		[parameter(Mandatory=$True)]
-		$DataSet
-	)
-	Write-FudgePopLog -Category "Info" -Message "--------- services assignments ---------"
-	foreach ($service in $DataSet) {
-		$svcName    = $service.name
-		$svcStart   = $service.startup
-		$svcAction  = $service.action
-		$deviceName = $service.device
-		Write-FudgePopLog -Category "Info" -Message "assigned to device: $deviceName"
-		Write-FudgePopLog -Category "Info" -Message "service name: $svcName"
-		Write-FudgePopLog -Category "Info" -Message "startup should be: $svcStart"
-		Write-FudgePopLog -Category "Info" -Message "requested action: $svcAction"
-		try {
-			$scfg = Get-Service -Name $svcName
-			$sst  = $scfg.StartType
-			if ($svcStart -ne "" -and $scfg.StartType -ne $svcStart) {
-				Write-FudgePopLog -Category "Info" -Message "current startup type is: $sst"
-				Write-FudgePopLog -Category "Info" -Message "setting service startup to: $svcStart"
-				if (-not $TestMode) {
-					Set-Service -Name $svcName -StartupType $svcStart | Out-Null
-				}
-				else {
-					Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-				}
-			}
-			switch ($svcAction) {
-				'start' {
-					if ($scfg.Status -ne 'Running') {
-						Write-FudgePopLog -Category "Info" -Message "starting service..."
-						if (-not $TestMode) {
-							Start-Service -Name $svcName | Out-Null
-						}
-						else {
-							Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-						}
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "service is already running"
-					}
-					break
-				}
-				'restart' {
-					Write-FudgePopLog -Category "Info" -Message "restarting service..."
-					if (-not $TestMode) {
-						Restart-Service -Name $svcName -ErrorAction SilentlyContinue
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-					}
-					break
-				}
-				'stop' {
-					Write-FudgePopLog -Category "Info" -Message "stopping service..."
-					if (-not $TestMode) {
-						Stop-Service -Name $svcName -Force -NoWait -ErrorAction SilentlyContinue
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-					}
-					break
-				}
-			} # switch
-		}
-		catch {
-			Write-FudgePopLog -Category "Error" -Message "service not found: $svcName"
 		}
 	} # foreach
+	Write-FPLog "--------- file assignments: finish ---------"
 }
 
-<#
-.SYNOPSIS
-	Execute FOLDERS directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPFolders {
-	[CmdletBinding()]
+function Set-FPControlFolders {
+	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- folder assignments ---------"
+	Write-FPLog -Category "Info" -Message "--------- folder assignments: begin ---------"
 	foreach ($folder in $DataSet) {
 		$folderPath  = $folder.path
 		$deviceName  = $folder.device
 		$action = $folder.action
-		Write-FudgePopLog -Category "Info" -Message "assigned to device: $deviceName"
-		Write-FudgePopLog -Category "Info" -Message "folder action assigned: $action"
+		Write-FPLog -Category "Info" -Message "assigned to device: $deviceName"
+		Write-FPLog -Category "Info" -Message "folder action assigned: $action"
 		switch ($action) {
 			'create' {
-				Write-FudgePopLog -Category "Info" -Message "folder path: $folderPath"
+				Write-FPLog -Category "Info" -Message "folder path: $folderPath"
 				if (-not(Test-Path $folderPath)) {
-					Write-FudgePopLog -Category "Info" -Message "creating new folder"
+					Write-FPLog -Category "Info" -Message "creating new folder"
 					if (-not $TestMode) {
 						mkdir -Path $folderPath -Force | Out-Null
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+						Write-FPLog -Category "Info" -Message "TEST MODE: no changes are being applied"
 					}
 				}
 				else {
-					Write-FudgePopLog -Category "Info" -Message "folder already exists"
+					Write-FPLog -Category "Info" -Message "folder already exists"
 				}
 				break
 			}
 			'empty' {
 				$filter = $folder.filter
 				if ($filter -eq "") { $filter = "*.*" }
-				Write-FudgePopLog -Category "Info" -Message "deleting $filter from $folderPath and subfolders"
+				Write-FPLog -Category "Info" -Message "deleting $filter from $folderPath and subfolders"
 				if (-not $TestMode) {
 					Get-ChildItem -Path "$folderPath" -Filter "$filter" -Recurse |
 						foreach { Remove-Item -Path $_.FullName -Confirm:$False -Recurse -ErrorAction SilentlyContinue }
-					Write-FudgePopLog -Category "Info" -Message "some files may remain if they were in use"
+					Write-FPLog -Category "Info" -Message "some files may remain if they were in use"
 				}
 				else {
-					Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+					Write-FPLog -Category "Info" -Message "TEST MODE: no changes are being applied"
 				}
 				break
 			}
 			'delete' {
 				if (Test-Path $folderPath) {
-					Write-FudgePopLog -Category "Info" -Message "deleting $folderPath and subfolders"
+					Write-FPLog -Category "Info" -Message "deleting $folderPath and subfolders"
 					if (-not $TestMode) {
 						try {
 							Remove-Item -Path $folderPath -Recurse -Force | Out-Null
-							Write-FudgePopLog -Category "Info" -Message "folder may remain if files are still in use"
+							Write-FPLog -Category "Info" -Message "folder may remain if files are still in use"
 						}
 						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "TEST MODE"
+						Write-FPLog -Category "Info" -Message "TEST MODE: no changes are being applied"
 					}
 				}
 				else {
@@ -456,138 +434,105 @@ function Invoke-FPFolders {
 			}
 		} # switch
 	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- folder assignments: finish ---------"
 }
 
-<#
-.SYNOPSIS
-	Execute FILES directives from XML control file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPFiles {
-	[CmdletBinding(SupportsShouldProcess=$True)]
+function Set-FPControlServices {
+	[CmdletBinding()]
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- file assignments ---------"
-	foreach ($file in $DataSet) {
-		$fileSource = $file.source
-		$fileTarget = $file.target
-		$action     = $file.action
-		Write-FudgePopLog -Category "Info" -Message "file action assigned: $action"
-		Write-FudgePopLog -Category "Info" -Message "source: $fileSource"
-		Write-FudgePopLog -Category "Info" -Message "target: $fileTarget"
-		if ($TestMode) {
-			Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-		}
-		else {
-			switch ($action) {
-				'download' {
-					Write-FudgePopLog -Category "Info" -Message "downloading file"
-					if ($fileSource.StartsWith('http') -or $fileSource.StartsWith('ftp')) {
-						try {
-							$WebClient = New-Object System.Net.WebClient
-							$WebClient.DownloadFile($fileSource, $fileTarget) | Out-Null
-							if (Test-Path $fileTarget) {
-								Write-FudgePopLog -Category "Info" -Message "file downloaded successfully"
+	Write-FPLog -Category "Info" -Message "--------- services assignments: begin ---------"
+	foreach ($service in $DataSet) {
+		$svcName    = $service.name
+		$svcConfig  = $service.config
+		$svcAction  = $service.action
+		$deviceName = $service.device
+		Write-FPLog -Category "Info" -Message "device name.....: $deviceName"
+		Write-FPLog -Category "Info" -Message "service name....: $svcName"
+		Write-FPLog -Category "Info" -Message "action..........: $svcAction"
+		Write-FPLog -Category "Info" -Message "config type.....: $svcConfig"
+		try {
+			$scfg = Get-Service -Name $svcName
+			switch ($svcAction) {
+				'modify' {
+					$sst  = $scfg.StartType
+					if ($svcConfig -ne "") {
+						$cfgList = $svcConfig -split ('=')
+						$cfgName = $cfgList[0]
+						$cfgData = $cfgList[1]
+						switch ($cfgName) {
+							'startup' {
+								if ($cfgData -ne "" -and $scfg.StartType -ne $cfgData) {
+									Write-FPLog -Category "Info" -Message "current startup type is: $sst"
+									Write-FPLog -Category "Info" -Message "setting service startup to: $cfgData"
+									if (-not $TestMode) {
+										Set-Service -Name $svcName -StartupType $cfgData | Out-Null
+									}
+									else {
+										Write-FPLog -Category "Info" -Message "TEST MODE: $cfgName -> $cfgData"
+									}
+								}
+								break
 							}
-							else {
-								Write-FudgePopLog -Category "Error" -Message "failed to download file!"
-							}
-						}
-						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
-						}
+						} # switch
 					}
 					else {
-						try {
-							Copy-Item -Source $fileSource -Destination $fileTarget -Force | Out-Null
-							if (Test-Path $fileTarget) {
-								Write-FudgePopLog -Category "Info" -Message "file downloaded successfully"
-							}
-							else {
-								Write-FudgePopLog -Category "Error" -Message "failed to download file!"
-							}
-						}
-						catch {
-							Write-FudgePopLog -Category "Error" -Message "failed to download file!"
-						}
+						Write-FPLog -Category 'Error' -Message 'configuration properties have not been specified'
 					}
 					break
 				}
-				'rename' {
-					Write-FudgePopLog -Category "Info" -Message "renaming file"
-					if (Test-Path $fileSource) {
-						Rename-Item -Path $fileSource -NewName $fileTarget -Force | Out-Null
-						if (Test-Path $fileTarget) {
-							Write-FudgePopLog -Category "Info" -Message "file renamed successfully"
+				'start' {
+					if ($scfg.Status -ne 'Running') {
+						Write-FPLog -Category "Info" -Message "starting service..."
+						if (-not $TestMode) {
+							Start-Service -Name $svcName | Out-Null
 						}
 						else {
-							Write-FudgePopLog -Category "Error" -Message "failed to rename file!"
+							Write-FPLog -Category "Info" -Message "TEST MODE"
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Warning" -Message "source file not found: $fileSource"
+						Write-FPLog -Category "Info" -Message "service is already running"
 					}
 					break
 				}
-				'move' {
-					Write-FudgePopLog -Category "Info" -Message "moving file"
-					if (Test-Path $fileSource) {
-						Move-Item -Path $fileSource -Destination $fileTarget -Force | Out-Null
-						if (Test-Path $fileTarget) {
-							Write-FudgePopLog -Category "Info" -Message "file moved successfully"
-						}
-						else {
-							Write-FudgePopLog -Category "Error" -Message "failed to move file!"
-						}
+				'restart' {
+					Write-FPLog -Category "Info" -Message "restarting service..."
+					if (-not $TestMode) {
+						Restart-Service -Name $svcName -ErrorAction SilentlyContinue
 					}
 					else {
-						Write-FudgePopLog -Category "Warning" -Message "source file not found: $fileSource"
+						Write-FPLog -Category "Info" -Message "TEST MODE"
 					}
 					break
 				}
-				'delete' {
-					Write-FudgePopLog -Category "Info" -Message "deleting file"
-					if (Test-Path $fileSource) {
-						try {
-							Remove-Item -Path $fileSource -Force | Out-Null
-							if (-not(Test-Path $fileSource)) {
-								Write-FudgePopLog -Category "Info" -Message "file deleted successfully"
-							}
-							else {
-								Write-FudgePopLog -Category "Error" -Message "failed to delete file!"
-							}
-						}
-						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
-						}
+				'stop' {
+					Write-FPLog -Category "Info" -Message "stopping service..."
+					if (-not $TestMode) {
+						Stop-Service -Name $svcName -Force -NoWait -ErrorAction SilentlyContinue
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "source file not found: $fileSource"
+						Write-FPLog -Category "Info" -Message "TEST MODE"
 					}
 					break
 				}
 			} # switch
 		}
+		catch {
+			Write-FPLog -Category "Error" -Message "service not found: $svcName"
+		}
 	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- services assignments: finish ---------"
 }
 
-<#
-.SYNOPSIS
-	
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPShortcuts {
+function Set-FPControlShortcuts {
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- shortcut assignments ---------"
+	Write-FPLog "--------- shortcut assignments: begin ---------"
 	foreach ($sc in $DataSet) {
 		$scDevice   = $sc.device
 		$scName     = $sc.name
@@ -612,7 +557,7 @@ function Invoke-FPShortcuts {
 			$scRealPath = $null
 		}
 		if ($scRealPath) {
-			Write-FudgePopLog -Category "Info" -Message "shortcut action: $scAction"
+			Write-FPLog "shortcut action: $scAction"
 			switch ($scAction) {
 				'create' {
 					if ($scWindow.length -gt 0) {
@@ -625,18 +570,18 @@ function Invoke-FPShortcuts {
 					else {
 						$scWin = 1
 					}
-					Write-FudgePopLog -Category "Info" -Message "shortcut name....: $scName"
-					Write-FudgePopLog -Category "Info" -Message "shortcut path....: $scPath"
-					Write-FudgePopLog -Category "Info" -Message "shortcut target..: $scTarget"
-					Write-FudgePopLog -Category "Info" -Message "shortcut descrip.: $scDesc"
-					Write-FudgePopLog -Category "Info" -Message "shortcut args....: $scArgs"
-					Write-FudgePopLog -Category "Info" -Message "shortcut workpath: $scWorkPath"
-					Write-FudgePopLog -Category "Info" -Message "shortcut window..: $scWindow"
-					Write-FudgePopLog -Category "Info" -Message "device name......: $scDevice"
+					Write-FPLog "shortcut name....: $scName"
+					Write-FPLog "shortcut path....: $scPath"
+					Write-FPLog "shortcut target..: $scTarget"
+					Write-FPLog "shortcut descrip.: $scDesc"
+					Write-FPLog "shortcut args....: $scArgs"
+					Write-FPLog "shortcut workpath: $scWorkPath"
+					Write-FPLog "shortcut window..: $scWindow"
+					Write-FPLog "device name......: $scDevice"
 					$scFullName = "$scRealPath\$scName.$scType"
-					Write-FudgePopLog -Category "Info" -Message "full linkpath: $scFullName"
+					Write-FPLog "full linkpath: $scFullName"
 					if ($scForce -eq 'true' -or (-not(Test-Path $scFullName))) {
-						Write-FudgePopLog -Category "Info" -Message "creating new shortcut"
+						Write-FPLog "creating new shortcut"
 						try {
 							if (-not $TestMode) {
 								$wShell = New-Object -ComObject WScript.Shell
@@ -653,156 +598,58 @@ function Invoke-FPShortcuts {
 								$shortcut.Save()
 							}
 							else {
-								Write-FudgePopLog -Category "Info" -Message "TEST MODE: $scFullName"
+								Write-FPLog "TEST MODE: $scFullName"
 							}
 						}
 						catch {
-							Write-FudgePopLog -Category "Error" -Message "failed to create shortcut: $($_.Exception.Message)"
+							Write-FPLog -Category "Error" -Message "failed to create shortcut: $($_.Exception.Message)"
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "shortcut already created - no updates"
+						Write-FPLog "shortcut already created - no updates"
 					}
 					break
 				}
 				'delete' {
-					Write-FudgePopLog -Category "Info" -Message "shortcut name....: $scName"
-					Write-FudgePopLog -Category "Info" -Message "shortcut path....: $scPath"
-					Write-FudgePopLog -Category "Info" -Message "device name......: $scDevice"
 					$scFullName = "$scRealPath\$scName.$scType"
-					Write-FudgePopLog -Category "Info" -Message "full linkpath: $scFullName"
+					Write-FPLog "shortcut name....: $scName"
+					Write-FPLog "shortcut path....: $scPath"
+					Write-FPLog "device name......: $scDevice"
+					Write-FPLog "full linkpath....: $scFullName"
 					if (Test-Path $scFullName) {
-						Write-FudgePopLog -Category "Info" -Message "creating new shortcut"
+						Write-FPLog "deleting shortcut"
 						try {
 							if (-not $TestMode) {
 								Remove-Item -Path $scFullName -Force | Out-Null
 							}
 							else {
-								Write-FudgePopLog -Category "Info" -Message "TEST MODE: $scFullName"
+								Write-FPLog "TEST MODE: $scFullName"
 							}
 						}
 						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
+							Write-FPLog -Category 'Error' -Message $_.Exception.Message
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "Info" -Message "shortcut not found: $scFullName"
+						Write-FPLog "shortcut not found: $scFullName"
 					}
 					break
 				}
 			} # switch
 		}
 		else {
-			Write-FudgePopLog -Category "Error" -Message "failed to convert path key"
+			Write-FPLog -Category "Error" -Message "failed to convert path key"
 		}
 	} # foreach
+	Write-FPLog "--------- shortcut assignments: finish ---------"
 }
 
-<#
-.SYNOPSIS
-	
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPOPApps {
+function Set-FPControlPermissions {
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	Write-FudgePopLog -Category "Info" -Message "--------- on-prem app assignments ---------"
-	foreach ($app in $DataSet) {
-		$appName   = $app.name
-		$action    = $app.action
-		$appPlat   = $app.platforms
-		$appRun    = $app.run
-		$appParams = $app.params
-		Write-FudgePopLog -Category "Info" -Message "appname: $appName"
-		Write-FudgePopLog -Category "Info" -Message "app run: $appRun"
-		Write-FudgePopLog -Category "Info" -Message "action: $action"
-		switch ($action) {
-			'install' {
-				if (-not $TestMode) {
-					if ($appRun.EndsWith('.msi')) {
-						$proc = "msiexec.exe"
-						$args = "/i `"$appRun`" /q"
-						if ($appParams -ne "") {
-							$args += " $appParams"
-						}
-					}
-					elseif ($appRun.EndsWith('.exe')) {
-						$proc = $appRun
-						$args = $appParams
-					}
-					else {
-						Write-FudgePopLog -Category "Error" -Message "invalid file type"
-						break
-					}
-					Write-FudgePopLog -Category "Info" -Message "run-process: $proc"
-					Write-FudgePopLog -Category "Info" -Message "run-params: $args"
-					Write-FudgePopLog -Category "Info" -Message "contacting source to verify availability..."
-					if (Test-Path $appRun) {
-						try {
-							$p = Start-Process -FilePath $proc -ArgumentList $args -NoNewWindow -Wait -PassThru
-							if ((0,3010) -contains $p.ExitCode) {
-								Write-FudgePopLog -Category "Info" -Message "installation successful!"
-							}
-							else {
-								Write-FudgePopLog -Category "Error" -Message "installation failed with $($p.ExitCode)"
-							}
-						}
-						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
-						}
-					}
-					else {
-						Write-FudgePopLog -Category "Info" -Message "installer file is not accessible (skipping)"
-					}
-				}
-				else {
-					Write-FudgePopLog -Category "Info" -Message "TEST MODE"
-				}
-				break
-			}
-			'uninstall' {
-				$detect = $app.detect
-				$rule = ($controldata.configuration.detectionrules.detectionrule | Where-Object {$_.name -eq $detect}).path
-				Write-FudgePopLog -Category "Info" -Message "detection rule name: $detect"
-				Write-FudgePopLog -Category "Info" -Message "detection rule: $rule"
-				if (Test-Path $rule) {
-					Write-FudgePopLog -Category "Info" -Message "ruletest = TRUE"
-					if ($appRun.StartsWith('msiexec /x')) {
-						$proc = "msiexec"
-						$args = ($appRun -replace ("msiexec","")).trim()
-						try {
-							$p = Start-Process -FilePath $proc -ArgumentList $args -NoNewWindow -Wait -PassThru
-							if ((0,3010,1605) -contains $p.ExitCode) {
-								Write-FudgePopLog -Category "Info" -Message "uninstall was successful!"
-							}
-							else {
-								Write-FudgePopLog -Category "Error" -Message "uninstall failed with $($p.ExitCode)"
-							}
-						}
-						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
-						}
-					}
-				}
-				else {
-					Write-FudgePopLog -Category "Info" -Message "ruletest = FALSE"
-				}
-				break
-			}
-		} # switch
-	} # foreach
-}
-
-function Invoke-FPPermissions {
-	param (
-		[parameter(Mandatory=$True)]
-		$DataSet
-	)
-	Write-FudgePopLog -Category "Info" -Message "--------- permissions assignments ---------"
+	Write-FPLog "--------- permissions assignments: begin ---------"
 	foreach ($priv in $DataSet) {
 		$device     = $priv.device
 		$privPath   = $priv.path
@@ -814,146 +661,456 @@ function Invoke-FPPermissions {
 		else {
 			$privType = 'filesystem'
 		}
-		Write-FudgePopLog -Category "Info" -Message "device: $device"
-		Write-FudgePopLog -Category "Info" -Message "priv path: $privPath"
-		Write-FudgePopLog -Category "Info" -Message "priv principals: $privPrinc"
-		Write-FudgePopLog -Category "Info" -Message "priv rights: $privRights"
+		Write-FPLog "device: $device"
+		Write-FPLog "priv path: $privPath"
+		Write-FPLog "priv principals: $privPrinc"
+		Write-FPLog "priv rights: $privRights"
 		if (Test-Path $privPath) {
 			switch ($privType) {
 				'filesystem' {
 					switch ($privRights) {
-						'full' {
-							$pset = '(OI)(CI)(F)'
-							break
-						}
-						'modify' {
-							$pset = '(OI)(CI)(M)'
-							break
-						}
-						'read' {
-							$pset = '(OI)(CI)(R)'
-							break
-						}
-						'write' {
-							$pset = '(OI)(CI)(W)'
-							break 
-						}
-						'delete' {
-							$pset = '(OI)(CI)(D)'
-							break
-						}
-						'readexecute' {
-							$pset = '(OI)(CI)(RX)'
-							break
-						}
+						'full'   {$pset = '(OI)(CI)(F)'; break}
+						'modify' {$pset = '(OI)(CI)(M)'; break}
+						'read'   {$pset = '(OI)(CI)(R)'; break}
+						'write'  {$pset = '(OI)(CI)(W)'; break}
+						'delete' {$pset = '(OI)(CI)(D)'; break}
+						'readexecute' {$pset = '(OI)(CI)(RX)'; break}
 					} # switch
-					Write-FudgePopLog -Category "Info" -Message "permission set: $pset"
+					Write-FPLog "permission set: $pset"
 					if (-not $TestMode) {
+						Write-FPlog "command: icacls `"$privPath`" /grant `"$privPrinc`:$pset`" /T /C /Q"
 						try {
 							icacls "$privPath" /grant "$privPrinc`:$pset" /T /C /Q
 						}
 						catch {
-							Write-FudgePopLog -Category "Error" -Message $_.Exception.Message
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
 						}
 					}
 					else {
-						Write-FudgePopLog -Category "TESTMODE" -Message "icacls `"$privPath`" /grant `"$privPrinc`:$pset`" /T /C /Q"
+						Write-FPLog "TESTMODE: icacls `"$privPath`" /grant `"$privPrinc`:$pset`" /T /C /Q"
 					}
 					break
 				}
 				'registry' {
+					Write-FPLog "registry permissions feature is not yet fully baked"
 					break
 				}
 			} # switch
 		}
 		else {
-			Write-FudgePopLog -Category "Error" -Message ""
+			Write-FPLog -Category "Error" -Message ""
 		}
 	} # switch
+	Write-FPLog "--------- permissions assignments: finish ---------"
 }
 
-<#
-.SYNOPSIS
-	Actually initiates all the crap being shoved in its face from the XML file
-.PARAMETER DataSet
-	XML data set fed from the XML control file
-#>
-
-function Invoke-FPTasks {
+function Set-FPControlPackages {
+	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
 		[parameter(Mandatory=$True)]
 		$DataSet
 	)
-	$mypc = $env:COMPUTERNAME
-	if ($PayLoad -eq 'Configure') {
-		if (Set-FPConfiguration) {
-			Write-Host "configuration has been updated"
-		}
-	}
-	else {
-		$files    = $DataSet.configuration.files.file | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$installs = $DataSet.configuration.deployments.deployment | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$removals = $DataSet.configuration.removals.removal | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$regkeys  = $DataSet.configuration.registry.reg | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$services = $DataSet.configuration.services.service | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$folders  = $DataSet.configuration.folders.folder | 
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$shortcuts = $DataSet.configuration.shortcuts.shortcut |
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$opapps = $DataSet.configuration.opapps.opapp |
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		$privs  = $DataSet.configuration.permissions.permission |
-			Where-Object {$_.enabled -eq "true" -and ($_.device -eq $mypc -or $_.device -eq 'all')}
-		if ($folders)  { if ($Payload -eq 'All' -or $Payload -eq 'Folders')  { Invoke-FPFolders -DataSet $folders } }
-		if ($installs) { if ($Payload -eq 'All' -or $Payload -eq 'Installs') { Invoke-FPChocoInstalls -DataSet $installs } }
-		if ($removals) { if ($Payload -eq 'All' -or $Payload -eq 'Removals') { Invoke-FPChocoRemovals -DataSet $removals } }
-		if ($regkeys)  { if ($Payload -eq 'All' -or $Payload -eq 'Registry') { Invoke-FPRegistry -DataSet $regkeys } }
-		if ($services) { if ($Payload -eq 'All' -or $Payload -eq 'Services') { Invoke-FPServices -DataSet $services } }
-		if ($files)    { if ($Payload -eq 'All' -or $Payload -eq 'Files')    { Invoke-FPFiles -DataSet $files } }
-		if ($shortcuts){ if ($Payload -eq 'All' -or $Payload -eq 'Shortcuts'){ Invoke-FPShortcuts -DataSet $shortcuts } }
-		if ($opapps)   { if ($Payload -eq 'All' -or $Payload -eq 'OPApps')   { Invoke-FPOPApps -DataSet $opapps } }
-		if ($privs)    { if ($Payload -eq 'All' -or $Payload -eq 'Permissions') { Invoke-FPPermissions -DataSet $privs } }
-	}
-}
-
-<#
-.SYNOPSIS
-	Create or Update Scheduled Task for FudgePop client script
-.PARAMETER IntervalHours
-	[int][optional] Hourly interval from 1 to 12
-#>
-
-function Set-FPConfiguration {
-	[CmdletBinding()]
-	param (
-		[parameter(Mandatory=$False, HelpMessage="Recurrence Interval in hours")]
-		[ValidateNotNullOrEmpty()]
-		[ValidateRange(1,12)]
-		[int] $IntervalHours = 1
-	)
-	Write-Host "Configuring FudgePop scheduled task"
-	$taskname = "Run FudgePop"
-	Write-FudgePopLog -Category "Info" -Message "updating FudgePop client configuration"
-	#$filepath = "$PSSCriptRoot\Public\Invoke-FudgePop.ps1"
-	$filepath = "$(Split-Path((Get-Module FudgePop).Path))\Public\Invoke-FudgePop.ps1"
-	if (Test-Path $filepath) {
-		$action = 'powershell.exe -ExecutionPolicy ByPass -NoProfile -File '+$filepath
-		Write-Verbose "creating: SCHTASKS /Create /RU `"SYSTEM`" /SC hourly /MO $IntervalHours /TN `"$taskname`" /TR `"$action`""
-		SCHTASKS /Create /RU "SYSTEM" /SC hourly /MO $IntervalHours /TN "$taskname" /TR "$action" /RL HIGHEST
-		if (Get-ScheduledTask -TaskName $taskname -ErrorAction SilentlyContinue) {
-			Write-FudgePopLog -Category "Info" -Message "task has been created successfully."
-			Write-Output $True
+	Write-FPLog -Category "Info" -Message "--------- installation assignments: begin ---------"
+	foreach ($package in $DataSet) {
+		$deviceName = $package.device
+		$runtime    = $package.when
+		$autoupdate = $package.autoupdate
+		$username   = $package.user
+		$extparams  = $package.params
+		$update     = $package.update
+		Write-FPLog -Category "Info" -Message "device...: $deviceName"
+		Write-FPLog -Category "Info" -Message "runtime..: $runtime"
+		if (Test-FPControlRuntime -RunTime $runtime) {
+			Write-FPLog -Category "Info" -Message "run: runtime is now or already passed"
+			$pkglist = $package.InnerText -split ','
+			if ($extparams.length -gt 0) { $params = $extparam } else { $params = ' -y -r' }
+			foreach ($pkg in $pkglist) {
+				Write-FPLog "package...: $pkg"
+				if (Test-Path "$($env:PROGRAMDATA)\chocolatey\lib\$pkg") {
+					if ($update -eq 'true') {
+						Write-FPLog "package is already installed (upgrade)"
+						$params = "upgrade $pkg $params"
+					}
+					else {
+						Write-FPLog "package is already installed (no upgrade.. skip)"
+						break
+					}
+				}
+				else {
+					Write-FPLog "package is not installed (install)"
+					$params = "install $pkg $params"
+				}
+				Write-FPLog "command......: choco $params"
+				if (-not $TestMode) {
+					$p = Start-Process -FilePath "choco.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru
+					if ($p.ExitCode -eq 0) {
+						Write-FPLog "package was successful"
+					}
+					else {
+						Write-FPLog -Category 'Error' -Message "package exit code: $($p.ExitCode)"
+					}
+				}
+				else {
+					Write-FPLog "TESTMODE: Would have been applied"
+				}
+			} # foreach
 		}
 		else {
-			Write-FudgePopLog -Category "Error" -Message "well, that sucked. no new scheduled task for you."
+			Write-FPLog -Category "Info" -Message "skip: not yet time to run this assignment"
 		}
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- installation assignments: finish ---------"
+}
+
+function Set-FPControlUpgrades {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- upgrade assignments: begin ---------"
+	foreach ($upgrade in $DataSet) {
+		# later / maybe
+	}
+	Write-FPLog -Category "Info" -Message "--------- upgrade assignments: finish ---------"
+}
+
+function Set-FPControlRemovals {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- removal assignments: begin ---------"
+	foreach ($package in $DataSet) {
+		$deviceName = $package.device
+		$runtime    = $package.when
+		$autoupdate = $package.autoupdate
+		$username   = $package.user
+		$extparams  = $package.params
+		Write-FPLog -Category "Info" -Message "device...: $deviceName"
+		Write-FPLog -Category "Info" -Message "runtime..: $runtime"
+		if (Test-FPControlRuntime -RunTime $runtime) {
+			Write-FPLog -Category "Info" -Message "run: runtime is now or already passed"
+			$pkglist = $package.InnerText -split ','
+			if ($extparams.length -gt 0) { $params = $extparam } else { $params = ' -y -r' }
+			foreach ($pkg in $pkglist) {
+				Write-FPLog "package...: $pkg"
+				if (Test-Path "$($env:PROGRAMDATA)\chocolatey\lib\$pkg") {
+					Write-FPLog "package is installed"
+					$params = "uninstall $pkg $params"
+				}
+				else {
+					Write-FPLog "package is not installed (skip)"
+					break
+				}
+				Write-FPLog "command......: choco $params"
+				if (-not $TestMode) {
+					$p = Start-Process -FilePath "choco.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru
+					if ($p.ExitCode -eq 0) {
+						Write-FPLog "removal was successful"
+					}
+					else {
+						Write-FPLog -Category 'Error' -Message "removal exit code: $($p.ExitCode)"
+					}
+				}
+				else {
+					Write-FPLog "TESTMODE: Would have been applied"
+				}
+			} # foreach
+		}
+		else {
+			Write-FPLog -Category "Info" -Message "skip: not yet time to run this assignment"
+		}
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- removal assignments: finish ---------"
+}
+
+function Set-FPControlRegistry {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- registry assignments: begin ---------"
+	foreach ($reg in $DataSet) {
+		$regpath    = $reg.path
+		$regval     = $reg.value
+		$regdata    = $reg.data
+		$regtype    = $reg.type
+		$deviceName = $reg.device
+		$regAction  = $reg.action
+		Write-FPLog -Category "Info" -Message "assigned to device: $deviceName"
+		Write-FPLog -Category "Info" -Message "keypath: $regpath"
+		Write-FPLog -Category "Info" -Message "action: $regAction"
+		switch ($regAction) {
+			'create' {
+				if ($regdata -eq '$controlversion') { $regdata = $controlversion }
+				if ($regdata -eq '$(Get-Date)') { $regdata = Get-Date }
+				Write-FPLog -Category "Info" -Message "value: $regval"
+				Write-FPLog -Category "Info" -Message "data: $regdata"
+				Write-FPLog -Category "Info" -Message "type: $regtype"
+				if (-not(Test-Path $regpath)) {
+					Write-FPLog -Category "Info" -Message "key not found, creating registry key"
+					if (-not $TestMode) {
+						New-Item -Path $regpath -Force | Out-Null
+						Write-FPLog -Category "Info" -Message "updating value assignment to $regdata"
+						New-ItemProperty -Path $regpath -Name $regval -Value "$regdata" -PropertyType $regtype -Force | Out-Null
+					}
+					else {
+						Write-FPLog "TESTMODE: Would have been applied"
+					}
+				}
+				else {
+					Write-FPLog -Category "Info" -Message "key already exists"
+					if (-not $TestMode) {
+						try {
+							$cv = Get-ItemProperty -Path $regpath -Name $regval -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regval
+						}
+						catch {
+							Write-FPLog -Category "Info" -Message "$regval not found"
+							$cv = ""
+						}
+						Write-FPLog -Category "Info" -Message "current value of $regval is $cv"
+						if ($cv -ne $regdata) {
+							Write-FPLog -Category "Info" -Message "updating value assignment to $regdata"
+							New-ItemProperty -Path $regpath -Name $regval -Value "$regdata" -PropertyType $regtype -Force | Out-Null
+						}
+					}
+					else {
+						Write-FPLog "TESTMODE: Would have been applied"
+					}
+				}
+				break
+			}
+			'delete' {
+				if (Test-Path $regPath) {
+					if (-not $TestMode) {
+						try {
+							Remove-Item -Path $regPath -Recurse -Force | Out-Null
+							Write-FPLog -Category "Info" -Message "registry key deleted"
+						}
+						catch {
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
+						}
+					}
+					else {
+						Write-FPLog "TESTMODE: Would have been applied"
+					}
+				}
+				else {
+					Write-FPLog -Category "Info" -Message "registry key not found: $regPath"
+				}
+				break
+			}
+		} # switch
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- registry assignments: finish ---------"
+}
+
+function Set-FPControlWin32Apps {
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- win32 app assignments: begin ---------"
+	foreach ($app in $DataSet) {
+		$appName   = $app.name
+		$action    = $app.action
+		$appPlat   = $app.platforms
+		$appRun    = $app.run
+		$appParams = $app.params
+		$runtime   = $app.when
+		Write-FPLog -Category "Info" -Message "appname...: $appName"
+		Write-FPLog -Category "Info" -Message "app run...: $appRun"
+		Write-FPLog -Category "Info" -Message "action....: $action"
+		Write-FPLog -Category "Info" -Message "runtime...: $runtime"
+		switch ($action) {
+			'install' {
+				
+				if ($appRun.EndsWith('.msi')) {
+					$proc = "msiexec.exe"
+					$args = "/i `"$appRun`" /q"
+					if ($appParams -ne "") {
+						$args += " $appParams"
+					}
+				}
+				elseif ($appRun.EndsWith('.exe')) {
+					$proc = $appRun
+					$args = $appParams
+				}
+				else {
+					Write-FPLog -Category "Error" -Message "invalid file type"
+					break
+				}
+				Write-FPLog -Category "Info" -Message "proc...: $proc"
+				Write-FPLog -Category "Info" -Message "args...: $args"
+				Write-FPLog -Category "Info" -Message "contacting source to verify availability..."
+				if (Test-Path $appRun) {
+					if (-not $TestMode) {
+						try {
+							$p = Start-Process -FilePath $proc -ArgumentList $args -NoNewWindow -Wait -PassThru
+							if ((0,3010) -contains $p.ExitCode) {
+								Write-FPLog -Category "Info" -Message "installation successful!"
+							}
+							else {
+								Write-FPLog -Category "Error" -Message "installation failed with $($p.ExitCode)"
+							}
+						}
+						catch {
+							Write-FPLog -Category "Error" -Message $_.Exception.Message
+						}
+					}
+					else {
+						Write-FPLog "TESTMODE: Would have been applied"
+					}
+				}
+				else {
+					Write-FPLog -Category "Info" -Message "installer file is not accessible (skipping)"
+				}
+				break
+			}
+			'uninstall' {
+				$detect = $app.detect
+				if (Test-FPDetectionRule -DataSet $DataSet -RuleName $detect) {
+					Write-FPLog -Category "Info" -Message "ruletest = TRUE"
+					if ($appRun.StartsWith('msiexec /x')) {
+						$proc = "msiexec"
+						$args = ($appRun -replace ("msiexec","")).trim()
+						Write-FPLog "proc......: $proc"
+						Write-FPLog "args......: $args"
+						if (-not $TestMode) {
+							try {
+								$p = Start-Process -FilePath $proc -ArgumentList $args -NoNewWindow -Wait -PassThru
+								if ((0,3010,1605) -contains $p.ExitCode) {
+									Write-FPLog -Category "Info" -Message "uninstall was successful!"
+								}
+								else {
+									Write-FPLog -Category "Error" -Message "uninstall failed with $($p.ExitCode)"
+								}
+							}
+							catch {
+								Write-FPLog -Category "Error" -Message $_.Exception.Message
+							}
+						}
+						else {
+							Write-FPLog "TESTMODE: Would have been applied"
+						}
+					}
+				}
+				else {
+					Write-FPLog -Category "Info" -Message "ruletest = FALSE"
+				}
+				break
+			}
+		} # switch
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- win32 app assignments: finish ---------"
+}
+
+function Set-FPControlWindowsUpdate {
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- updates assignments: begin ---------"
+	foreach ($dvc in $DataSet) {
+		$device  = $dvc.device
+		$runtime = $dvc.when
+		Write-FPLog -Category "Info" -Message "device....: $device"
+		Write-FPLog -Category "Info" -Message "runtime...: $runtime"
+		if (Test-FPControlRuntime -RunTime $runtime -Key "LastRunUpdates") {
+			if (-not $TestMode) {
+				Write-FPLog -Category "Info" -Message "run: runtime is now or already passed"
+				try {
+					$Criteria = "IsInstalled=0 and Type='Software'"
+					$Searcher = New-Object -ComObject Microsoft.Update.Searcher
+					$SearchResult = $Searcher.Search($Criteria).Updates
+					$Session = New-Object -ComObject Microsoft.Update.Session
+					$Downloader = $Session.CreateUpdateDownloader()
+					$Downloader.Updates = $SearchResult
+					$Downloader.Download()
+					$Installer = New-Object -ComObject Microsoft.Update.Installer
+					$Installer.Updates = $SearchResult
+					$Result = $Installer.Install()
+					Set-FPConfiguration -Name "LastRunUpdates" -Data (Get-Date)
+					If ($Result.rebootRequired) { Restart-Computer }
+				}
+				catch {
+					if ($_.Exception.Message -like "*0x80240024*") {
+						Write-FPLog -Category 'Info' -Message "No updates are available for download"
+						Set-FPConfiguration -Name "LastRunUpdates" -Data (Get-Date) | Out-Null
+					}
+					else {
+						Write-FPLog -Category 'Error' -Message $_.Exception.Message
+					}
+				}
+			}
+			else {
+				Write-FPLog "TESTMODE: Would have been applied"
+			}
+		}
+		else {
+			Write-FPLog -Category "Info" -Message "skip: not yet time to run this assignment"
+		}
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- updates assignments: finish ---------"
+}
+
+function Invoke-FPControls {
+	param (
+		[parameter(Mandatory=$True)] 
+		[ValidateNotNullOrEmpty()] $DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- control processing: begin ---------"
+	$MyPC        = $env:COMPUTERNAME
+	$priority    = $DataSet.configuration.priority.order
+	$installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment
+	$removals    = Get-FPFilteredSet -XmlData $DataSet.configuration.removals.removal
+	$folders     = Get-FPFilteredSet -XmlData $DataSet.configuration.folders.folder
+	$files       = Get-FPFilteredSet -XmlData $DataSet.configuration.files.file
+	$registry    = Get-FPFilteredSet -XmlData $DataSet.configuration.registry.reg
+	$services    = Get-FPFilteredSet -XmlData $DataSet.configuration.services.service
+	$shortcuts   = Get-FPFilteredSet -XmlData $DataSet.configuration.shortcuts.shortcut
+	$opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp
+	$permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission
+	$updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update
+
+	#$detectionrules = $DataSet.configuration.detectionrules.detection
+	
+	Write-FPLog "template version...: $($DataSet.configuration.version)"
+	Write-FPLog "template comment...: $($DataSet.configuration.comment)"
+	Write-FPLog "control version....: $($DataSet.configuration.control.version) ***"
+	Write-FPLog "control enabled....: $($DataSet.configuration.control.enabled)"
+	#Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
+	
+	if (!(Get-FPServiceAvailable -DataSet $DataSet)) { Write-FPLog 'FudgePop is not enabled'; break }
+	
+	Write-FPLog "priority list: $($priority -replace(',',' '))"
+	
+	foreach ($key in $priority -split ',') {
+		Write-FPLog "**************** $key ********************"
+		switch ($key) {
+			'folders'     { if ($folders)     {Set-FPControlFolders -DataSet $folders}; break }
+			'files'       { if ($files)       {Set-FPControlFiles -DataSet $files}; break }
+			'registry'    { if ($registry)    {Set-FPControlRegistry -DataSet $registry}; break }
+			'deployments' { if ($installs)    {Set-FPControlPackages -DataSet $installs}; break }
+			'removals'    { if ($removals)    {Set-FPControlRemovals -DataSet $removals}; break }
+			'services'    { if ($services)    {Set-FPControlServices -DataSet $services}; break }
+			'shortcuts'   { if ($shortcuts)   {Set-FPControlShortcuts -DataSet $shortcuts}; break }
+			'opapps'      { if ($opapps)      {Set-FPControlWin32Apps -DataSet $opapps}; break }
+			'permissions' { if ($permissions) {Set-FPControlPermissions -DataSet $permissions}; break }
+			'updates'     { if ($updates)     {Set-FPControlWindowsUpdate -DataSet $updates}; break }
+			default { Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
+		} # switch
+	} # foreach
+	<#
+	if (Test-FPDetectionRule -DataSet $DataSet -RuleName '7zip1701x64') {
+		Write-FPLog "rule test: true"
 	}
 	else {
-		Write-FudgePopLog -Category "Error" -Message "unable to locate file: $filepath"
+		Write-FPLog "rule test: false"
 	}
+	#>
+	Write-FPLog -Category "Info" -Message "--------- control processing: finish ---------"
 }
