@@ -13,7 +13,7 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 * Modify Folder and File Permissions
 * Force Windows Update Scan/Download/Install Cycle
 
-![FudgePop Logo](./fudgepop.png){width=50%}
+![FudgePop Logo](fudgepop.png){width=50%}
 
 # Installation
 
