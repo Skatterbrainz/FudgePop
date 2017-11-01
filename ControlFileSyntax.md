@@ -1,4 +1,4 @@
-# FudgePop Control File Syntax
+# FudgePop Control File Syntax 1.0.1
 
 ## Overview
 
@@ -6,6 +6,7 @@ The control XML format includes a set of basic sections which focus on specific 
 
 * Control (global settings)
 * Deployments (Install/Update Chocolatey packages)
+* Priority
 * Removals (Uninstall Chocolatey packages)
 * Files
 * Folders
@@ -14,6 +15,7 @@ The control XML format includes a set of basic sections which focus on specific 
 * Shortcuts
 * On-Prem Applications
 * Permissions
+* Updates
 
 The default location of the control is on this Github repo.  The file can be copied, renamed, and located anywhere which is accessible to the devices being configured to be managed by FudgePop.  For example, if the control.xml file is copied to a public-facing (e.g. DMZ) server share or web host, the Invoke-FudgePop function needs to include the -ControlFile parameter to specify the desired location.  For example: Invoke-FudgePop -ControlFile "https://contoso.xyz/fudgepop/custom.xml"
 
@@ -33,6 +35,14 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
  * Optional:
    * exclude = "name" (name of computers to disable FudgePop operations)
 
+**Priority**
+
+ * Description: controls the order of processing the general sections (installs, removals)
+ * Required:
+   * order = "name,name,..."
+ * Optional:
+   * comment = "_string_"
+   
 **Installs**
 
  * Description: Install and Update Chocolatey Packages
@@ -40,7 +50,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
  * Required:
    * device = "name" or "all"
    * enabled = "true" or "false"
-   * when = "now" or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
+   * when = "now", "daily", or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
    * innerText = names of Chocolatey packages, comma-separated (example: "7zip,vlc,office365proplus")
  * Optional: 
    * user = "name" or "all"
@@ -52,7 +62,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
   * Required:
     * device = "name" or "all"
     * enabled = "true" or "false"
-    * when = "now" or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
+    * when = "now", "daily" or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
   * Optional: 
     * user = "name" or "all"
 
@@ -134,6 +144,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
  * Required:
    * device = "name" or "all"
    * enabled = "true" or "false"
+   * when = "now", "daily" or date-time value
    * run = "_path-and-filename_" (example: "\\fs1\apps\packages\app\setup.exe")
    * platforms = "name,name,..." (example: "win10x64,win7x64,win7x86")
    * detect = "_detection-rulename_"
@@ -164,3 +175,13 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
    * rights = "read","write","modify","delete","readexecute","full"
  * Optional: 
    * (none)
+   
+**Updates**
+
+  * Description: Manage forced Windows Update scan/download/install cycle
+  * Element: /configuration/updates/update
+  * Required: 
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * when = "now", "daily" or explicit datetime value
+    
