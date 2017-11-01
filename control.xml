@@ -3,11 +3,11 @@
   <control enabled="true" exclude="" comment="kill switch" version="1710.46" />
   <priority order="files,folders,deployments,removals,upgrades,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
-    <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
-    <deployment device="d004" user="Jane Doe" enabled="true" when="now">office365proplus,vlc,putty</deployment>
-    <deployment device="d005" user="John Doe" enabled="true" when="10/27/2017 10:00 PM">office365proplus</deployment>
-    <deployment device="d006" user="Jack Frost" enabled="true" when="now">vlc,putty,visualstudiocode,vscode-powershell</deployment>
-    <deployment device="nsa18" user="Skatterbrainz" enabled="true" when="10/27/2017 10:00 PM">notepadplusplus,git</deployment>
+    <deployment device="all" user="all" enabled="true" when="now" update="false">7zip,googlechrome</deployment>
+    <deployment device="d004" user="Jane Doe" enabled="true" when="now" update="false">office365proplus,vlc,putty</deployment>
+    <deployment device="d005" user="John Doe" enabled="true" when="10/27/2017 10:00 PM" update="false">office365proplus</deployment>
+    <deployment device="d006" user="Jack Frost" enabled="true" when="now" update="false">vlc,putty,visualstudiocode,vscode-powershell</deployment>
+    <deployment device="nsa18" user="Skatterbrainz" enabled="true" when="10/27/2017 10:00 PM" update="false">notepadplusplus,git</deployment>
   </deployments>
   <upgrades>
     <upgrade device="nsa18" enabled="true" when="daily" />
