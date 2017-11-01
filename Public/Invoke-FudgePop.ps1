@@ -4,7 +4,7 @@
 .SYNOPSIS
 	Runs FudgePop
 .NOTES
-	1.0.3 - 10/31/2017 - David Stein
+	1.0.3 - 11/01/2017 - David Stein
 #>
 
 function Invoke-FudgePop {
@@ -13,7 +13,6 @@ function Invoke-FudgePop {
 		[parameter(Mandatory=$False)]
 			[switch] $TestMode
 	)
-	catch {}
 	$ControlFile = Get-FPConfiguration -Name "ControlFile" -Default ""
 	if ($ControlFile -eq "") {
 		Write-FPLog -Category 'Warning' -Message 'FudgePop has not been configured yet. Run Configure-FudgePop to set default options.'
@@ -24,10 +23,10 @@ function Invoke-FudgePop {
 		$ControlData = Get-FPControlData -FilePath $ControlFile
 		if (Get-FPServiceAvailable -DataSet $ControlData) {
 			Write-Verbose "FudgePop is active."
-			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date)
+			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null
 			Invoke-FPControls -DataSet $ControlData
-			Set-FPConfiguration -Name "LastFinishTime" -Data (Get-Date)
-			Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME
+			Set-FPConfiguration -Name "LastFinishTime" -Data (Get-Date) | Out-Null
+			Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME | Out-Null
 		}
 		else {
 			Write-Verbose "FudgePop is not currently active."
