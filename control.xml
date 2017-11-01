@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration version="1.0.1" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1710.31" />
+  <control enabled="true" exclude="" comment="kill switch" version="1710.42" />
   <priority order="files,folders,deployments,removals,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
@@ -51,9 +51,9 @@
     <detectionrule name="7zip1701x64" app="7-zip 1701 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{23170F69-40C1-2702-1701-000001000000}" value="" />
   </detectionrules>
   <permissions comment="configure security permissions on local resources">
-    <permission device="d004" enabled="true" path="c:\program files\mozilla firefox" principals="users" rights="modify" />
+    <permission device="nsa18" enabled="true" path="c:\data" principals="users" rights="modify" />
   </permissions>
   <updates comment="force microsoft updates download and install cycle">
-    <update device="all" enabled="false" when="11/14/2017 3:00 AM" />
+    <update device="all" enabled="true" when="11/14/2017 3:00 AM" />
   </updates>
 </configuration>
