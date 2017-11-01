@@ -2,14 +2,23 @@
 .SYNOPSIS
 	Private functions for running FudgePop
 .NOTES
-	1.0.3 - 10/31/2017 - David Stein
+	1.0.3 - 11/01/2017 - David Stein
 #>
 
-$Script:FPVersion   = "1.0.1"
+$Script:FPVersion   = "1.0.3"
 $Script:FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
 $Script:FPRunJob    = 'FudgePop Agent'
 $Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
 $Script:FPLogFile   = "c:\windows\temp\fudgepop.log"
+
+<#
+.SYNOPSIS
+	Yet another stupid Write-Log function like everyone else has
+.PARAMETER Category
+	[optional] Describes type of information as 'Info','Warning','Error' (default is 'Info')
+.PARAMETER Message
+	[required] string: information to display or write to log file
+#>
 
 function Write-FPLog {
 	param (
@@ -23,6 +32,17 @@ function Write-FPLog {
 	Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
 	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default
 }
+
+<#
+.SYNOPSIS
+	Fetch data from Registry or return Default if none found
+.PARAMETER RegPath
+	[optional] Registry Path (default is HKLM:\SOFTWARE\FudgePop)
+.PARAMETER Name
+	[required] string: Registry Value name
+.PARAMETER Default
+	[optional] data to return if no value found in registry
+#>
 
 function Get-FPConfiguration {
 	[CmdletBinding(SupportsShouldProcess=$True)]
@@ -57,6 +77,17 @@ function Get-FPConfiguration {
 	}
 	Write-Output $result
 }
+
+<#
+.SYNOPSIS
+	Write data to Registry
+.PARAMETER RegPath
+	[optional] Registry Path (default is HKLM:\SOFTWARE\FudgePop)
+.PARAMETER Name
+	[required] string: Registry Value name
+.PARAMETER Data
+	[required] data to store in registry value
+#>
 
 function Set-FPConfiguration {
 	[CmdletBinding(SupportsShouldProcess=$True)]
@@ -96,6 +127,42 @@ function Set-FPConfiguration {
 	Write-Output 0
 }
 
+<#
+.SYNOPSIS
+	Validate File or URI is accessible
+.PARAMETER Path
+	[required] string: path or URI to file
+#>
+
+function Test-FPControlSource {
+	param (
+		[parameter(Mandatory=$True)]
+		[ValidateNotNullOrEmpty()]
+		[string] $Path
+	)
+	if ($Path.StartsWith('http')) {
+		Write-FPLog "verifying URI resource: $Path"
+		try {
+			$test = Invoke-WebRequest -UseBasicParsing -Uri $Path -Method Get -ErrorAction SilentlyContinue
+			if ($test) {
+				Write-Output ($test.StatusCode -eq 200)
+			}
+		}
+		catch {}
+	}
+	else {
+		Write-FPLog "verifying file system resource: $Path"
+		Write-Output (Test-Path $Path)
+	}
+}
+
+<#
+.SYNOPSIS
+	Import XML data from Control File
+.PARAMETER FilePath
+	[required] string: path or URI to XML file
+#>
+
 function Get-FPControlData {
 	param (
 		[parameter(Mandatory=$True, HelpMessage="Path or URI to XML control file")]
@@ -134,6 +201,17 @@ function Get-FPControlData {
 	Write-Output $result
 }
 
+<#
+.SYNOPSIS
+	Return child nodes where device=(_this-computer_) or device="all"
+.PARAMETER XmlData
+	[required] XML node data from control file import
+.EXAMPLE
+	Node: /configuration/files/file
+		<file device="all" enabled="true" source="" target=""...>
+	Would return this node since device='all'
+#>
+
 function Get-FPFilteredSet {
 	param (
 		[parameter(Mandatory=$True)]
@@ -141,6 +219,13 @@ function Get-FPFilteredSet {
 	)
 	$XmlData | Where-Object {$_.enabled -eq 'true' -and ($_.device -eq $env:COMPUTERNAME -or $_.device -eq 'all')}
 }
+
+<#
+.SYNOPSIS
+	Return TRUE if enabled="true" in control section of XML
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Get-FPServiceAvailable {
 	param (
@@ -162,6 +247,15 @@ function Get-FPServiceAvailable {
 	}
 }
 
+<#
+.SYNOPSIS
+	Return TRUE if detection rule is valid
+.PARAMETER DataSet
+	[required] XML data from control file import
+.PARAMETER RuleName
+	[required] string: name of rule in control XML file
+#>
+
 function Test-FPDetectionRule {
 	param (
 		[parameter(Mandatory=$True)]
@@ -179,6 +273,15 @@ function Test-FPDetectionRule {
 	}
 	catch {}
 }
+
+<#
+.SYNOPSIS
+	Return TRUE if runtime is active
+.PARAMETER RunTime
+	[required] Date Value, or 'now' or 'daily'
+.PARAMETER Key
+	[optional] string: Label to map to Registry for get/set operations
+#>
 
 function Test-FPControlRuntime {
 	param (
@@ -215,6 +318,13 @@ function Test-FPControlRuntime {
 	} # switch
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: Install or Upgrade Chocolatey
+.PARAMETER none
+
+#>
+
 function Assert-Chocolatey {
 	param ()
 	Write-FPLog "verifying chocolatey installation"
@@ -234,27 +344,12 @@ function Assert-Chocolatey {
 	}
 }
 
-function Set-FPScheduledTask {
-	param (
-		$Hours,
-		$TaskName = $FPRunJob
-	)
-	$filepath = "$(Split-Path((Get-Module FudgePop).Path))\Public\Invoke-FudgePop.ps1"
-	if (Test-Path $filepath) {
-		$action = 'powershell.exe -ExecutionPolicy ByPass -NoProfile -File '+$filepath
-		Write-FPLog "action = $action"
-		#SCHTASKS /Create /RU 'SYSTEM' /SC Hourly /MO $Hours /RL 'HIGHEST' /TN "$TaskName" /F
-		try {
-			Write-Output Get-ScheduledTask -TaskName $FPRunJob -ErrorAction Stop
-		}
-		catch {
-			Write-FPLog -Category 'Error' -Message $_.Exception.Message
-		}
-	}
-	else {
-		Write-FPLog -Category 'Error' -Message "FudgePop script file not found: $filepath"
-	}
-}
+<#
+.SYNOPSIS
+	Process Configuration Control: Files
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlFiles {
 	[CmdletBinding(SupportsShouldProcess=$True)]
@@ -369,6 +464,13 @@ function Set-FPControlFiles {
 	Write-FPLog "--------- file assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: Folders
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Set-FPControlFolders {
 	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
@@ -437,6 +539,13 @@ function Set-FPControlFolders {
 	} # foreach
 	Write-FPLog -Category "Info" -Message "--------- folder assignments: finish ---------"
 }
+
+<#
+.SYNOPSIS
+	Process Configuration Control: Windows Services
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlServices {
 	[CmdletBinding()]
@@ -527,6 +636,13 @@ function Set-FPControlServices {
 	} # foreach
 	Write-FPLog -Category "Info" -Message "--------- services assignments: finish ---------"
 }
+
+<#
+.SYNOPSIS
+	Process Configuration Control: File and URL Shortcuts
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlShortcuts {
 	param (
@@ -645,6 +761,13 @@ function Set-FPControlShortcuts {
 	Write-FPLog "--------- shortcut assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: ACL Permissions on Files, Folders
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Set-FPControlPermissions {
 	param (
 		[parameter(Mandatory=$True)]
@@ -705,6 +828,13 @@ function Set-FPControlPermissions {
 	Write-FPLog "--------- permissions assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: Chocolatey Package Installs and Upgrades
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Set-FPControlPackages {
 	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
@@ -763,6 +893,13 @@ function Set-FPControlPackages {
 	Write-FPLog -Category "Info" -Message "--------- installation assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: Chocolatey Package Upgrades
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Set-FPControlUpgrades {
 	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
@@ -775,6 +912,13 @@ function Set-FPControlUpgrades {
 	}
 	Write-FPLog -Category "Info" -Message "--------- upgrade assignments: finish ---------"
 }
+
+<#
+.SYNOPSIS
+	Process Configuration Control: Chocolatey Package Removals
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlRemovals {
 	[CmdletBinding(SupportsShouldProcess=$True)]
@@ -826,6 +970,13 @@ function Set-FPControlRemovals {
 	} # foreach
 	Write-FPLog -Category "Info" -Message "--------- removal assignments: finish ---------"
 }
+
+<#
+.SYNOPSIS
+	Process Configuration Control: Registry Settings
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlRegistry {
 	[CmdletBinding(SupportsShouldProcess=$True)]
@@ -908,6 +1059,13 @@ function Set-FPControlRegistry {
 	} # foreach
 	Write-FPLog -Category "Info" -Message "--------- registry assignments: finish ---------"
 }
+
+<#
+.SYNOPSIS
+	Process Configuration Control: Windows Application Installs and Uninstalls
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
 
 function Set-FPControlWin32Apps {
 	param (
@@ -1009,6 +1167,13 @@ function Set-FPControlWin32Apps {
 	Write-FPLog -Category "Info" -Message "--------- win32 app assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Process Configuration Control: Windows Updates
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Set-FPControlWindowsUpdate {
 	param (
 		[parameter(Mandatory=$True)]
@@ -1058,12 +1223,20 @@ function Set-FPControlWindowsUpdate {
 	Write-FPLog -Category "Info" -Message "--------- updates assignments: finish ---------"
 }
 
+<#
+.SYNOPSIS
+	Main process invocation
+.PARAMETER DataSet
+	[required] XML data from control file import
+#>
+
 function Invoke-FPControls {
 	param (
 		[parameter(Mandatory=$True)] 
 		[ValidateNotNullOrEmpty()] $DataSet
 	)
 	Write-FPLog -Category "Info" -Message "--------- control processing: begin ---------"
+	Write-FPLog "module version: $($Script:FPVersion)"
 	$MyPC        = $env:COMPUTERNAME
 	$priority    = $DataSet.configuration.priority.order
 	$installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment
@@ -1077,20 +1250,18 @@ function Invoke-FPControls {
 	$permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission
 	$updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update
 
-	#$detectionrules = $DataSet.configuration.detectionrules.detection
-	
 	Write-FPLog "template version...: $($DataSet.configuration.version)"
 	Write-FPLog "template comment...: $($DataSet.configuration.comment)"
 	Write-FPLog "control version....: $($DataSet.configuration.control.version) ***"
 	Write-FPLog "control enabled....: $($DataSet.configuration.control.enabled)"
-	#Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
+	Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
 	
 	if (!(Get-FPServiceAvailable -DataSet $DataSet)) { Write-FPLog 'FudgePop is not enabled'; break }
 	
 	Write-FPLog "priority list: $($priority -replace(',',' '))"
 	
 	foreach ($key in $priority -split ',') {
-		Write-FPLog "**************** $key ********************"
+		Write-FPLog "****************** $key **********************"
 		switch ($key) {
 			'folders'     { if ($folders)     {Set-FPControlFolders -DataSet $folders}; break }
 			'files'       { if ($files)       {Set-FPControlFiles -DataSet $files}; break }
@@ -1105,13 +1276,5 @@ function Invoke-FPControls {
 			default { Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
 		} # switch
 	} # foreach
-	<#
-	if (Test-FPDetectionRule -DataSet $DataSet -RuleName '7zip1701x64') {
-		Write-FPLog "rule test: true"
-	}
-	else {
-		Write-FPLog "rule test: false"
-	}
-	#>
 	Write-FPLog -Category "Info" -Message "--------- control processing: finish ---------"
 }
