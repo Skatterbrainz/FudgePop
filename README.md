@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.1
+# FudgePop (Module) 1.0.4
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
@@ -37,9 +37,9 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
 ## Configure-FudgePop
 
-Prompts for input to control FudgePop client settings.
+  Prompts for input to control FudgePop client settings.
 
 ## Remove-FudgePop
 
-Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
+  Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
 
