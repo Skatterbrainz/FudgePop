@@ -12,7 +12,7 @@
 RootModule = '.\FudgePop.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,11 @@ Description = 'Windows computer configuration management using Chocolatey and Po
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Set-FudgePopConfiguration', 'Invoke-FudgePop')
+FunctionsToExport = @(
+	'Invoke-FudgePop',
+	'Configure-FudgePop', 
+	'Remove-FudgePop'
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'
@@ -98,10 +102,10 @@ PrivateData = @{
         # Tags = @()
 
         # A URL to the license for this module.
-        LicenseUri = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/LICENSE'
+        # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Skatterbrainz/FudgePop/'
+        ProjectUri = 'https://github.com/Skatterbrainz/Chocolatey/master/FudgePop/'
 
         # A URL to an icon representing this module.
         # IconUri = ''
