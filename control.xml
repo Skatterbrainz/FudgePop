@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration version="1.0.1" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1710.42" />
+  <control enabled="true" exclude="" comment="kill switch" version="1710.43" />
   <priority order="files,folders,deployments,removals,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now">7zip,googlechrome</deployment>
@@ -41,9 +41,9 @@
     <shortcut device="d004" enabled="false" action="delete" name="Example Shortcut" type="url" path="commondesktop" force="true" />
   </shortcuts>
   <opapps comment="on prem application deployments">
-    <opapp device="d004" enabled="false" name="Paint.Net 4.0.17 x64" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="rule001" />
-    <opapp device="d004" enabled="false" name="Remote Desktop Connection Manager" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="rule002" />
-    <opapp device="d006" enabled="false" name="7-zip 1701 x64" action="install" run="msiexec /i c:\windows\temp\7z1701-x64.msi /q" platforms="win7x64,win10x64" restart="false" detect="7zip1701x64" />
+    <opapp device="d004" enabled="false" name="Paint.Net 4.0.17 x64" when="now" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="rule001" />
+    <opapp device="d004" enabled="false" name="Remote Desktop Connection Manager" when="now" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="rule002" />
+    <opapp device="d006" enabled="false" name="7-zip 1701 x64" when="now" action="install" run="msiexec /i c:\windows\temp\7z1701-x64.msi /q" platforms="win7x64,win10x64" restart="false" detect="7zip1701x64" />
   </opapps>
   <detectionrules comment="used for verifying app installs">
     <detectionrule name="rule001" app="Paint.Net 4.0.19 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F10AAD91-58DF-44EC-A647-810197141667}" value="" />
