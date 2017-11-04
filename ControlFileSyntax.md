@@ -1,4 +1,4 @@
-# FudgePop Control File Syntax 1.0.4
+# FudgePop Control File Syntax 1.0.5
 
 ## Overview
 
