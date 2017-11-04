@@ -2,14 +2,9 @@
 .SYNOPSIS
 	Private functions for running FudgePop
 .NOTES
-	1.0.3 - 11/01/2017 - David Stein
+	1.0.5 - 11/03/2017 - David Stein
 #>
 
-$Script:FPVersion   = "1.0.3"
-$Script:FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
-$Script:FPRunJob    = 'FudgePop Agent'
-$Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
-$Script:FPLogFile   = "c:\windows\temp\fudgepop.log"
 
 <#
 .SYNOPSIS
