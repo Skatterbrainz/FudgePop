@@ -3,16 +3,26 @@
 <#
 .SYNOPSIS
 	Configure FudgePop options
+.DESCRIPTION
+	Configures FudgePop options, including source control XML file path,
+	and Scheduled Task options.
+.PARAMETER UseDefaults
+	[optional][switch] Applies default settings and initializes the
+	scheduled client task at a 1 hour interval.  The default control XML
+	file path is the URI to the control.xml on the project Github site.
 .NOTES
-	1.0.3 - 11/01/2017 - David Stein
+	1.0.5 - 11/03/2017 - David Stein
+.EXAMPLE
+	Install-FudgePop -UseDefaults
 #>
 
-function Configure-FudgePop {
+function Install-FudgePop {
 	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
 		[parameter(Mandatory=$False)]
 		[switch] $UseDefaults
 	)
+	Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
 	Write-FPLog $Script:FPVersion
 	Write-FPLog $Script:FPRegRoot
 	Write-FPLog $Script:FPRunJob
@@ -109,4 +119,4 @@ function Configure-FudgePop {
 	Write-Host "Configuration has been updated" -ForegroundColor Green
 }
 
-Export-ModuleMember -Function Configure-FudgePop
+Export-ModuleMember -Function Install-FudgePop
