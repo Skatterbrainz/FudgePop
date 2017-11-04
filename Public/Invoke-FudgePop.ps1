@@ -3,8 +3,20 @@
 <#
 .SYNOPSIS
 	Runs FudgePop
+.DESCRIPTION
+	Invokes the FudgePop client process. If Install-FudgePop has not yet been
+	executed, you will be prompted to do that first, in order to configure the
+	options required to support FudgePop
+.PARAMETER TestMode
+	[switch][optional] Force WhatIf and Verbose output
 .NOTES
-	1.0.3 - 11/01/2017 - David Stein
+	1.0.5 - 11/03/2017 - David Stein
+.EXAMPLE
+	Invoke-FudgePop
+.EXAMPLE
+	Invoke-FudgePop -TestMode
+.EXAMPLE
+	Invoke-FudgePop -Verbose
 #>
 
 function Invoke-FudgePop {
@@ -13,10 +25,11 @@ function Invoke-FudgePop {
 		[parameter(Mandatory=$False)]
 			[switch] $TestMode
 	)
+	Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
 	$ControlFile = Get-FPConfiguration -Name "ControlFile" -Default ""
 	if ($ControlFile -eq "") {
-		Write-FPLog -Category 'Warning' -Message 'FudgePop has not been configured yet. Run Configure-FudgePop to set default options.'
-		Write-Warning 'FudgePop has not been configured yet. Run Configure-FudgePop to set default options.'
+		Write-FPLog -Category 'Warning' -Message 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
+		Write-Warning 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
 		break
 	}
 	else {
