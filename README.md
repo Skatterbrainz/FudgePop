@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.4
+# FudgePop (Module) 1.0.5
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
@@ -35,7 +35,7 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
   Switch. Invokes specialized -WhatIf processing.  Also supports -Verbose
 
-## Configure-FudgePop
+## Install-FudgePop
 
   Prompts for input to control FudgePop client settings.
   
@@ -47,5 +47,20 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
 ## Remove-FudgePop
 
-  Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
+Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
 
+## Show-FudgePop
+
+Displays version and configuration information
+
+## Get-FudgePopInventory
+
+Generates basic HTML inventory report of basic computer hardware, software and operating system information.
+
+  * **ComputerName**
+  
+  Name(s) of computers to query. Default is local computer
+  
+  * **FilePath**
+  
+  Path to store report files.  Default is $env:USERPROFILE\Documents
