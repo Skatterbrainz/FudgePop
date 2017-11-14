@@ -18,7 +18,7 @@
     <removal device="nsa18" user="Skatterbrainz" enabled="true" when="now">firefox</removal>
   </removals>
   <appxremovals comment="store apps to remove">
-    <appxremoval device="d006" user="Jack Frost" enabled="true" when="now" pkg="CandyCrush,MineCraft,Facebook,Twitter,MarchofEmpires" comment="" />
+    <appxremoval device="d006" user="Jack Frost" enabled="true" when="now" comment="">CandyCrush,MineCraft,Facebook,Twitter,MarchofEmpires</appxremoval>
   </appxremovals>
   <folders comment="folders to create or manage">
     <folder device="all" enabled="false" action="create" path="c:\programdata\fudgepop" />
