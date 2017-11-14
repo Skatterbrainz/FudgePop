@@ -8,7 +8,7 @@ schema: 2.0.0
 # Install-FudgePop
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Configure Options and Scheduled Task
 
 ## SYNTAX
 
@@ -17,7 +17,7 @@ Install-FudgePop [-UseDefaults] [-WhatIf] [-Confirm]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Configure Options and Scheduled Task to run FudgePop
 
 ## EXAMPLES
 
