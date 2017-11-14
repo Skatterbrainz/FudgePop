@@ -2,7 +2,9 @@
 
 ## Overview
 
-The control XML format includes a set of basic sections which focus on specific areas of Windows device management:
+The control XML format includes a set of basic sections which focus on specific areas of Windows device management.  Clients read the XML file and process it in order of the Priority list.  Each group is processed if the "enabled" property is "true" and only if the "device" property is either "all" or the name of the client itself.  If these are true, the "when" value determines if the time is appropriate to invoke/execute the control.
+
+The configuration types consist of the following groups:
 
 * Control (global settings)
 * Deployments (Install/Update Chocolatey packages)
