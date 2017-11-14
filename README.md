@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.5
+# FudgePop (Module) 1.0.7
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
@@ -10,6 +10,7 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 * Add, Modify Registry Keys and Values
 * Install or Remove Win32 Applications (on-prem sources or local)
 * Uninstall Local Apps (exe, msi)
+* Uninstall Appx Store Apps (Candy Crush, MineCraft, etc.)
 * Modify Folder and File Permissions
 * Force Windows Update Scan/Download/Install Cycle
 
@@ -42,16 +43,16 @@ Centrally manage Windows 10 computers using a local script which reads instructi
   * **UseDefaults**
   
   Automatically configures the default settings: 
-  Uses the sample template on this Github repo (not a good idea, but hey)
-  Uses 1 hour interval for scheduled task to invoke FudgePop
+  * Uses the sample template on this Github repo (not a good idea, but hey)
+  * Uses 1 hour interval for scheduled task to invoke FudgePop
 
 ## Remove-FudgePop
 
-Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
+  * Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
 
 ## Show-FudgePop
 
-Displays version and configuration information
+  * Displays version and configuration information
 
 ## Get-FudgePopInventory
 
