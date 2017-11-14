@@ -10,7 +10,7 @@
 .PARAMETER TestMode
 	[switch][optional] Force WhatIf and Verbose output
 .NOTES
-	1.0.5 - 11/03/2017 - David Stein
+	1.0.7 - 11/14/2017 - David Stein
 .EXAMPLE
 	Invoke-FudgePop
 .EXAMPLE

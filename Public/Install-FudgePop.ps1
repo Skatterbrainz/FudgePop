@@ -11,7 +11,7 @@
 	scheduled client task at a 1 hour interval.  The default control XML
 	file path is the URI to the control.xml on the project Github site.
 .NOTES
-	1.0.5 - 11/03/2017 - David Stein
+	1.0.7 - 11/14/2017 - David Stein
 .EXAMPLE
 	Install-FudgePop -UseDefaults
 #>
@@ -23,6 +23,7 @@ function Install-FudgePop {
 		[switch] $UseDefaults
 	)
 	Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
+	Install-Chocolatey
 	Write-FPLog $Script:FPVersion
 	Write-FPLog $Script:FPRegRoot
 	Write-FPLog $Script:FPRunJob

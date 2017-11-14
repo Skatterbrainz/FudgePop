@@ -4,7 +4,7 @@
 .SYNOPSIS
 	Removes FudgePop configuration items from the local computer
 .NOTES
-	1.0.5 - 11/03/2017 - David Stein
+	1.0.7 - 11/14/2017 - David Stein
 .EXAMPLE
 	Remove-FudgePop -Verbose -WhatIf
 #>
