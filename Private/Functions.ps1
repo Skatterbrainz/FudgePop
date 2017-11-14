@@ -2,7 +2,7 @@
 .SYNOPSIS
 	Private functions for running FudgePop
 .NOTES
-	1.0.5 - 11/03/2017 - David Stein
+	1.0.6 - 11/14/2017 - David Stein
 #>
 
 
@@ -26,6 +26,29 @@ function Write-FPLog {
 	)
 	Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
 	"$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default
+}
+
+<#
+.SYNOPSIS
+	Insure Chocolatey is installed
+#>
+
+function Install-Chocolatey {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param ()
+	Write-FPLog -Category Info -Message "verifying chocolatey is installed"
+	if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) {
+		Write-FPLog -Category Info -Message "installing chocolatey..."
+		try {
+			iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+		}
+		catch {
+			Write-FPLog -Category Error -Message $_.Exception.Message
+		}
+	}
+	else {
+		Write-FPLog -Category Info -Message "chocolatey is already installed"
+	}
 }
 
 <#
@@ -915,6 +938,49 @@ function Set-FPControlUpgrades {
 	[required] XML data from control file import
 #>
 
+function Set-FPControlAppxRemovals {
+	[CmdletBinding(SupportsShouldProcess=$True)]
+	param (
+		[parameter(Mandatory=$True)]
+		$DataSet
+	)
+	Write-FPLog -Category "Info" -Message "--------- appx removal assignments: begin ---------"
+	foreach ($appx in $DataSet) {
+		$deviceName = $appx.device
+		$runtime    = $appx.when
+		$username   = $appx.user
+		$appxcomm   = $appx.comment 
+		Write-FPLog -Category "Info" -Message "device...: $deviceName"
+		Write-FPLog -Category "Info" -Message "user.....: $username"
+		Write-FPLog -Category "Info" -Message "runtime..: $runtime"
+		Write-FPLog -Category "Info" -Message "comment..: $appxcomm"
+		if (Test-FPControlRuntime -RunTime $runtime) {
+			Write-FPLog -Category "Info" -Message "run: runtime is now or already passed"
+			$pkglist = $appx.InnerText -split ','
+			foreach ($pkg in $pkglist) {
+				Write-FPLog "package...: $pkg"
+				if (-not $TestMode) {
+					try {
+						Get-AppxPackage -AllUsers -ErrorAction Stop | Where-Object {$_.Name -match $pkg} | Remove-AppxPackage -AllUsers -Confirm:$False
+						Write-FPLog -Category "Info" -Message "successfully uninstalled: $pkg"
+					}
+					catch {
+						Write-FPLog -Category 'Error' -Message $_.Exception.Message
+						break
+					}
+				}
+				else {
+					Write-FPLog "TESTMODE: Would have been applied"
+				}
+			} # foreach
+		}
+		else {
+			Write-FPLog -Category "Info" -Message "skip: not yet time to run this assignment"
+		}
+	} # foreach
+	Write-FPLog -Category "Info" -Message "--------- appx removal assignments: finish ---------"
+}
+
 function Set-FPControlRemovals {
 	[CmdletBinding(SupportsShouldProcess=$True)]
 	param (
@@ -1221,6 +1287,8 @@ function Set-FPControlWindowsUpdate {
 <#
 .SYNOPSIS
 	Main process invocation
+.DESCRIPTION
+	Main process for executing FudgePop services
 .PARAMETER DataSet
 	[required] XML data from control file import
 #>
@@ -1244,6 +1312,7 @@ function Invoke-FPControls {
 	$opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp
 	$permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission
 	$updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update
+	$appx        = Get-FPFilteredSet -XmlData $DataSet.configuration.appxremovals.appxremoval
 
 	Write-FPLog "template version...: $($DataSet.configuration.version)"
 	Write-FPLog "template comment...: $($DataSet.configuration.comment)"
@@ -1263,6 +1332,7 @@ function Invoke-FPControls {
 			'registry'    { if ($registry)    {Set-FPControlRegistry -DataSet $registry}; break }
 			'deployments' { if ($installs)    {Set-FPControlPackages -DataSet $installs}; break }
 			'removals'    { if ($removals)    {Set-FPControlRemovals -DataSet $removals}; break }
+			'appxremovals'{ if ($appx)        {Set-FPControlAppxRemovals -DataSet $appx}; break }
 			'services'    { if ($services)    {Set-FPControlServices -DataSet $services}; break }
 			'shortcuts'   { if ($shortcuts)   {Set-FPControlShortcuts -DataSet $shortcuts}; break }
 			'opapps'      { if ($opapps)      {Set-FPControlWin32Apps -DataSet $opapps}; break }
