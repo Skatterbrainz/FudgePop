@@ -1,4 +1,4 @@
-# FudgePop Control File Syntax 1.0.5
+# FudgePop Control File Syntax 1.0.7
 
 ## Overview
 
@@ -11,6 +11,7 @@ The control XML format includes a set of basic sections which focus on specific 
 * Files
 * Folders
 * Registry Keys
+* Appx Removals
 * Services
 * Shortcuts
 * On-Prem Applications
@@ -54,6 +55,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
    * innerText = names of Chocolatey packages, comma-separated (example: "7zip,vlc,office365proplus")
  * Optional: 
    * user = "name" or "all"
+   * comment = "_comment_string_"
 
 **Removals**
 
@@ -65,7 +67,21 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * when = "now", "daily" or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
   * Optional: 
     * user = "name" or "all"
+    * comment = "_comment_string_"
 
+**AppxRemovals**
+
+  * Description: Uninstall Windows Store APPX apps like CandyCrush, MineCraft, etc.
+  * Element: /configuration/appxremovals/appxremoval
+  * Required: 
+    * device = "name" or "all"
+    * enabled = "true" or "false"
+    * when = "now", "daily" or "MM/DD/YYYY HH:MM AM/PM" (example: "10/27/2017 10:30 PM")
+    * (innerText) = Appx code label values, comma-separated. Can be partial names (matching implied)
+  * Optional: 
+    * user = "name" or ""
+    * comment = "_comment_string_"
+  
 **Registry**
 
   * Description: Configure and Manage Registry keys and values
@@ -79,6 +95,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * value = "_name_" (name of registry value)
     * data = "_data_" (data to assign to value)
     * type = "_datatype_" ("string","dword", etc.")
+    * comment = "_comment_string_"
 
 **Shortcut**
 
@@ -97,6 +114,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * windowstyle = "normal", "max" or "min"
     * args = "_string_"
     * workingpath = "_string-path_"
+    * comment = "_comment_string_"
   * Notes:
     * The path value can be an explicit path, an environment reference (e.g. $env:PUBLIC) or a SpecialFolders enum
     * for a list of SpecialFolder enums, refer to [MSDN](https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx)
@@ -112,7 +130,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * source = "_path_"
     * target = "_path_"
   * Optional: 
-    * (none)
+    * comment = "_comment_string_"
 
 **Folders**
 
@@ -123,7 +141,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * enabled = "true" or "false"
     * action = "create","empty","rename","delete"
   * Optional: 
-    * (none)
+    * comment = "_comment_string_"
   
 **Services**
 
@@ -136,6 +154,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * name = "_name_"
   * Optional:
     * config = "_parameters_" (example: "startup=automatic", "startup=disabled")
+    * comment = "_comment_string_"
   
 **OPApps**
 
@@ -162,6 +181,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * path = "_path-to-folder-or-file-or-registry-key_"
   * Optional:
     * value = "_data_"
+    * comment = "_comment_string_"
 
 **Permissions**
 
@@ -174,7 +194,7 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * principals = "_user-or-group_"
     * rights = "read","write","modify","delete","readexecute","full"
   * Optional: 
-    * (none)
+    * comment = "_comment_string_"
    
 **Updates**
 
@@ -184,4 +204,5 @@ Always remember that FudgePop is designed to run as a scheduled task, which exec
     * device = "name" or "all"
     * enabled = "true" or "false"
     * when = "now", "daily" or explicit datetime value
-    
+  * Optional:
+    * comment = "_comment_string_"
