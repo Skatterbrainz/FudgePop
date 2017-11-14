@@ -23,15 +23,15 @@ Configure Options and Scheduled Task to run FudgePop
 
 ### Example 1
 ```
-PS C:\> {{ Add example code here }}
+PS C:\> Install-FudgePop -UseDefaults
 ```
 
-{{ Add example description here }}
+Configure FudgePop with default options: 1 hour schedule using control.xml on the project Git site.
 
 ## PARAMETERS
 
 ### -UseDefaults
-{{Fill UseDefaults Description}}
+(optional) Applies default settings
 
 ```yaml
 Type: SwitchParameter
