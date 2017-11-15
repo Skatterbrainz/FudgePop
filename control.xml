@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration version="1.0.2" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1711.14" />
+<configuration version="1.0.3" comment="fudgepack - windows device configuration control file">
+  <control enabled="true" exclude="" comment="kill switch" version="1711.15" />
   <priority order="files,folders,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
     <deployment device="all" user="all" enabled="true" when="now" update="false">7zip,googlechrome</deployment>
@@ -37,6 +37,10 @@
     <reg device="all" enabled="true" action="create" path="HKLM:\software\fudgepop" value="CustomValue" data="$(Get-Date)" type="string" />
     <reg device="all" enabled="true" action="create" path="HKLM:\software\fudgepop" value="ControlVersion" data="$controlversion" type="string" />
   </registry>
+  <modules comment="powershell modules">
+    <module device="d006" enabled="true" name="PlatyPs" version="latest" when="now" comment="powershell documentation module" />
+    <module device="nsa18" enabled="true" name="AzureRM" version="latest" when="now" comment="Azure RM cmdlets" />
+  </modules>
   <services comment="services to configure or manage">
     <service device="all" enabled="true" name="RemoteRegistry" action="modify" config="startup=automatic" />
     <service device="d004" enabled="true" name="PcaSvc" action="restart" config="" />
