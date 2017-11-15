@@ -263,7 +263,10 @@ function Get-FPFilteredSet {
         [parameter(Mandatory = $True)]
         $XmlData
     )
-    $XmlData | Where-Object {$_.enabled -eq 'true' -and ($_.device -eq $env:COMPUTERNAME -or $_.device -eq 'all')}
+    $collections = ($XmlData.configuration.collections.collection | Where-Object {$_.members -match $env:COMPUTERNAME}).name
+    $result = $XmlData | 
+        Where-Object { $_.enabled -eq 'true' -and (($_.device -eq $env:COMPUTERNAME -or $_.device -eq 'all') -or ($collections.Contains($_.collection))) }
+    Write-Output $result
 }
 
 function Get-FPServiceAvailable {
@@ -1483,6 +1486,7 @@ param (
     Write-FPLog -Category "Info" -Message "********************* control processing: begin *********************"
     Write-FPLog "module version: $($Script:FPVersion)"
     $MyPC = $env:COMPUTERNAME
+    $collections = ($DataSet.configuration.collections.collection | Where-Object {$_.members -match $MyPC}).name
     $priority    = $DataSet.configuration.priority.order
     $installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment
     $removals    = Get-FPFilteredSet -XmlData $DataSet.configuration.removals.removal
@@ -1502,6 +1506,8 @@ param (
     Write-FPLog "control version....: $($DataSet.configuration.control.version) ***"
     Write-FPLog "control enabled....: $($DataSet.configuration.control.enabled)"
     Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
+    Write-FPLog "device name........: $MyPC"
+    Write-FPLog "collections........: $($collections -join ',')"
     
     Set-FPConfiguration -Name "TemplateVersion" -Data $DataSet.configuration.version | Out-Null
     Set-FPConfiguration -Name "ControlVersion" -Data $DataSet.configuration.control.version | Out-Null
@@ -1513,18 +1519,18 @@ param (
     foreach ($key in $priority -split ',') {
         Write-FPLog "****************** $key **********************"
         switch ($key) {
-            'folders'      { if ($folders) {Set-FPControlFolders -DataSet $folders}; break }
-            'files'        { if ($files) {Set-FPControlFiles -DataSet $files}; break }
-            'registry'     { if ($registry) {Set-FPControlRegistry -DataSet $registry}; break }
-            'deployments'  { if ($installs) {Set-FPControlPackages -DataSet $installs}; break }
-            'removals'     { if ($removals) {Set-FPControlRemovals -DataSet $removals}; break }
-            'appxremovals' { if ($appx) {Set-FPControlAppxRemovals -DataSet $appx}; break }
-            'services'     { if ($services) {Set-FPControlServices -DataSet $services}; break }
+            'folders'      { if ($folders)   {Set-FPControlFolders -DataSet $folders}; break }
+            'files'        { if ($files)     {Set-FPControlFiles -DataSet $files}; break }
+            'registry'     { if ($registry)  {Set-FPControlRegistry -DataSet $registry}; break }
+            'deployments'  { if ($installs)  {Set-FPControlPackages -DataSet $installs}; break }
+            'removals'     { if ($removals)  {Set-FPControlRemovals -DataSet $removals}; break }
+            'appxremovals' { if ($appx)      {Set-FPControlAppxRemovals -DataSet $appx}; break }
+            'services'     { if ($services)  {Set-FPControlServices -DataSet $services}; break }
             'shortcuts'    { if ($shortcuts) {Set-FPControlShortcuts -DataSet $shortcuts}; break }
-            'opapps'       { if ($opapps) {Set-FPControlWin32Apps -DataSet $opapps}; break }
+            'opapps'       { if ($opapps)    {Set-FPControlWin32Apps -DataSet $opapps}; break }
             'permissions'  { if ($permissions) {Set-FPControlPermissions -DataSet $permissions}; break }
-            'updates'      { if ($updates) {Set-FPControlWindowsUpdate -DataSet $updates}; break }
-            'modules'      { if ($modules) {Set-FPControlModules -DataSet $modules}; break }
+            'updates'      { if ($updates)   {Set-FPControlWindowsUpdate -DataSet $updates}; break }
+            'modules'      { if ($modules)   {Set-FPControlModules -DataSet $modules}; break }
             default { Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
         } # switch
     } # foreach
