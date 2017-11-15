@@ -8,7 +8,7 @@ schema: 2.0.0
 # Invoke-FudgePop
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Invokes a FudgePop Process
 
 ## SYNTAX
 
@@ -17,21 +17,34 @@ Invoke-FudgePop [-TestMode] [-WhatIf] [-Confirm]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Invokes the FudgePop client process.
+If Install-FudgePop has not yet been
+executed, you will be prompted to do that first, in order to configure the
+options required to support FudgePop. 
+Otherwise, it will import the control 
+XML file and process the instructions it provides.
 
 ## EXAMPLES
 
-### Example 1
+### -------------------------- EXAMPLE 1 --------------------------
 ```
-PS C:\> {{ Add example code here }}
+Invoke-FudgePop
 ```
 
-{{ Add example description here }}
+### -------------------------- EXAMPLE 2 --------------------------
+```
+Invoke-FudgePop -TestMode
+```
+
+### -------------------------- EXAMPLE 3 --------------------------
+```
+Invoke-FudgePop -Verbose
+```
 
 ## PARAMETERS
 
 ### -TestMode
-{{Fill TestMode Description}}
+\[switch\]\[optional\] Force WhatIf and Verbose output
 
 ```yaml
 Type: SwitchParameter
@@ -40,7 +53,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -78,14 +91,10 @@ Accept wildcard characters: False
 
 ## INPUTS
 
-### None
-
-
 ## OUTPUTS
 
-### System.Object
-
 ## NOTES
+1.0.8 - 11/14/2017 - David Stein
 
 ## RELATED LINKS
 

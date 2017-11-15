@@ -8,7 +8,7 @@ schema: 2.0.0
 # Show-FudgePop
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Display FudgePop configuration
 
 ## SYNTAX
 
@@ -17,29 +17,23 @@ Show-FudgePop
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Displays the current FudgePop client configuration and status
 
 ## EXAMPLES
 
-### Example 1
+### -------------------------- EXAMPLE 1 --------------------------
 ```
-PS C:\> {{ Add example code here }}
+Show-FudgePop -Verbose
 ```
-
-{{ Add example description here }}
 
 ## PARAMETERS
 
 ## INPUTS
 
-### None
-
-
 ## OUTPUTS
 
-### System.Object
-
 ## NOTES
+1.0.8 - 11/14/2017 - David Stein
 
 ## RELATED LINKS
 

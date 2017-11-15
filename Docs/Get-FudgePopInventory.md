@@ -99,6 +99,7 @@ Accept wildcard characters: False
 ## OUTPUTS
 
 ## NOTES
+1.0.8 - 11/14/2017 - David Stein
 
 ## RELATED LINKS
 

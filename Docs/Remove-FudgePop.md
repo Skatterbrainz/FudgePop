@@ -8,7 +8,7 @@ schema: 2.0.0
 # Remove-FudgePop
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Removes FudgePop Configuration
 
 ## SYNTAX
 
@@ -17,16 +17,16 @@ Remove-FudgePop [-WhatIf] [-Confirm]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Removes FudgePop configuration items from the local computer,
+and the Scheduled Task as well. 
+Does not remove the module itself.
 
 ## EXAMPLES
 
-### Example 1
+### -------------------------- EXAMPLE 1 --------------------------
 ```
-PS C:\> {{ Add example code here }}
+Remove-FudgePop -Verbose -WhatIf
 ```
-
-{{ Add example description here }}
 
 ## PARAMETERS
 
@@ -63,14 +63,10 @@ Accept wildcard characters: False
 
 ## INPUTS
 
-### None
-
-
 ## OUTPUTS
 
-### System.Object
-
 ## NOTES
+1.0.8 - 11/14/2017 - David Stein
 
 ## RELATED LINKS
 

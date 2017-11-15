@@ -8,7 +8,7 @@ schema: 2.0.0
 # Install-FudgePop
 
 ## SYNOPSIS
-Configure Options and Scheduled Task
+Configure FudgePop options and Scheduled Task
 
 ## SYNTAX
 
@@ -17,21 +17,23 @@ Install-FudgePop [-UseDefaults] [-WhatIf] [-Confirm]
 ```
 
 ## DESCRIPTION
-Configure Options and Scheduled Task to run FudgePop
+Configures FudgePop options, including source control XML file path,
+and Scheduled Task options.
 
 ## EXAMPLES
 
-### Example 1
+### -------------------------- EXAMPLE 1 --------------------------
 ```
-PS C:\> Install-FudgePop -UseDefaults
+Install-FudgePop -UseDefaults
 ```
-
-Configure FudgePop with default options: 1 hour schedule using control.xml on the project Git site.
 
 ## PARAMETERS
 
 ### -UseDefaults
-(optional) Applies default settings
+\[optional\]\[switch\] Applies default settings and initializes the
+scheduled client task at a 1 hour interval. 
+The default control XML
+file path is the URI to the control.xml on the project Github site.
 
 ```yaml
 Type: SwitchParameter
@@ -40,7 +42,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -78,14 +80,10 @@ Accept wildcard characters: False
 
 ## INPUTS
 
-### None
-
-
 ## OUTPUTS
 
-### System.Object
-
 ## NOTES
+1.0.8 - 11/14/2017 - David Stein
 
 ## RELATED LINKS
 
