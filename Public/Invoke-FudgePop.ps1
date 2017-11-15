@@ -19,7 +19,7 @@ function Invoke-FudgePop {
 .EXAMPLE
 	Invoke-FudgePop -Verbose
 .NOTES
-	1.0.9 - 11/14/2017 - David Stein
+	1.0.10 - 11/15/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
@@ -47,6 +47,12 @@ function Invoke-FudgePop {
         if (Get-FPServiceAvailable -DataSet $ControlData) {
             Write-Verbose "FudgePop is active."
             Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null
+            if ($TestMode) {
+                Set-FPConfiguration -Name "LastRunMode" -Data 'TestMode' | Out-Null
+            }
+            else {
+                Set-FPConfiguration -Name "LastRunMode" -Data 'Live' | Out-Null
+            }
             Invoke-FPControls -DataSet $ControlData
             Set-FPConfiguration -Name "LastFinishTime" -Data (Get-Date) | Out-Null
             Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME | Out-Null
