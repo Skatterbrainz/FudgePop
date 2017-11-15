@@ -1,60 +1,52 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration version="1.0.3" comment="fudgepack - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1711.15.1" />
+<configuration version="1.0.4" comment="fudgepack - windows device configuration control file">
+  <control enabled="true" exclude="" comment="kill switch" version="1711.15" />
   <priority order="files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates" />
   <deployments comment="packages to install or upgrade">
-    <deployment device="all" user="all" enabled="true" when="now" update="false">7zip,googlechrome</deployment>
-    <deployment device="d004" user="Jane Doe" enabled="true" when="now" update="false">office365proplus,vlc,putty</deployment>
-    <deployment device="d005" user="John Doe" enabled="true" when="10/27/2017 10:00 PM" update="false">office365proplus</deployment>
-    <deployment device="d006" user="Jack Frost" enabled="true" when="now" update="false">vlc,putty,visualstudiocode,vscode-powershell</deployment>
-    <deployment device="nsa18" user="Skatterbrainz" enabled="true" when="10/27/2017 10:00 PM" update="false">notepadplusplus,git</deployment>
+    <deployment device="all" user="all" enabled="false" when="now" update="false">7zip,googlechrome</deployment>
+    <deployment device="d001" user="Jane Doe" enabled="false" when="now" update="false">office365proplus,vlc,putty</deployment>
   </deployments>
   <upgrades>
-    <upgrade device="nsa18" enabled="true" when="daily" />
+    <upgrade device="d001" enabled="false" when="daily" />
   </upgrades>
   <removals comment="packages to remove">
-    <removal device="all" user="all" enabled="false" when="now"></removal>
-    <removal device="d004" user="Jane Doe" enabled="true" when="now">slack,vscode-powershell,vscode-icons,visualstudiocode</removal>
-    <removal device="nsa18" user="Skatterbrainz" enabled="true" when="now">firefox</removal>
+    <removal device="all" user="all" enabled="false" when="now">_packagename_</removal>
+    <removal device="d001" user="Jane Doe" enabled="false" when="now">slack,vscode-powershell,vscode-icons,visualstudiocode</removal>
   </removals>
   <appxremovals comment="store apps to remove">
-    <appxremoval device="d006" user="Jack Frost" enabled="true" when="now" comment="">CandyCrush,MineCraft,Facebook,Twitter,MarchofEmpires</appxremoval>
+    <appxremoval device="d001" user="Jane Doe" enabled="false" when="now" comment="">CandyCrush,MineCraft,Facebook,Twitter,MarchofEmpires</appxremoval>
   </appxremovals>
   <folders comment="folders to create or manage">
-    <folder device="all" enabled="false" action="create" path="c:\programdata\fudgepop" />
-    <folder device="all" enabled="false" action="empty" path="c:\windows\temp" />
-    <folder device="d004" enabled="true" action="delete" path="c:\TestFolder" />
-    <folder device="nsa18" enabled="true" action="create" path="c:\data" />
+    <folder device="all" enabled="false" action="create" path="c:\programdata\fudgepop" comment="" />
+    <folder device="all" enabled="false" action="empty" path="c:\windows\temp" comment="" />
+    <folder device="d001" enabled="true" action="delete" path="c:\TestFolder" comment="" />
   </folders>
   <files comment="files to create or manage">
-    <file device="d004" enabled="true" action="rename" source="c:\users\dstein\documents\test1.txt" target="c:\users\dstein\documents\test100.txt" />
-    <file device="d004" enabled="true" action="move" source="c:\users\dstein\documents\test2.txt" target="c:\users\dstein\downloads\test2.txt" />
-    <file device="d004" enabled="true" action="delete" source="c:\users\dstein\documents\test3.txt" />
-    <file device="d005" enabled="false" action="move" source="" target="" />
-    <file device="nsa18" enabled="true" action="download" source="http://www.7-zip.org/a/7z1701-x64.msi" target="c:\windows\temp\" />
+    <file device="d001" enabled="false" action="rename" source="c:\test\test1.txt" target="c:\test\test100.txt" />
+    <file device="d001" enabled="false" action="move" source="c:\test\test2.txt" target="c:\test2\test2.txt" />
+    <file device="d001" enabled="false" action="delete" source="c:\test\test3.txt" />
+    <file device="d001" enabled="false" action="move" source="" target="" />
+    <file device="d001" enabled="false" action="download" source="http://www.7-zip.org/a/7z1701-x64.msi" target="c:\windows\temp\" />
   </files>
   <registry comment="registry keys and values to create or manage">
-    <reg device="all" enabled="true" action="create" path="HKLM:\software\fudgepop" value="CustomValue" data="$(Get-Date)" type="string" />
-    <reg device="all" enabled="true" action="create" path="HKLM:\software\fudgepop" value="ControlVersion" data="$controlversion" type="string" />
+    <reg device="all" enabled="false" action="create" path="HKLM:\software\fudgepop" value="CustomValue" data="$(Get-Date)" type="string" />
+    <reg device="all" enabled="false" action="create" path="HKLM:\software\fudgepop" value="ControlVersion" data="$controlversion" type="string" />
   </registry>
   <modules comment="powershell modules">
-    <module device="d006" enabled="true" name="PlatyPs" version="latest" when="now" comment="powershell documentation module" />
-    <module device="nsa18" enabled="true" name="AzureRM" version="latest" when="now" comment="Azure RM cmdlets" />
+    <module device="d001" enabled="false" name="PlatyPs" version="latest" when="now" comment="powershell documentation module" />
   </modules>
   <services comment="services to configure or manage">
-    <service device="all" enabled="true" name="RemoteRegistry" action="modify" config="startup=automatic" />
-    <service device="d004" enabled="true" name="PcaSvc" action="restart" config="" />
-    <service device="d005" enabled="true" name="PcaSvc" action="restart" config="" />
+    <service device="all" enabled="false" name="RemoteRegistry" action="modify" config="startup=automatic" />
+    <service device="d001" enabled="false" name="PcaSvc" action="restart" config="" />
   </services>
   <shortcuts comment="shortcuts to create, modify or remove. for path ref: https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx">
-    <shortcut device="all" enabled="true" action="create" name="Internet Explorer" type="lnk" target="c:\program files\internet explorer\iexplore.exe" path="commondesktop" force="true" description="Internet Explorer" windowstyle="normal" args="" workingpath="" />
+    <shortcut device="all" enabled="false" action="create" name="Internet Explorer" type="lnk" target="c:\program files\internet explorer\iexplore.exe" path="commondesktop" force="true" description="Internet Explorer" windowstyle="normal" args="" workingpath="" />
     <shortcut device="all" enabled="false" action="create" name="Google" type="url" target="http://www.google.com" path="commondesktop" force="true" description="Google Search" windowstyle="normal" args="" workingpath="" />
-    <shortcut device="d004" enabled="false" action="delete" name="Example Shortcut" type="url" path="commondesktop" force="true" />
+    <shortcut device="d001" enabled="false" action="delete" name="Example Shortcut" type="url" path="commondesktop" force="true" />
   </shortcuts>
   <opapps comment="on prem application deployments">
-    <opapp device="nsa18" enabled="true" name="Paint.Net 4.0.19 x64" when="now" action="install" run="\\fs1.contoso.com\apps\packages\Paint.Net\PaintDotNet_x64.msi" params="" platforms="win10x64,win7x64" restart="false" detect="PaintNet4019" />
-    <opapp device="d004" enabled="false" name="Remote Desktop Connection Manager" when="now" action="uninstall" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="RDCMan27" />
-    <opapp device="d006" enabled="false" name="7-zip 1701 x64" when="now" action="install" run="msiexec /i c:\windows\temp\7z1701-x64.msi /q" platforms="win7x64,win10x64" restart="false" detect="7zip1701x64" />
+    <opapp device="d001" enabled="false" action="uninstall" name="Remote Desktop Connection Manager" when="now" run="msiexec /x {0240359E-6A4C-4884-9E94-B397A02D893C} /q" restart="false" detect="RDCMan27" />
+    <opapp device="d001" enabled="false" action="install" name="7-zip 1701 x64" when="now" run="msiexec /i c:\windows\temp\7z1701-x64.msi /q" platforms="win7x64,win10x64" restart="false" detect="7zip1701x64" />
   </opapps>
   <detectionrules comment="used for verifying app installs">
     <detectionrule name="PaintNet4019" app="Paint.Net 4.0.19 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F10AAD91-58DF-44EC-A647-810197141667}" value="" />
@@ -62,9 +54,9 @@
     <detectionrule name="7zip1701x64" app="7-zip 1701 x64" path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{23170F69-40C1-2702-1701-000001000000}" value="" />
   </detectionrules>
   <permissions comment="configure security permissions on local resources">
-    <permission device="nsa18" enabled="true" path="c:\data" principals="users" rights="modify" />
+    <permission device="d001" enabled="false" path="c:\data" principals="users" rights="modify" />
   </permissions>
   <updates comment="force microsoft updates download and install cycle">
-    <update device="all" enabled="true" when="daily" />
+    <update device="all" enabled="false" when="daily" />
   </updates>
 </configuration>
