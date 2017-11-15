@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<configuration version="1.0.4" comment="fudgepack - windows device configuration control file">
+<configuration version="1.0.4" comment="FudgePop - windows device configuration control file">
   <control enabled="true" exclude="" comment="kill switch" version="1711.15.2" />
   <priority order="files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates" />
   <collections comment="computer groups">
