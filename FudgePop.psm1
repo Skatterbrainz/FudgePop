@@ -1,4 +1,4 @@
-$Script:FPVersion   = '1.0.9'
+$Script:FPVersion   = '1.0.10'
 $Script:FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
 $Script:FPRunJob    = 'FudgePop Agent'
 $Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/control.xml'
