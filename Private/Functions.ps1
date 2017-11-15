@@ -4,7 +4,7 @@
 .DESCRIPTION
 	Private functions for FudgePop module
 .NOTES
-	1.0.9 - 11/14/2017 - David Stein
+	1.0.10 - 11/15/2017 - David Stein
 #>
 
 
@@ -30,7 +30,7 @@ function Write-FPLog {
         [string] $Category = 'Info'
     )
     Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
-    "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default
+    "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default -Append
 }
 
 function Install-Chocolatey {
@@ -212,7 +212,8 @@ function Get-FPControlData {
     Write-FPLog "preparing to import control file: $FilePath"
     if ($FilePath.StartsWith("http")) {
         try {
-            [xml]$result = Invoke-RestMethod -Uri "$FilePath" -UseBasicParsing
+            #[xml]$result = Invoke-RestMethod -Uri "$FilePath" -UseBasicParsing
+            [xml]$result = ((New-Object System.Net.WebClient).DownloadString($FilePath))
         }
         catch {
             Write-FPLog -Category 'Error' -Message "failed to import data from Uri: $FilePath"
@@ -436,8 +437,12 @@ function Set-FPControlFiles {
                     Write-FPLog "downloading file"
                     if ($fileSource.StartsWith('http') -or $fileSource.StartsWith('ftp')) {
                         try {
+                            <#
                             $WebClient = New-Object System.Net.WebClient
                             $WebClient.DownloadFile($fileSource, $fileTarget) | Out-Null
+                            #>
+                            Import-Module BitsTransfer
+                            Start-BitsTransfer -Source $fileSource -Destination $fileTarget
                             if (Test-Path $fileTarget) {
                                 Write-FPLog "file downloaded successfully"
                             }
@@ -1373,6 +1378,92 @@ param (
     Write-FPLog -Category "Info" -Message "--------- updates assignments: finish ---------"
 }
 
+function Set-FPControlModules {
+    <#
+    .SYNOPSIS
+    Install PowerShell Modules
+    
+    .DESCRIPTION
+    Install Specified PowerShell Modules
+    
+    .PARAMETER DataSet
+    XML data
+    
+    .EXAMPLE
+    Set-FPControlModules -DataSet $xmldata
+    
+    .NOTES
+    
+    #>
+    [CmdletBinding(SupportsShouldProcess=$True)]
+    param (
+        [parameter(Mandatory = $True, HelpMessage="XML data")] 
+		[ValidateNotNullOrEmpty()] 
+		$DataSet
+    )
+    Write-FPLog -Category "Info" -Message "--------- module assignments: begin ---------"
+    foreach ($module in $DataSet) {
+        $device  = $module.device
+        $modname = $module.name
+        $modver  = $module.version
+        $runtime = $module.when
+        $comment = $module.comment
+        Write-FPLog -Category "Info" -Message "device....: $device"
+        Write-FPLog -Category "Info" -Message "module....: $modname"
+        Write-FPLog -Category "Info" -Message "version...: $modver"
+        Write-FPLog -Category "Info" -Message "runtime...: $runtime"
+        Write-FPLog -Category "Info" -Message "comment...: $comment"
+        if (Test-FPControlRuntime -RunTime $runtime) {
+            Write-FPLog -Category 'Info' -Message "Runtime is now or overdue"
+            if (Import-Module $modname -ErrorAction SilentlyContinue) {
+                $lv = (Get-Module $modname).Version -join '.'
+                Write-FPLog -Category 'Info' -Message "Module version $lv is already installed"
+                if ($modver -eq 'latest') {
+                    Write-FPLog -Category 'Info' -Message 'Latest version is requested via control policy.'
+                    try {
+                        $rv = (Find-Module $modname).Version -join '.'
+                        if ($lv -lt $rv) {
+                            Write-FPLog -Category 'Info' -Message "Latest version available is $rv / updating module"
+                            if (!($TestMode)) {
+                                Update-Module -Name $modname -Force
+                            }
+                            else {
+                                Write-FPLog "TESTMODE: Would have been updated"
+                            }
+                        }
+                        else {
+                            Write-FPLog -Category 'Info' -Message "Local version is the latest. No update required."
+                        }
+                    }
+                    catch {
+                        Write-FPLog -Category 'Error' -Message $_.Exception.Message
+                        break
+                    }
+                }
+            }
+            else {
+                Write-FPLog -Category 'Info' -Message "Module is not installed. Install it now."
+                try {
+                    if (!($TestMode)) {
+                        Install-Module -Name $modname -Force -ErrorAction Stop
+                        Write-FPLog -Category 'Info' -Message "Module has been installed successfully."
+                    }
+                    else {
+                        Write-FPLog "TESTMODE: Would have been installed"
+                    }
+                }
+                catch {
+                    Write-FPLog -Category 'Error' -Message "Installation failed: "+$_.Exception.Message
+                }
+            }
+        }
+        else {
+            Write-FPLog -Category 'Info' -Message 'skip: not yet time to run this assignment'
+        }
+    } # foreach
+    Write-FPLog -Category 'Info' -Message '--------- module assignments: finish ---------'
+}
+
 function Invoke-FPControls {
 	<#
 .SYNOPSIS
@@ -1389,7 +1480,7 @@ param (
 		[ValidateNotNullOrEmpty()] 
 		$DataSet
     )
-    Write-FPLog -Category "Info" -Message "--------- control processing: begin ---------"
+    Write-FPLog -Category "Info" -Message "********************* control processing: begin *********************"
     Write-FPLog "module version: $($Script:FPVersion)"
     $MyPC = $env:COMPUTERNAME
     $priority    = $DataSet.configuration.priority.order
@@ -1403,6 +1494,7 @@ param (
     $opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp
     $updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update
     $appx        = Get-FPFilteredSet -XmlData $DataSet.configuration.appxremovals.appxremoval
+    $modules     = Get-FPFilteredSet -XmlData $DataSet.configuration.modules.module
     $permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission
 	
     Write-FPLog "template version...: $($DataSet.configuration.version)"
@@ -1432,6 +1524,7 @@ param (
             'opapps'       { if ($opapps) {Set-FPControlWin32Apps -DataSet $opapps}; break }
             'permissions'  { if ($permissions) {Set-FPControlPermissions -DataSet $permissions}; break }
             'updates'      { if ($updates) {Set-FPControlWindowsUpdate -DataSet $updates}; break }
+            'modules'      { if ($modules) {Set-FPControlModules -DataSet $modules}; break }
             default { Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
         } # switch
     } # foreach
