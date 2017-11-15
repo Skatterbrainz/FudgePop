@@ -1412,6 +1412,7 @@ param (
     Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
     
     Set-FPConfiguration -Name "TemplateVersion" -Data $DataSet.configuration.version | Out-Null
+    Set-FPConfiguration -Name "ControlVersion" -Data $DataSet.configuration.control.version | Out-Null
 
     if (!(Get-FPServiceAvailable -DataSet $DataSet)) { Write-FPLog 'FudgePop is not enabled'; break }
 	
