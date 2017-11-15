@@ -12,7 +12,7 @@ function Show-FudgePop {
 .EXAMPLE
     Show-FudgePop
 .NOTES
-	1.0.9 - 11/14/2017 - David Stein
+	1.0.10 - 11/15/2017 - David Stein
 #>
     param ()
     Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
