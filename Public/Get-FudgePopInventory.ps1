@@ -17,7 +17,7 @@ function Get-FudgePopInventory {
 .EXAMPLE
 	Get-FudgePopInventory -Computer WS01,WS02 -FilePath "c:\users\dave\documents"
 .NOTES
-	1.0.8 - 11/14/2017 - David Stein
+	1.0.9 - 11/14/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (

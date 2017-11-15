@@ -19,7 +19,7 @@ function Install-FudgePop {
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
-        [parameter(Mandatory = $False)]
+        [parameter(Mandatory = $False, HelpMessage="Automatic configuration with default settings")]
         [switch] $UseDefaults
     )
     Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
@@ -30,11 +30,11 @@ function Install-FudgePop {
     Write-FPLog $Script:FPCFDefault
     $ControlFile = Get-FPConfiguration -Name "ControlFile" -Default $FPCFDefault
     $ScheduleHrs = Get-FPConfiguration -Name "ScheduleHours" -Default 1
-    $EnableJob = Get-FPConfiguration -Name "EnableJob" -Default 1
-    $RunJobName = Get-FPConfiguration -Name "RunJobName" -Default $Script:FPRunJob
+    $EnableJob   = Get-FPConfiguration -Name "EnableJob" -Default 1
+    $RunJobName  = Get-FPConfiguration -Name "RunJobName" -Default $Script:FPRunJob
     if ($UseDefaults) {
-        $newFile = $ControlFile
-        $newJob = 1
+        $newFile  = $ControlFile
+        $newJob   = 1
         $newHours = 1
         Write-FPLog 'Applying default settings and configuring scheduled task'
         if (!(Test-FPControlSource $newFile)) {
@@ -52,11 +52,11 @@ function Install-FudgePop {
         if ($newFile -eq "") {$newFile = $ControlFile}
         $newJob = (Read-Host "  Enable FudgePop to run on a recurring schedule? <Y>")
         if ($newJob -ne 'N') { 
-            $newJob = 1 
+            $newJob    = 1 
             $EnableJob = 1
         } 
         else { 
-            $newJob = 0
+            $newJob    = 0
             $EnableJob = $null
         }
         if ($newJob -eq 1) {

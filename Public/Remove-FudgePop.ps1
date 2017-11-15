@@ -9,12 +9,17 @@ function Remove-FudgePop {
 	Removes FudgePop configuration items from the local computer,
 	and the Scheduled Task as well.  Does not remove the module itself.
 .EXAMPLE
-	Remove-FudgePop -Verbose -WhatIf
+    Remove-FudgePop
+.EXAMPLE
+    Remove-FudgePop -Complete
 .NOTES
 	1.0.9 - 11/14/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
-    param ()
+    param (
+        [parameter(Mandatory=$False, HelpMessage="Force complete removal of FudgePop")]
+        [switch] $Complete
+    )
     Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     try {
         Get-ScheduledTask -TaskName "$FPRunJob" -ErrorAction SilentlyContinue |	
@@ -37,6 +42,9 @@ function Remove-FudgePop {
     }
     Write-FPLog 'FudgePop has been disabled on this computer'
     Write-Host 'FudgePop has been disabled on this computer' -ForegroundColor Green
+    if ($Complete) {
+        Uninstall-Module FudgePop -AllVersions -Force
+    }
 }
 
 Export-ModuleMember -Function Remove-FudgePop

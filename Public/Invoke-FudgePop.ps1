@@ -23,7 +23,7 @@ function Invoke-FudgePop {
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
-        [parameter(Mandatory = $False)]
+        [parameter(Mandatory = $False, HelpMessage="Run in Test Mode only")]
         [switch] $TestMode
     )
     Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
@@ -33,7 +33,7 @@ function Invoke-FudgePop {
     }
     catch {
         Write-Warning "Unable to update FudgePop PowerShell module. May require manual update."
-        Write-Error $_.Exception.-Message
+        Write-Error $_.Exception.Message
         break
     }
     $ControlFile = Get-FPConfiguration -Name "ControlFile" -Default ""
