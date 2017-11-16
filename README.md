@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.10
+# FudgePop (PowerShell Module)
 ## README.md
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
