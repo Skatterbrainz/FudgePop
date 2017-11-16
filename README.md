@@ -1,4 +1,4 @@
-# FudgePop (Module) 1.0.9
+# FudgePop (Module) 1.0.10
 ## README.md
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
@@ -13,7 +13,12 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 * Uninstall Local Apps (exe, msi)
 * Uninstall Appx Store Apps (Candy Crush, MineCraft, etc.)
 * Modify Folder and File Permissions
+* Install PowerShell modules
 * Force Windows Update Scan/Download/Install Cycle
+
+# Targeting
+
+* Target devices by specific name or via Collections, or both
 
 # Installation
 
@@ -31,38 +36,25 @@ Centrally manage Windows 10 computers using a local script which reads instructi
   
 # Functions
 
+Refer to Docs folder for more details about functions, parameters, and examples.
+
 ## Invoke-FudgePop
 
-  * **TestMode**
-
-  Switch. Invokes specialized -WhatIf processing.  Also supports -Verbose
+  * Runs a FudgePop policy cycle
 
 ## Install-FudgePop
 
-  Prompts for input to control FudgePop client settings.
-  
-  * **UseDefaults**
-  
-  Automatically configures the default settings: 
-  * Uses the sample template on this Github repo (not a good idea, but hey)
-  * Uses 1 hour interval for scheduled task to invoke FudgePop
+  * Configures and enables FudgePop
 
 ## Remove-FudgePop
 
-  * Removes scheduled task and registry entries.  Still requires Remove-Module to completely remove.
+  * Removes scheduled task and registry entries, optionally removes module.
 
 ## Show-FudgePop
 
-  * Displays version and configuration information
+  * Displays version and configuration information.
 
 ## Get-FudgePopInventory
 
-Generates basic HTML inventory report of basic computer hardware, software and operating system information.
+  * Generates basic HTML inventory report of basic computer hardware, software and operating system information.
 
-  * **ComputerName**
-  
-Name(s) of computers to query. Default is local computer.
-  
-  * **FilePath**
-  
-  Path to store report files.  Default is $env:USERPROFILE\Documents
