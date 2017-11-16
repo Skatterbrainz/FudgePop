@@ -3,23 +3,28 @@
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
-* Install, Upgrade and Remove Chocolatey Packages
-* Create, Delete and Empty Folders
-* Copy, Rename, Move or Delete Files
-* Start, Stop and Reconfigure Services
-* Add, Modify, Delete Shortcuts
-* Add, Modify Registry Keys and Values
-* Install or Remove Win32 Applications (on-prem sources or local)
-* Uninstall Local Apps (exe, msi)
-* Uninstall Appx Store Apps (Candy Crush, MineCraft, etc.)
-* Modify Folder and File Permissions
-* Install PowerShell modules
-* Force Windows Update Scan/Download/Install Cycle
+  * Install, Upgrade and Remove Chocolatey Packages
+  * Create, Delete and Empty Folders
+  * Copy, Rename, Move or Delete Files
+  * Start, Stop and Reconfigure Services
+  * Add, Modify, Delete Shortcuts
+  * Add, Modify Registry Keys and Values
+  * Install or Remove Win32 Applications (on-prem sources or local)
+  * Uninstall Local Apps (exe, msi)
+  * Uninstall Appx Store Apps (Candy Crush, MineCraft, etc.)
+  * Modify Folder and File Permissions
+  * Install PowerShell modules
+  * Force Windows Update Scan/Download/Install Cycle
 
 # Targeting
 
-* Target devices by specific name or via Collections, or both
+  * Target devices by specific name or via Collections, or both
 
+# Why 'FudgePop'?
+
+  * Because it started with Chocolatey, and a strange bet with a colleague over beer and coffee.
+  * I know that makes no sense at all, but it still tastes pretty darn good!
+  
 # Installation
 
   1. Use the Install-Module cmdlet to install FudgePop: **Install-Module FudgePop**
