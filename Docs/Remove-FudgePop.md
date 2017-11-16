@@ -13,7 +13,7 @@ Removes FudgePop Configuration
 ## SYNTAX
 
 ```
-Remove-FudgePop [-WhatIf] [-Confirm]
+Remove-FudgePop [-Complete] [-WhatIf] [-Confirm]
 ```
 
 ## DESCRIPTION
@@ -25,22 +25,27 @@ Does not remove the module itself.
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-Remove-FudgePop -Verbose -WhatIf
+Remove-FudgePop
+```
+
+### -------------------------- EXAMPLE 2 --------------------------
+```
+Remove-FudgePop -Complete
 ```
 
 ## PARAMETERS
 
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
+### -Complete
+Force complete removal of FudgePop
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: cf
+Aliases: 
 
 Required: False
 Position: Named
-Default value: None
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -61,12 +66,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.8 - 11/14/2017 - David Stein
+1.0.10 - 11/15/2017 - David Stein
 
 ## RELATED LINKS
 

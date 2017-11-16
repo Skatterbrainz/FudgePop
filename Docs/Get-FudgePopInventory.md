@@ -13,7 +13,8 @@ Create HTML inventory report of computer
 ## SYNTAX
 
 ```
-Get-FudgePopInventory [[-ComputerName] <String[]>] [[-FilePath] <String>] [-WhatIf] [-Confirm]
+Get-FudgePopInventory [[-ComputerName] <String[]>] [[-FilePath] <String>] [[-StyleSheet] <String>] [-WhatIf]
+ [-Confirm]
 ```
 
 ## DESCRIPTION
@@ -30,7 +31,7 @@ Get-FudgePopInventory -Computer WS01,WS02 -FilePath "c:\users\dave\documents"
 ## PARAMETERS
 
 ### -ComputerName
-\[string-array\]\[optional\] Name of one or more computers to query. 
+Name of one or more computers to query. 
 A separate
 report file is generated for each computer. 
 Default value is local computer.
@@ -48,8 +49,8 @@ Accept wildcard characters: False
 ```
 
 ### -FilePath
-\[string\]\[optional\] Path and filename for the inventory report.
-If not specified, the default is $env:TEMP\computername_inventory.htm
+Path and filename for the inventory report.
+   If not specified, the default is $env:TEMP\computername_inventory.htm
 
 ```yaml
 Type: String
@@ -63,16 +64,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
+### -StyleSheet
+Path and filename for CSS stylesheet template.
+Default uses an internal "default.css" within the module structure
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
-Aliases: cf
+Aliases: 
 
 Required: False
-Position: Named
+Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -94,12 +96,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.8 - 11/14/2017 - David Stein
+1.0.10 - 11/15/2017 - David Stein
 
 ## RELATED LINKS
 

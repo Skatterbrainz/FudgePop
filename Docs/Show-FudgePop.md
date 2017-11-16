@@ -23,7 +23,7 @@ Displays the current FudgePop client configuration and status
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-Show-FudgePop -Verbose
+Show-FudgePop
 ```
 
 ## PARAMETERS
@@ -33,7 +33,7 @@ Show-FudgePop -Verbose
 ## OUTPUTS
 
 ## NOTES
-1.0.8 - 11/14/2017 - David Stein
+1.0.10 - 11/15/2017 - David Stein
 
 ## RELATED LINKS
 
