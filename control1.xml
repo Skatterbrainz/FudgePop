@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration version="1.0.4" comment="FudgePop - windows device configuration control file">
-  <control enabled="true" exclude="" comment="kill switch" version="1711.15.2" />
+  <control enabled="true" exclude="" comment="kill switch" version="1711.15.3" />
   <priority order="files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates" />
   <collections comment="computer groups">
     <collection name="developers" members="nsa18,d006" comment="Developer Computers" />
