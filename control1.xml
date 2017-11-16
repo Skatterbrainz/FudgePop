@@ -30,7 +30,7 @@
     <file device="d001" enabled="false" action="rename" source="c:\test\test1.txt" target="c:\test\test100.txt" />
     <file device="d001" enabled="false" action="move" source="c:\test\test2.txt" target="c:\test2\test2.txt" />
     <file device="d001" enabled="false" action="delete" source="c:\test\test3.txt" />
-    <file device="d001" enabled="false" action="download" source="http://www.7-zip.org/a/7z1701-x64.msi" target="c:\windows\temp\" />
+    <file device="nsa18" enabled="true" action="download" source="http://www.7-zip.org/a/7z1701-x64.msi" target="c:\windows\temp\" />
   </files>
   <registry comment="registry keys and values to create or manage">
     <reg device="all" enabled="false" action="create" path="HKLM:\software\fudgepop" value="CustomValue" data="$(Get-Date)" type="string" />
