@@ -4,414 +4,422 @@
 .DESCRIPTION
 	Private functions for FudgePop module
 .NOTES
-	1.0.9 - 11/14/2017 - David Stein
+	1.0.10 - 11/16/2017 - David Stein
 #>
 
 
 function Write-FPLog {
     <#
-.SYNOPSIS
-	Output Writing Handler
-.DESCRIPTION
-	Yet another stupid Write-Log function like everyone else has
-.PARAMETER Category
-	Describes type of information as 'Info','Warning','Error' (default is 'Info')
-.PARAMETER Message
-	Information to display or write to log file
-.EXAMPLE
-	Write-FPLog -Category 'Info' -Message 'This is a message'
-#>
-    param (
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Message,
-        [parameter(Mandatory = $False)]
-        [ValidateSet('Info', 'Warning', 'Error')]
-        [string] $Category = 'Info'
-    )
-    Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
-    "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default
+    .SYNOPSIS
+        Output Writing Handler
+    .DESCRIPTION
+        Yet another stupid Write-Log function like everyone else has
+    .PARAMETER Category
+        Describes type of information as 'Info','Warning','Error' (default is 'Info')
+    .PARAMETER Message
+        Information to display or write to log file
+    .EXAMPLE
+        Write-FPLog -Category 'Info' -Message 'This is a message'
+    #>
+        param (
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $Message,
+            [parameter(Mandatory = $False)]
+            [ValidateSet('Info', 'Warning', 'Error')]
+            [string] $Category = 'Info'
+        )
+        Write-Verbose "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message"
+        "$(Get-Date -f 'yyyy-M-dd HH:mm:ss')  $Category  $Message" | Out-File $Script:FPLogFile -Encoding Default -Append
 }
 
 function Install-Chocolatey {
     <#
-.SYNOPSIS
-	Insure Chocolatey is installed
-.DESCRIPTION
-	Check if Chocolatey is installed.  If not, then install it.
-.EXAMPLE
-	Install-Chocolatey
-#>
-    [CmdletBinding(SupportsShouldProcess = $True)]
-    param ()
-    Write-FPLog -Category Info -Message "verifying chocolatey is installed"
-    if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) {
-        Write-FPLog -Category Info -Message "installing chocolatey..."
-        try {
-            iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    .SYNOPSIS
+        Insure Chocolatey is installed
+    .DESCRIPTION
+        Check if Chocolatey is installed.  If not, then install it.
+    .EXAMPLE
+        Install-Chocolatey
+    #>
+        [CmdletBinding(SupportsShouldProcess = $True)]
+        param ()
+        Write-FPLog -Category Info -Message "verifying chocolatey is installed"
+        if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) {
+            Write-FPLog -Category Info -Message "installing chocolatey..."
+            try {
+                iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            }
+            catch {
+                Write-FPLog -Category Error -Message $_.Exception.Message
+            }
         }
-        catch {
-            Write-FPLog -Category Error -Message $_.Exception.Message
+        else {
+            Write-FPLog -Category Info -Message "chocolatey is already installed"
         }
-    }
-    else {
-        Write-FPLog -Category Info -Message "chocolatey is already installed"
-    }
 }
 
 function Get-FPConfiguration {
     <#
-.SYNOPSIS
-	Import Control Data from Registry
-.DESCRIPTION
-	Fetch data from Registry or return Default if none found
-.PARAMETER RegPath
-	Registry Path (default is HKLM:\SOFTWARE\FudgePop)
-.PARAMETER Name
-	Registry Value name
-.PARAMETER Default
-	Data to return if no value found in registry
-.INPUTS
-	Registry Key, Value Name, Default Value (if not found in registry)
-.OUTPUTS
-	Information returned from registry (or default value)
-#>
-    [CmdletBinding()]
-    param (
-        [parameter(Mandatory = $False)]
-        [ValidateNotNullOrEmpty()]
-        [string] $RegPath = $FPRegRoot,
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Name,
-        [parameter(Mandatory = $False)]
-        [string] $Default = ""
-    )
-    if (Test-Path $RegPath) {
-        Write-Verbose "registry path confirmed: $RegPath ($Name)"
-        try {
-            $result = Get-ItemProperty -Path $RegPath -ErrorAction Stop |
-                Select-Object -ExpandProperty $Name -ErrorAction Stop
-            if ($result -eq $null -or $result -eq "") {
-                Write-Verbose "no data returned from query. using default: $Default"
+    .SYNOPSIS
+        Import Control Data from Registry
+    .DESCRIPTION
+        Fetch data from Registry or return Default if none found
+    .PARAMETER RegPath
+        Registry Path (default is HKLM:\SOFTWARE\FudgePop)
+    .PARAMETER Name
+        Registry Value name
+    .PARAMETER Default
+        Data to return if no value found in registry
+    .INPUTS
+        Registry Key, Value Name, Default Value (if not found in registry)
+    .OUTPUTS
+        Information returned from registry (or default value)
+    #>
+        [CmdletBinding()]
+        param (
+            [parameter(Mandatory = $False)]
+            [ValidateNotNullOrEmpty()]
+            [string] $RegPath = $FPRegRoot,
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $Name,
+            [parameter(Mandatory = $False)]
+            [string] $Default = ""
+        )
+        if (Test-Path $RegPath) {
+            Write-Verbose "registry path confirmed: $RegPath ($Name)"
+            try {
+                $result = Get-ItemProperty -Path $RegPath -ErrorAction Stop |
+                    Select-Object -ExpandProperty $Name -ErrorAction Stop
+                if ($result -eq $null -or $result -eq "") {
+                    Write-Verbose "no data returned from query. using default: $Default"
+                    $result = $Default
+                }
+            }
+            catch {
+                Write-Verbose "error: returning $Default"
                 $result = $Default
             }
         }
-        catch {
-            Write-Verbose "error: returning $Default"
+        else {
+            Write-Verbose "registry path does not yet exist: $RegPath"
             $result = $Default
         }
-    }
-    else {
-        Write-Verbose "registry path does not yet exist: $RegPath"
-        $result = $Default
-    }
-    Write-Output $result
+        Write-Output $result
 }
 
 function Set-FPConfiguration {
     <#
-.SYNOPSIS
-	Write data to Registry
-.DESCRIPTION
-	Write Data to FudgePop Registry location
-.PARAMETER RegPath
-	Registry Path (default is HKLM:\SOFTWARE\FudgePop)
-.PARAMETER Name
-	Registry Value name
-.PARAMETER Data
-	Data to store in registry value
-.INPUTS
-	Registry Key (or default), Value Name, Data
-#>
-    [CmdletBinding(SupportsShouldProcess = $True)]
-    param (
-        [parameter(Mandatory = $False)]
-        [ValidateNotNullOrEmpty()]
-        [string] $RegPath = $FPRegRoot,
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Name,
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Data
-    )
-    if (!(Test-Path $RegPath)) {
+    .SYNOPSIS
+        Write data to Registry
+    .DESCRIPTION
+        Write Data to FudgePop Registry location
+    .PARAMETER RegPath
+        Registry Path (default is HKLM:\SOFTWARE\FudgePop)
+    .PARAMETER Name
+        Registry Value name
+    .PARAMETER Data
+        Data to store in registry value
+    .INPUTS
+        Registry Key (or default), Value Name, Data
+    #>
+        [CmdletBinding(SupportsShouldProcess = $True)]
+        param (
+            [parameter(Mandatory = $False)]
+            [ValidateNotNullOrEmpty()]
+            [string] $RegPath = $FPRegRoot,
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $Name,
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $Data
+        )
+        if (!(Test-Path $RegPath)) {
+            try {
+                Write-Verbose "creating new registry key root"
+                New-Item -Path $RegPath -Force -ErrorAction Stop | Out-Null
+                $created = $True
+            }
+            catch {
+                Write-FPLog -Category 'Error' -Message $_.Exception.Message
+                break
+            }
+        }
+        if ($created) {
+            Set-ItemProperty -Path $RegPath -Name "ModuleVersion" -Value $FPVersion -ErrorAction Stop
+            Set-ItemProperty -Path $RegPath -Name "InitialSetup" -Value (Get-Date) -ErrorAction Stop
+        }
         try {
-            Write-Verbose "creating new registry key root"
-            New-Item -Path $RegPath -Force -ErrorAction Stop | Out-Null
-            $created = $True
+            Set-ItemProperty -Path $RegPath -Name $Name -Value $Data -ErrorAction Stop
         }
         catch {
             Write-FPLog -Category 'Error' -Message $_.Exception.Message
             break
         }
-    }
-    if ($created) {
-        Set-ItemProperty -Path $RegPath -Name "ModuleVersion" -Value $FPVersion -ErrorAction Stop
-        Set-ItemProperty -Path $RegPath -Name "InitialSetup" -Value (Get-Date) -ErrorAction Stop
-    }
-    try {
-        Set-ItemProperty -Path $RegPath -Name $Name -Value $Data -ErrorAction Stop
-    }
-    catch {
-        Write-FPLog -Category 'Error' -Message $_.Exception.Message
-        break
-    }
-    Write-Output 0
+        Write-Output 0
 }
 
 function Test-FPControlSource {
     <#
-.SYNOPSIS
-	Validate File or URI is accessible
-.DESCRIPTION
-	Verifies Control XML file is accessible
-.PARAMETER Path
-	Full Path or URI to file
-.INPUTS
-	Path to file
-.OUTPUTS
-	$True or $null
-#>
-    param (
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Path
-    )
-    if ($Path.StartsWith('http')) {
-        Write-FPLog "verifying URI resource: $Path"
-        try {
-            $test = Invoke-WebRequest -UseBasicParsing -Uri $Path -Method Get -ErrorAction SilentlyContinue
-            if ($test) {
-                Write-Output ($test.StatusCode -eq 200)
+    .SYNOPSIS
+        Validate File or URI is accessible
+    .DESCRIPTION
+        Verifies Control XML file is accessible
+    .PARAMETER Path
+        Full Path or URI to file
+    .INPUTS
+        Path to file
+    .OUTPUTS
+        $True or $null
+    #>
+        param (
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $Path
+        )
+        if ($Path.StartsWith('http')) {
+            Write-FPLog "verifying URI resource: $Path"
+            try {
+                $test = Invoke-WebRequest -UseBasicParsing -Uri $Path -Method Get -ErrorAction SilentlyContinue
+                if ($test) {
+                    Write-Output ($test.StatusCode -eq 200)
+                }
             }
+            catch {}
         }
-        catch {}
-    }
-    else {
-        Write-FPLog "verifying file system resource: $Path"
-        Write-Output (Test-Path $Path)
-    }
+        else {
+            Write-FPLog "verifying file system resource: $Path"
+            Write-Output (Test-Path $Path)
+        }
 }
 
 function Get-FPControlData {
     <#
-.SYNOPSIS
-	Import XML data from Control File
-.DESCRIPTION
-	Import XML data from Control File
-.PARAMETER FilePath
-	Full path or URI to XML file
-#>
-    param (
-        [parameter(Mandatory = $True, HelpMessage = "Path or URI to XML control file")]
-        [ValidateNotNullOrEmpty()]
-        [string] $FilePath
-    )
-    Write-FPLog "preparing to import control file: $FilePath"
-    if ($FilePath.StartsWith("http")) {
-        try {
-            [xml]$result = Invoke-RestMethod -Uri "$FilePath" -UseBasicParsing
-        }
-        catch {
-            Write-FPLog -Category 'Error' -Message "failed to import data from Uri: $FilePath"
-            Write-Output -3
-            break;
-        }
-        Write-FPLog 'control data loaded successfully'
-    }
-    else {
-        if (Test-Path $FilePath) {
+    .SYNOPSIS
+        Import XML data from Control File
+    .DESCRIPTION
+        Import XML data from Control File
+    .PARAMETER FilePath
+        Full path or URI to XML file
+    #>
+        param (
+            [parameter(Mandatory = $True, HelpMessage = "Path or URI to XML control file")]
+            [ValidateNotNullOrEmpty()]
+            [string] $FilePath
+        )
+        Write-FPLog "preparing to import control file: $FilePath"
+        if ($FilePath.StartsWith("http")) {
             try {
-                [xml]$result = Get-Content -Path $FilePath
+                [xml]$result = ((New-Object System.Net.WebClient).DownloadString($FilePath))
             }
             catch {
-                Write-FPLog -Category 'Error' -Message "unable to import control file: $FilePath"
-                Write-Output -4
+                Write-FPLog -Category 'Error' -Message "failed to import data from Uri: $FilePath"
+                Write-Output -3
+                break;
+            }
+            Write-FPLog 'control data loaded successfully'
+        }
+        else {
+            if (Test-Path $FilePath) {
+                try {
+                    [xml]$result = Get-Content -Path $FilePath
+                }
+                catch {
+                    Write-FPLog -Category 'Error' -Message "unable to import control file: $FilePath"
+                    Write-Output -4
+                    break;
+                }
+            }
+            else {
+                Write-FPLog -Category 'Error' -Message "unable to locate control file: $FilePath"
+                Write-Output -5
                 break;
             }
         }
-        else {
-            Write-FPLog -Category 'Error' -Message "unable to locate control file: $FilePath"
-            Write-Output -5
-            break;
-        }
-    }
-    Write-Output $result
+        Write-Output $result
 }
 
 function Get-FPFilteredSet {
     <#
-.SYNOPSIS
-	Return Filtered Control Data
-.DESCRIPTION
-	Return child nodes where device=(_this-computer_) or device="all"
-.PARAMETER XmlData
-	XML data from control file import
-.EXAMPLE
-	Node: /configuration/files/file
-		<file device="all" enabled="true" source="" target=""...>
-	Would return this node since device='all'
-.INPUTS
-	XML data object
-.OUTPUTS
-	XML data
-#>
+    .SYNOPSIS
+    Return Targeted XML data set
+    .DESCRIPTION
+    Return Targeted XML data set for this device or associated collection
+    .PARAMETER XmlData
+    XML data set for specific control group (e.g. files, folders, etc.)
+    .PARAMETER Collections
+    Array of collection names
+    .EXAMPLE
+    $dataset = Get-FPFilteredSet -XmlData $ControlData.configuration.files.file -Collections (Get-FPDeviceCollections -XmlData $ControlData)
+    .NOTES
+    #>
     param (
         [parameter(Mandatory = $True)]
-        $XmlData
+        $XmlData,
+        [parameter(Mandatory = $False)]
+        $Collections
     )
-    $XmlData | Where-Object {$_.enabled -eq 'true' -and ($_.device -eq $env:COMPUTERNAME -or $_.device -eq 'all')}
+    $thisDevice  = $env:COMPUTERNAME
+    if ($Collections -ne $null) {
+        $result = $XmlData |
+            Where-Object {$_.enabled -eq 'true' -and ($Collections.Contains($_.collection)) }
+    }
+    else {
+        $result = $XmlData | 
+            Where-Object {$_.enabled -eq 'true' -and ($_.device -eq 'all' -or $_.device -eq $thisDevice)}
+    }
+    Write-Output $result
 }
 
 function Get-FPServiceAvailable {
     <#
-.SYNOPSIS
-	Verify FudgePop Control Item is Enabled
-.DESCRIPTION
-	Return TRUE if enabled="true" in control section of XML
-.PARAMETER DataSet
-	XML data from control file import
-.INPUTS
-	XML data
-.OUTPUTS
-	$True or $null
-#>
-    param (
-        [parameter(Mandatory = $True)]
-        $DataSet
-    )
-    if ($DataSet.configuration.control.enabled -eq 'true') {
-        if (($DataSet.configuration.control.exclude -split ',') -contains $MyPC) {
-            Write-FPLog 'FudgePop services are enabled, but this device is excluded'
-            break
+    .SYNOPSIS
+        Verify FudgePop Control Item is Enabled
+    .DESCRIPTION
+        Return TRUE if enabled="true" in control section of XML
+    .PARAMETER DataSet
+        XML data from control file import
+    .INPUTS
+        XML data
+    .OUTPUTS
+        $True or $null
+    #>
+        param (
+            [parameter(Mandatory = $True)]
+            $DataSet
+        )
+        if ($DataSet.configuration.control.enabled -eq 'true') {
+            if (($DataSet.configuration.control.exclude -split ',') -contains $MyPC) {
+                Write-FPLog 'FudgePop services are enabled, but this device is excluded'
+                break
+            }
+            else {
+                Write-FPLog 'FudgePop services are enabled for all devices'
+                Write-Output $True
+            }
         }
         else {
-            Write-FPLog 'FudgePop services are enabled for all devices'
-            Write-Output $True
+            Write-FPLog 'FudgePop services are currently disabled for all devices'
         }
-    }
-    else {
-        Write-FPLog 'FudgePop services are currently disabled for all devices'
-    }
 }
 
 function Test-FPDetectionRule {
     <#
-.SYNOPSIS
-	Return TRUE if detection rule is valid
-.PARAMETER DataSet
-	XML data from control file import
-.PARAMETER RuleName
-	Name of rule in control XML file
-#>
-    param (
-        [parameter(Mandatory = $True)]
-        $DataSet,
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $RuleName
-    )
-    Write-FPLog "detection rule: $RuleName"
-    try {
-        $detectionRule = $DataSet.configuration.detectionrules.detectionrule | Where-Object {$_.name -eq $RuleName}
-        $rulePath = $detectionRule.path
-        Write-FPLog "detection test: $rulePath"
-        Write-Output (Test-Path $rulePath)
-    }
-    catch {}
+    .SYNOPSIS
+        Return TRUE if detection rule is valid
+    .PARAMETER DataSet
+        XML data from control file import
+    .PARAMETER RuleName
+        Name of rule in control XML file
+    #>
+        param (
+            [parameter(Mandatory = $True)]
+            $DataSet,
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $RuleName
+        )
+        Write-FPLog "detection rule: $RuleName"
+        try {
+            $detectionRule = $DataSet.configuration.detectionrules.detectionrule | Where-Object {$_.name -eq $RuleName}
+            $rulePath = $detectionRule.path
+            Write-FPLog "detection test: $rulePath"
+            Write-Output (Test-Path $rulePath)
+        }
+        catch {}
 }
 
 function Test-FPControlRuntime {
     <#
-.SYNOPSIS
-	Confirm Task Execution Time
-.DESCRIPTION
-	Return TRUE if a task runtime is active
-.PARAMETER RunTime
-	Date Value, or 'now' or 'daily'
-.PARAMETER Key
-	Label to map to Registry for get/set operations
-.EXAMPLE
-	Test-FPControlRuntime -RunTime "now"
-.EXAMPLE
-	Test-FPControlRuntime -RunTime "11/12/2017 10:05:00 PM"
-.EXAMPLE
-	Test-FPControlRuntime -RunTime "daily" -Key "TestValue"
-#>
-    param (
-        [parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $RunTime,
-        [parameter(Mandatory = $False)]
-        [string] $Key = ""
-    )
-    switch ($RunTime) {
-        'now' { Write-Output $True; break }
-        'daily' {
-            $lastrun = Get-FPConfiguration -Name "$Key" -Default ""
-            if ($lastrun -ne "") {
-                $prevDate = $(Get-Date($lastrun)).ToShortDateString()
-                Write-FPLog "previous run: $prevDate"
-                if ($prevDate -ne (Get-Date).ToShortDateString()) {
-                    Write-FPLog "$prevDate is not today: $((Get-Date).ToShortDateString())"
+    .SYNOPSIS
+        Confirm Task Execution Time
+    .DESCRIPTION
+        Return TRUE if a task runtime is active
+    .PARAMETER RunTime
+        Date Value, or 'now' or 'daily'
+    .PARAMETER Key
+        Label to map to Registry for get/set operations
+    .EXAMPLE
+        Test-FPControlRuntime -RunTime "now"
+    .EXAMPLE
+        Test-FPControlRuntime -RunTime "11/12/2017 10:05:00 PM"
+    .EXAMPLE
+        Test-FPControlRuntime -RunTime "daily" -Key "TestValue"
+    #>
+        param (
+            [parameter(Mandatory = $True)]
+            [ValidateNotNullOrEmpty()]
+            [string] $RunTime,
+            [parameter(Mandatory = $False)]
+            [string] $Key = ""
+        )
+        switch ($RunTime) {
+            'now' { Write-Output $True; break }
+            'daily' {
+                $lastrun = Get-FPConfiguration -Name "$Key" -Default ""
+                if ($lastrun -ne "") {
+                    $prevDate = $(Get-Date($lastrun)).ToShortDateString()
+                    Write-FPLog "previous run: $prevDate"
+                    if ($prevDate -ne (Get-Date).ToShortDateString()) {
+                        Write-FPLog "$prevDate is not today: $((Get-Date).ToShortDateString())"
+                        Write-Output $True
+                    }
+                }
+                else {
+                    Write-FPLog "no previous run"
+                    Write-Output $True
+                }
+                break
+            }
+            default {
+                Write-FPLog "checking explicit runtime"
+                if ((Get-Date).ToLocalTime() -ge $RunTime) {
                     Write-Output $True
                 }
             }
-            else {
-                Write-FPLog "no previous run"
-                Write-Output $True
-            }
-            break
-        }
-        default {
-            Write-FPLog "checking explicit runtime"
-            if ((Get-Date).ToLocalTime() -ge $RunTime) {
-                Write-Output $True
-            }
-        }
-    } # switch
+        } # switch
 }
 
 function Assert-Chocolatey {
     <#
-.SYNOPSIS
-	Install Chocolatey
-.DESCRIPTION
-	Process Configuration Control: Install or Upgrade Chocolatey
-.EXAMPLE
-	Assert-Chocolatey
-#>
-    param ()
-    Write-FPLog "verifying chocolatey installation"
-    if (-not(Test-Path "$($env:ProgramData)\chocolatey\choco.exe" )) {
-        try {
-            Write-FPLog "installing chocolatey"
-            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    .SYNOPSIS
+        Install Chocolatey
+    .DESCRIPTION
+        Process Configuration Control: Install or Upgrade Chocolatey
+    .EXAMPLE
+        Assert-Chocolatey
+    #>
+        param ()
+        Write-FPLog "verifying chocolatey installation"
+        if (-not(Test-Path "$($env:ProgramData)\chocolatey\choco.exe" )) {
+            try {
+                Write-FPLog "installing chocolatey"
+                Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            }
+            catch {
+                Write-FPLog -Category "Error" -Message $_.Exception.Message
+                break
+            }
         }
-        catch {
-            Write-FPLog -Category "Error" -Message $_.Exception.Message
-            break
+        else {
+            Write-FPLog "checking for newer version of chocolatey"
+            choco upgrade chocolatey -y
         }
-    }
-    else {
-        Write-FPLog "checking for newer version of chocolatey"
-        choco upgrade chocolatey -y
-    }
 }
 
 function Set-FPControlFiles {
     <#
-.SYNOPSIS
-	Create and Manipulate Files
-.DESCRIPTION
-	Process Configuration Control: Files
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlFiles -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Create and Manipulate Files
+    .DESCRIPTION
+        Process Configuration Control: Files
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlFiles -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -420,13 +428,15 @@ function Set-FPControlFiles {
     Write-FPLog "--------- file assignments: begin ---------"
     foreach ($file in $DataSet) {
         $fileDevice = $file.device
+        $collection = $file.collection
         $fileSource = $file.source
         $fileTarget = $file.target
         $action     = $file.action
-        Write-FPLog  "device name.......: $fileDevice"
-        Write-FPLog  "action............: $action"
-        Write-FPLog  "source............: $fileSource"
-        Write-FPLog  "target............: $fileTarget"
+        Write-FPLog "device name.......: $fileDevice"
+        Write-FPLog "collection........: $collection"
+        Write-FPLog "action............: $action"
+        Write-FPLog "source............: $fileSource"
+        Write-FPLog "target............: $fileTarget"
         if ($TestMode) {
             Write-FPLog  "TEST MODE: no changes will be applied"
         }
@@ -436,8 +446,12 @@ function Set-FPControlFiles {
                     Write-FPLog "downloading file"
                     if ($fileSource.StartsWith('http') -or $fileSource.StartsWith('ftp')) {
                         try {
+                            <#
                             $WebClient = New-Object System.Net.WebClient
                             $WebClient.DownloadFile($fileSource, $fileTarget) | Out-Null
+                            #>
+                            Import-Module BitsTransfer
+                            Start-BitsTransfer -Source $fileSource -Destination $fileTarget
                             if (Test-Path $fileTarget) {
                                 Write-FPLog "file downloaded successfully"
                             }
@@ -524,18 +538,17 @@ function Set-FPControlFiles {
     Write-FPLog "--------- file assignments: finish ---------"
 }
 
-
 function Set-FPControlFolders {
     <#
-.SYNOPSIS
-	Create Folders
-.DESCRIPTION
-	Process Configuration Control: Folders
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlFolders -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Create Folders
+    .DESCRIPTION
+        Process Configuration Control: Folders
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlFolders -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -543,11 +556,13 @@ function Set-FPControlFolders {
     )
     Write-FPLog -Category "Info" -Message "--------- folder assignments: begin ---------"
     foreach ($folder in $DataSet) {
-        $folderPath = $folder.path
         $deviceName = $folder.device
+        $collection = $folder.collection
         $action     = $folder.action
-        Write-FPLog -Category "Info" -Message "assigned to device: $deviceName"
-        Write-FPLog -Category "Info" -Message "folder action assigned: $action"
+        $folderPath = $folder.path
+        Write-FPLog -Category "Info" -Message "device...........: $deviceName"
+        Write-FPLog -Category "Info" -Message "collection.......: $collection"
+        Write-FPLog -Category "Info" -Message "folder action....: $action"
         switch ($action) {
             'create' {
                 Write-FPLog -Category "Info" -Message "folder path: $folderPath"
@@ -571,7 +586,7 @@ function Set-FPControlFolders {
                 Write-FPLog -Category "Info" -Message "deleting $filter from $folderPath and subfolders"
                 if (-not $TestMode) {
                     Get-ChildItem -Path "$folderPath" -Filter "$filter" -Recurse |
-                        foreach { Remove-Item -Path $_.FullName -Confirm:$False -Recurse -ErrorAction SilentlyContinue }
+                        ForEach-Object { Remove-Item -Path $_.FullName -Confirm:$False -Recurse -ErrorAction SilentlyContinue }
                     Write-FPLog -Category "Info" -Message "some files may remain if they were in use"
                 }
                 else {
@@ -606,15 +621,15 @@ function Set-FPControlFolders {
 
 function Set-FPControlServices {
     <#
-.SYNOPSIS
-	Process Control Changes on Services
-.DESCRIPTION
-	Process Configuration Control: Windows Services
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlServices -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Process Control Changes on Services
+    .DESCRIPTION
+        Process Configuration Control: Windows Services
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlServices -DataSet $xmldata
+    #>
     [CmdletBinding()]
     param (
         [parameter(Mandatory = $True)]
@@ -622,11 +637,13 @@ function Set-FPControlServices {
     )
     Write-FPLog -Category "Info" -Message "--------- services assignments: begin ---------"
     foreach ($service in $DataSet) {
+        $deviceName = $service.device
+        $collection = $service.collection
         $svcName    = $service.name
         $svcConfig  = $service.config
         $svcAction  = $service.action
-        $deviceName = $service.device
         Write-FPLog -Category "Info" -Message "device name.....: $deviceName"
+        Write-FPLog -Category "Info" -Message "collection......: $collection"
         Write-FPLog -Category "Info" -Message "service name....: $svcName"
         Write-FPLog -Category "Info" -Message "action..........: $svcAction"
         Write-FPLog -Category "Info" -Message "config type.....: $svcConfig"
@@ -706,15 +723,15 @@ function Set-FPControlServices {
 
 function Set-FPControlShortcuts {
     <#
-.SYNOPSIS
-	Process Shortcut Controls
-.DESCRIPTION
-	Process Configuration Control: File and URL Shortcuts
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlShortcuts -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Process Shortcut Controls
+    .DESCRIPTION
+        Process Configuration Control: File and URL Shortcuts
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlShortcuts -DataSet $xmldata
+    #>
     param (
         [parameter(Mandatory = $True)]
         $DataSet
@@ -722,6 +739,7 @@ function Set-FPControlShortcuts {
     Write-FPLog "--------- shortcut assignments: begin ---------"
     foreach ($sc in $DataSet) {
         $scDevice   = $sc.device
+        $collection = $sc.collection
         $scName     = $sc.name
         $scAction   = $sc.action
         $scTarget   = $sc.target
@@ -732,6 +750,9 @@ function Set-FPControlShortcuts {
         $scArgs     = $sc.args
         $scWindow   = $sc.windowstyle
         $scWorkPath = $sc.workingpath
+        Write-FPLog "device................: $scDevice"
+        Write-FPLog "collection............: $collection"
+        Write-FPLog "shortcut name.........: $scName"
         try {
             if (-not (Test-Path $scPath)) {
                 $scRealPath = [environment]::GetFolderPath($scPath)
@@ -757,8 +778,7 @@ function Set-FPControlShortcuts {
                     else {
                         $scWin = 1
                     }
-                    Write-FPLog "shortcut name....: $scName"
-                    Write-FPLog "shortcut path....: $scPath"
+                    Write-FPLog "shortcut path....: $scPath ($scRealPath)"
                     Write-FPLog "shortcut target..: $scTarget"
                     Write-FPLog "shortcut descrip.: $scDesc"
                     Write-FPLog "shortcut args....: $scArgs"
@@ -799,7 +819,6 @@ function Set-FPControlShortcuts {
                 }
                 'delete' {
                     $scFullName = "$scRealPath\$scName.$scType"
-                    Write-FPLog "shortcut name....: $scName"
                     Write-FPLog "shortcut path....: $scPath"
                     Write-FPLog "device name......: $scDevice"
                     Write-FPLog "full linkpath....: $scFullName"
@@ -833,15 +852,15 @@ function Set-FPControlShortcuts {
 
 function Set-FPControlPermissions {
     <#
-.SYNOPSIS
-	Apply Folder and File Permissions Controls
-.DESCRIPTION
-	Process Configuration Control: ACL Permissions on Files, Folders
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlPermissions -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Apply Folder and File Permissions Controls
+    .DESCRIPTION
+        Process Configuration Control: ACL Permissions on Files, Folders
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlPermissions -DataSet $xmldata
+    #>
     param (
         [parameter(Mandatory = $True)]
         $DataSet
@@ -849,6 +868,7 @@ function Set-FPControlPermissions {
     Write-FPLog "--------- permissions assignments: begin ---------"
     foreach ($priv in $DataSet) {
         $device     = $priv.device
+        $collection = $priv.collection
         $privPath   = $priv.path
         $privPrinc  = $priv.principals
         $privRights = $priv.rights
@@ -858,10 +878,11 @@ function Set-FPControlPermissions {
         else {
             $privType = 'filesystem'
         }
-        Write-FPLog "device: $device"
-        Write-FPLog "priv path: $privPath"
-        Write-FPLog "priv principals: $privPrinc"
-        Write-FPLog "priv rights: $privRights"
+        Write-FPLog "device...........: $device"
+        Write-FPLog "collection.......: $collection"
+        Write-FPLog "priv path........: $privPath"
+        Write-FPLog "priv principals..: $privPrinc"
+        Write-FPLog "priv rights......: $privRights"
         if (Test-Path $privPath) {
             switch ($privType) {
                 'filesystem' {
@@ -903,15 +924,15 @@ function Set-FPControlPermissions {
 
 function Set-FPControlPackages {
     <#
-.SYNOPSIS
-	Install Chocolatey Packages
-.DESCRIPTION
-	Process Configuration Control: Chocolatey Package Installs and Upgrades
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlPackages -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Install Chocolatey Packages
+    .DESCRIPTION
+        Process Configuration Control: Chocolatey Package Installs and Upgrades
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlPackages -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -920,12 +941,14 @@ function Set-FPControlPackages {
     Write-FPLog -Category "Info" -Message "--------- installation assignments: begin ---------"
     foreach ($package in $DataSet) {
         $deviceName = $package.device
+        $collection = $package.collection
         $runtime    = $package.when
         $autoupdate = $package.autoupdate
         $username   = $package.user
         $extparams  = $package.params
         $update     = $package.update
         Write-FPLog -Category "Info" -Message "device......: $deviceName"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
         Write-FPLog -Category "Info" -Message "user........: $username"
         Write-FPLog -Category "Info" -Message "runtime.....: $runtime"
         Write-FPLog -Category "Info" -Message "autoupdate..: $autoupdate"
@@ -973,15 +996,15 @@ function Set-FPControlPackages {
 
 function Set-FPControlUpgrades {
     <#
-.SYNOPSIS
-	Upgrade Chocolatey Packages
-.DESCRIPTION
-	Process Configuration Control: Chocolatey Package Upgrades
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlUpgrades -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Upgrade Chocolatey Packages
+    .DESCRIPTION
+        Process Configuration Control: Chocolatey Package Upgrades
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlUpgrades -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -996,15 +1019,15 @@ function Set-FPControlUpgrades {
 
 function Set-FPControlAppxRemovals {
     <#
-.SYNOPSIS
-	Remove Appx Packages
-.DESCRIPTION
-	Process Configuration Control: Chocolatey Package Removals
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlAppxRemovals -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Remove Appx Packages
+    .DESCRIPTION
+        Process Configuration Control: Chocolatey Package Removals
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlAppxRemovals -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -1049,16 +1072,16 @@ function Set-FPControlAppxRemovals {
 
 function Set-FPControlRemovals {
     <#
-.SYNOPSIS
-	Uninstall Chocolatey Packages
-.DESCRIPTION
-	Uninstall Chocolatey Packages applicable to this computer
-.PARAMETER DataSet
-	XML data
-.EXAMPLE
-	Set-FPControlRemovals -DataSet $xmldata
-.NOTES
-#>
+    .SYNOPSIS
+        Uninstall Chocolatey Packages
+    .DESCRIPTION
+        Uninstall Chocolatey Packages applicable to this computer
+    .PARAMETER DataSet
+        XML data
+    .EXAMPLE
+        Set-FPControlRemovals -DataSet $xmldata
+    .NOTES
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -1067,11 +1090,13 @@ function Set-FPControlRemovals {
     Write-FPLog -Category "Info" -Message "--------- removal assignments: begin ---------"
     foreach ($package in $DataSet) {
         $deviceName = $package.device
+        $collection = $package.collection
         $runtime    = $package.when
         $autoupdate = $package.autoupdate
         $username   = $package.user
         $extparams  = $package.params
         Write-FPLog -Category "Info" -Message "device......: $deviceName"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
         Write-FPLog -Category "Info" -Message "user........: $username"
         Write-FPLog -Category "Info" -Message "autoupdate..: $autoupdate"
         Write-FPLog -Category "Info" -Message "runtime.....: $runtime"
@@ -1113,15 +1138,15 @@ function Set-FPControlRemovals {
 
 function Set-FPControlRegistry {
     <#
-.SYNOPSIS
-	Process Configuration Control: Registry Settings
-.DESCRIPTION
-	Process Configuration Control: Registry Settings
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlRegistry -DataSet $xmldata
-#>
+    .SYNOPSIS
+        Process Configuration Control: Registry Settings
+    .DESCRIPTION
+        Process Configuration Control: Registry Settings
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlRegistry -DataSet $xmldata
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $True)]
@@ -1129,15 +1154,17 @@ function Set-FPControlRegistry {
     )
     Write-FPLog -Category "Info" -Message "--------- registry assignments: begin ---------"
     foreach ($reg in $DataSet) {
-        $regpath = $reg.path
-        $regval  = $reg.value
-        $regdata = $reg.data
-        $regtype = $reg.type
         $deviceName = $reg.device
-        $regAction = $reg.action
-        Write-FPLog -Category "Info" -Message "assigned to device: $deviceName"
-        Write-FPLog -Category "Info" -Message "keypath: $regpath"
-        Write-FPLog -Category "Info" -Message "action: $regAction"
+        $collection = $reg.collection
+        $regAction  = $reg.action
+        $regpath    = $reg.path
+        $regval     = $reg.value
+        $regdata    = $reg.data
+        $regtype    = $reg.type
+        Write-FPLog -Category "Info" -Message "device......: $deviceName"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
+        Write-FPLog -Category "Info" -Message "keypath.....: $regpath"
+        Write-FPLog -Category "Info" -Message "action......: $regAction"
         switch ($regAction) {
             'create' {
                 if ($regdata -eq '$controlversion') { $regdata = $controlversion }
@@ -1204,33 +1231,37 @@ function Set-FPControlRegistry {
 }
 
 function Set-FPControlWin32Apps {
-<#
-.SYNOPSIS
-	Install Win32 Applications
-.DESCRIPTION
-	Process Configuration Control: Windows Application Installs and Uninstalls
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlWin32Apps -DataSet $xmldata
-#>
+    <#
+    .SYNOPSIS
+        Install Win32 Applications
+    .DESCRIPTION
+        Process Configuration Control: Windows Application Installs and Uninstalls
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlWin32Apps -DataSet $xmldata
+    #>
 	param (
         [parameter(Mandatory = $True)]
         $DataSet
     )
     Write-FPLog -Category "Info" -Message "--------- win32 app assignments: begin ---------"
     foreach ($app in $DataSet) {
-        $appName   = $app.name
-        $action    = $app.action
-        $appPlat   = $app.platforms
-        $appRun    = $app.run
-        $appParams = $app.params
-        $runtime   = $app.when
-        Write-FPLog -Category "Info" -Message "appname...: $appName"
-        Write-FPLog -Category "Info" -Message "app run...: $appRun"
-		Write-FPLog -Category "Info" -Message "action....: $action"
-		Write-FPLog -Category "Info" -Message "platform..: $appPlat"
-        Write-FPLog -Category "Info" -Message "runtime...: $runtime"
+        $device     = $app.device
+        $collection = $app.collection
+        $appName    = $app.name
+        $action     = $app.action
+        $appPlat    = $app.platforms
+        $appRun     = $app.run
+        $appParams  = $app.params
+        $runtime    = $app.when
+        Write-FPLog -Category "Info" -Message "device......: $device"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
+        Write-FPLog -Category "Info" -Message "appname.....: $appName"
+        Write-FPLog -Category "Info" -Message "app run.....: $appRun"
+		Write-FPLog -Category "Info" -Message "action......: $action"
+		Write-FPLog -Category "Info" -Message "platform....: $appPlat"
+        Write-FPLog -Category "Info" -Message "runtime.....: $runtime"
         switch ($action) {
             'install' {
 				
@@ -1249,8 +1280,8 @@ function Set-FPControlWin32Apps {
                     Write-FPLog -Category "Error" -Message "invalid file type"
                     break
                 }
-                Write-FPLog -Category "Info" -Message "proc...: $proc"
-                Write-FPLog -Category "Info" -Message "args...: $args"
+                Write-FPLog -Category "Info" -Message "process.....: $proc"
+                Write-FPLog -Category "Info" -Message "args........: $args"
                 Write-FPLog -Category "Info" -Message "contacting source to verify availability..."
                 if (Test-Path $appRun) {
                     if (-not $TestMode) {
@@ -1283,8 +1314,8 @@ function Set-FPControlWin32Apps {
                     if ($appRun.StartsWith('msiexec /x')) {
                         $proc = "msiexec"
                         $args = ($appRun -replace ("msiexec", "")).trim()
-                        Write-FPLog "proc......: $proc"
-                        Write-FPLog "args......: $args"
+                        Write-FPLog "process.....: $proc"
+                        Write-FPLog "args........: $args"
                         if (-not $TestMode) {
                             try {
                                 $p = Start-Process -FilePath $proc -ArgumentList $args -NoNewWindow -Wait -PassThru
@@ -1316,25 +1347,27 @@ function Set-FPControlWin32Apps {
 
 function Set-FPControlWindowsUpdate {
 	<#
-.SYNOPSIS
-	Run Windows Update Scan and Install Cycle
-.DESCRIPTION
-	Process Configuration Control: Windows Updates
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Set-FPControlWindowsUpdate -DataSet $xmldata
-#>
-param (
+    .SYNOPSIS
+        Run Windows Update Scan and Install Cycle
+    .DESCRIPTION
+        Process Configuration Control: Windows Updates
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Set-FPControlWindowsUpdate -DataSet $xmldata
+    #>
+    param (
         [parameter(Mandatory = $True)]
         $DataSet
     )
     Write-FPLog -Category "Info" -Message "--------- updates assignments: begin ---------"
     foreach ($dvc in $DataSet) {
-        $device  = $dvc.device
-        $runtime = $dvc.when
-        Write-FPLog -Category "Info" -Message "device....: $device"
-        Write-FPLog -Category "Info" -Message "runtime...: $runtime"
+        $device     = $dvc.device
+        $collection = $dvc.collection
+        $runtime    = $dvc.when
+        Write-FPLog -Category "Info" -Message "device......: $device"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
+        Write-FPLog -Category "Info" -Message "runtime.....: $runtime"
         if (Test-FPControlRuntime -RunTime $runtime -Key "LastRunUpdates") {
             if (-not $TestMode) {
                 Write-FPLog -Category "Info" -Message "run: runtime is now or already passed"
@@ -1373,44 +1406,190 @@ param (
     Write-FPLog -Category "Info" -Message "--------- updates assignments: finish ---------"
 }
 
+function Set-FPControlModules {
+    <#
+    .SYNOPSIS
+    Install PowerShell Modules
+    .DESCRIPTION
+    Install Specified PowerShell Modules
+    .PARAMETER DataSet
+    XML data
+    .EXAMPLE
+    Set-FPControlModules -DataSet $xmldata
+    .NOTES
+    #>
+    [CmdletBinding(SupportsShouldProcess=$True)]
+    param (
+        [parameter(Mandatory = $True, HelpMessage="XML data")] 
+		[ValidateNotNullOrEmpty()] 
+		$DataSet
+    )
+    Write-FPLog -Category "Info" -Message "--------- module assignments: begin ---------"
+    foreach ($module in $DataSet) {
+        $device     = $module.device
+        $collection = $module.collection
+        $modname    = $module.name
+        $modver     = $module.version
+        $runtime    = $module.when
+        $comment    = $module.comment
+        Write-FPLog -Category "Info" -Message "device......: $device"
+        Write-FPLog -Category "Info" -Message "collection..: $collection"
+        Write-FPLog -Category "Info" -Message "module......: $modname"
+        Write-FPLog -Category "Info" -Message "version.....: $modver"
+        Write-FPLog -Category "Info" -Message "runtime.....: $runtime"
+        Write-FPLog -Category "Info" -Message "comment.....: $comment"
+        if (Test-FPControlRuntime -RunTime $runtime) {
+            Write-FPLog -Category 'Info' -Message "Runtime is now or overdue"
+            if ($m = Get-Module -Name $modname -ListAvailable) {
+                $lv = $m.Version -join '.'
+                Write-FPLog -Category 'Info' -Message "Module version $lv is already installed"
+                if ($r = Find-Module -Name $modname) {
+                    $rv = $r.Version -join '.'
+                    if ($modver -eq 'latest') {
+                        Write-FPLog -Category 'Info' -Message 'Latest version is requested via control policy.'
+                        if ($lv -lt $rv) {
+                            try {
+                                Write-FPLog -Category 'Info' -Message "Updating module to $rv"
+                                Update-Module -Name $modname -Force -ErrorAction Stop
+                            }
+                            catch {
+                            }
+                        }
+                        else {
+                            Write-FPLog -Category 'Info' -Message "Local version is the latest. No update required."
+                        }
+                    }
+                    else {
+                        Write-FPLog -Category 'Info' -Message 'Specific version is requested via control policy.'
+                        if ($lv -lt $modver) {
+                            try {
+                                Write-FPLog -Category 'Info' -Message "Updating module to $modver"
+                                Update-Module -Name $modname -RequiredVersion $modver -ErrorAction Stop
+                            }
+                            catch {
+                                Write-FPLog -Category 'Error' -Message $_.Exception.Message
+                                break
+                            }
+                        }
+                        else {
+                            Write-FPLog -Category 'Info' -Message "Local version is the latest. No update required."
+                        }
+                    }
+                }
+            }
+            else {
+                Write-FPLog -Category 'Info' -Message "Module is not installed. Installing it now."
+                try {
+                    if (!($TestMode)) {
+                        Install-Module -Name $modname -Force -ErrorAction Stop
+                        Write-FPLog -Category 'Info' -Message "Module has been installed successfully."
+                    }
+                    else {
+                        Write-FPLog "TESTMODE: Would have been installed"
+                    }
+                }
+                catch {
+                    Write-FPLog -Category 'Error' -Message "Installation failed: "+$_.Exception.Message
+                }
+            }
+        }
+        else {
+            Write-FPLog -Category 'Info' -Message 'skip: not yet time to run this assignment'
+        }
+    } # foreach
+    Write-FPLog -Category 'Info' -Message '--------- module assignments: finish ---------'
+}
+
+function Write-CenteredText {
+    param (
+        [parameter(Mandatory=$True)]
+        [ValidateNotNullOrEmpty()]
+        [string] $Caption,
+        [parameter(Mandatory=$False)]
+        [string] $Filler = "*",
+        [parameter(Mandatory=$False)]
+        [int] $MaxLen = 73
+    )
+    $caplen  = $Caption.Length + 2
+    $remlen  = $MaxLen - $caplen
+    $halflen = [math]::Round($remlen/2,0)
+    $text = "$($Filler*$halflen) $Caption $($Filler*$halflen)"
+    if ($text.Length -lt $MaxLen) {
+        $remx = $MaxLen - $text.Length
+        $text += "$($Filler*$remx)"
+    }
+    Write-Output $text
+}
+
+function Get-FPDeviceCollections {
+    <#
+    .SYNOPSIS
+    Get Device Collection Memberships
+    .DESCRIPTION
+    Get List of Collections this Device is a Member of
+    .PARAMETER XmlData
+    Control Data XML
+    .EXAMPLE
+    $colls = Get-FPDeviceCollections -XmlData $ControlData
+    .NOTES
+    #>
+    param (
+        [parameter(Mandatory=$True)]
+        [ValidateNotNullOrEmpty()]
+        $XmlData
+    )
+    try {
+        $($XmlData.configuration.collections.collection | Where-Object {$_.members -match $env:COMPUTERNAME}).name
+    }
+    catch {
+        Write-Output ""
+    }
+}
+
 function Invoke-FPControls {
 	<#
-.SYNOPSIS
-	Main process invocation
-.DESCRIPTION
-	Main process for executing FudgePop services
-.PARAMETER DataSet
-	XML data from control file import
-.EXAMPLE
-	Invoke-FPControls -DataSet $xmldata
-#>
-param (
+    .SYNOPSIS
+        Main process invocation
+    .DESCRIPTION
+        Main process for executing FudgePop services
+    .PARAMETER DataSet
+        XML data from control file import
+    .EXAMPLE
+        Invoke-FPControls -DataSet $xmldata
+    #>
+    param (
         [parameter(Mandatory = $True)] 
 		[ValidateNotNullOrEmpty()] 
 		$DataSet
     )
-    Write-FPLog -Category "Info" -Message "--------- control processing: begin ---------"
-    Write-FPLog "module version: $($Script:FPVersion)"
+    Write-FPLog -Category "Info" -Message $(Write-CenteredText -Caption "control processing: begin")
     $MyPC = $env:COMPUTERNAME
+    Write-FPLog "module version.....: $($Script:FPVersion)"
+    Write-FPLog "device name........: $MyPC"
+    $collections = Get-FPDeviceCollections -XmlData $DataSet
+    if ($collections -ne "") {
+        Write-FPLog -Category 'Info' -Message "collections........: $($collections -join ',')"
+    }
     $priority    = $DataSet.configuration.priority.order
-    $installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment
-    $removals    = Get-FPFilteredSet -XmlData $DataSet.configuration.removals.removal
-    $folders     = Get-FPFilteredSet -XmlData $DataSet.configuration.folders.folder
-    $files       = Get-FPFilteredSet -XmlData $DataSet.configuration.files.file
-    $registry    = Get-FPFilteredSet -XmlData $DataSet.configuration.registry.reg
-    $services    = Get-FPFilteredSet -XmlData $DataSet.configuration.services.service
-    $shortcuts   = Get-FPFilteredSet -XmlData $DataSet.configuration.shortcuts.shortcut
-    $opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp
-    $updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update
-    $appx        = Get-FPFilteredSet -XmlData $DataSet.configuration.appxremovals.appxremoval
-    $permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission
+    $installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment -Collections $collections
+    $removals    = Get-FPFilteredSet -XmlData $DataSet.configuration.removals.removal -Collections $collections
+    $folders     = Get-FPFilteredSet -XmlData $DataSet.configuration.folders.folder -Collections $collections
+    $files       = Get-FPFilteredSet -XmlData $DataSet.configuration.files.file -Collections $collections
+    $registry    = Get-FPFilteredSet -XmlData $DataSet.configuration.registry.reg -Collections $collections
+    $services    = Get-FPFilteredSet -XmlData $DataSet.configuration.services.service -Collections $collections
+    $shortcuts   = Get-FPFilteredSet -XmlData $DataSet.configuration.shortcuts.shortcut -Collections $collections
+    $opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp -Collections $collections
+    $updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update -Collections $collections
+    $appx        = Get-FPFilteredSet -XmlData $DataSet.configuration.appxremovals.appxremoval -Collections $collections
+    $modules     = Get-FPFilteredSet -XmlData $DataSet.configuration.modules.module -Collections $collections
+    $permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission -Collections $collections
 	
     Write-FPLog "template version...: $($DataSet.configuration.version)"
     Write-FPLog "template comment...: $($DataSet.configuration.comment)"
     Write-FPLog "control version....: $($DataSet.configuration.control.version) ***"
     Write-FPLog "control enabled....: $($DataSet.configuration.control.enabled)"
     Write-FPLog "control comment....: $($DataSet.configuration.control.comment)"
-    
+
     Set-FPConfiguration -Name "TemplateVersion" -Data $DataSet.configuration.version | Out-Null
     Set-FPConfiguration -Name "ControlVersion" -Data $DataSet.configuration.control.version | Out-Null
 
@@ -1419,21 +1598,121 @@ param (
     Write-FPLog "priority list: $($priority -replace(',',' '))"
 	
     foreach ($key in $priority -split ',') {
-        Write-FPLog "****************** $key **********************"
         switch ($key) {
-            'folders'      { if ($folders) {Set-FPControlFolders -DataSet $folders}; break }
-            'files'        { if ($files) {Set-FPControlFiles -DataSet $files}; break }
-            'registry'     { if ($registry) {Set-FPControlRegistry -DataSet $registry}; break }
-            'deployments'  { if ($installs) {Set-FPControlPackages -DataSet $installs}; break }
-            'removals'     { if ($removals) {Set-FPControlRemovals -DataSet $removals}; break }
-            'appxremovals' { if ($appx) {Set-FPControlAppxRemovals -DataSet $appx}; break }
-            'services'     { if ($services) {Set-FPControlServices -DataSet $services}; break }
-            'shortcuts'    { if ($shortcuts) {Set-FPControlShortcuts -DataSet $shortcuts}; break }
-            'opapps'       { if ($opapps) {Set-FPControlWin32Apps -DataSet $opapps}; break }
-            'permissions'  { if ($permissions) {Set-FPControlPermissions -DataSet $permissions}; break }
-            'updates'      { if ($updates) {Set-FPControlWindowsUpdate -DataSet $updates}; break }
-            default { Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
+            'folders' { 
+                if ($folders) {
+                    Set-FPControlFolders -DataSet $folders
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Folders"
+                }
+                break
+            }
+            'files' { 
+                if ($files) {
+                    Set-FPControlFiles -DataSet $files
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Files"
+                }
+                break
+            }
+            'registry' {
+                if ($registry) {
+                    Set-FPControlRegistry -DataSet $registry
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Registry"
+                }
+                break
+            }
+            'deployments' {
+                if ($installs) {
+                    Set-FPControlPackages -DataSet $installs
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
+                }
+                break
+            }
+            'removals' { 
+                if ($removals) {
+                    Set-FPControlRemovals -DataSet $removals
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Package Removals"
+                }
+                break
+            }
+            'appxremovals' { 
+                if ($appx) {
+                    Set-FPControlAppxRemovals -DataSet $appx
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: AppxRemovals"
+                }
+                break
+            }
+            'services' { 
+                if ($services) {
+                    Set-FPControlServices -DataSet $services
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Services"
+                }
+                break
+            }
+            'shortcuts' { 
+                if ($shortcuts) {
+                    Set-FPControlShortcuts -DataSet $shortcuts
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Shortcuts"
+                }
+                break
+            }
+            'opapps' { 
+                if ($opapps) {
+                    Set-FPControlWin32Apps -DataSet $opapps
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Win32 Apps"
+                }
+                break
+            }
+            'permissions' { 
+                if ($permissions) {
+                    Set-FPControlPermissions -DataSet $permissions
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: Permissions"
+                }
+                break
+            }
+            'updates' { 
+                if ($updates) {
+                    Set-FPControlWindowsUpdate -DataSet $updates
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: WindowsUpdate"
+                }
+                break
+            }
+            'modules' { 
+                if ($modules) {
+                    Set-FPControlModules -DataSet $modules
+                }
+                else {
+                    Write-FPLog -Category 'Info' -Message "no assignments for group: PowerShell Modules"
+                }
+                break
+            }
+            'upgrades' { 
+                break
+            }
+            default { 
+                Write-FPLog -Category 'Error' -Message "invalid priority key: $key"; break }
         } # switch
     } # foreach
-    Write-FPLog -Category "Info" -Message "--------- control processing: finish ---------"
+    Write-FPLog -Category "Info" -Message $(Write-CenteredText -Caption "control processing: finish")
 }

@@ -44,7 +44,7 @@ Invoke-FudgePop -Verbose
 ## PARAMETERS
 
 ### -TestMode
-\[switch\]\[optional\] Force WhatIf and Verbose output
+Force WhatIf and Verbose output
 
 ```yaml
 Type: SwitchParameter
@@ -54,21 +54,6 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -89,12 +74,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.8 - 11/14/2017 - David Stein
+1.0.10 - 11/15/2017 - David Stein
 
 ## RELATED LINKS
 
