@@ -24,6 +24,13 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
   * Because it started with Chocolatey, and a strange bet with a colleague over beer and coffee.
   * I know that makes no sense at all, but it still tastes pretty darn good!
+# In a Nutshell
+
+  * Install module on the remote device (as a local admin)
+  * Create/Clone policy template
+  * Edit and publish policy file (Internet-facing)
+  * Configure client to run on schedule
+  * Maintain policy file for future changes
   
 # Installation
 
