@@ -80,6 +80,22 @@ function Set-FPControlFiles {
                     }
                     break
                 }
+                'copy' {
+                    Write-FPLog "copying file"
+                    if (Test-Path $fileSource) {
+                        Copy-Item -Path $fileSource -Destination $fileTarget -Force | Out-Null
+                        if (Test-Path $fileTarget) {
+                            Write-FPLog "file copied successfully"
+                        }
+                        else {
+                            Write-FPLog -Category "Error" -Message "failed to copy file!"
+                        }
+                    }
+                    else {
+                        Write-FPLog -Category "Warning" -Message "source file not found: $fileSource"
+                    }
+                    break
+                }
                 'move' {
                     Write-FPLog "moving file"
                     if (Test-Path $fileSource) {

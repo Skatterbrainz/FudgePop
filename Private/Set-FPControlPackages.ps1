@@ -31,13 +31,13 @@ function Set-FPControlPackages {
         if (Test-FPControlRuntime -RunTime $runtime) {
             Write-FPLog "run: runtime is now or already passed"
             $pkglist = $package.InnerText -split ','
-            if ($extparams.length -gt 0) { $params = $extparam } else { $params = ' -y -r' }
+            if ($extparams.length -gt 0) { $parm = $extparam } else { $parm = ' -y -r' }
             foreach ($pkg in $pkglist) {
                 Write-FPLog "package............... $pkg"
                 if (Test-Path "$($env:PROGRAMDATA)\chocolatey\lib\$pkg") {
                     if ($update -eq 'true') {
                         Write-FPLog "package is already installed (upgrade)"
-                        $params = "upgrade $pkg $params"
+                        $params = "upgrade $pkg $parm"
                     }
                     else {
                         Write-FPLog "package is already installed (no upgrade.. skip)"
@@ -46,7 +46,7 @@ function Set-FPControlPackages {
                 }
                 else {
                     Write-FPLog "package is not installed (install)"
-                    $params = "install $pkg $params"
+                    $params = "install $pkg $parm"
                 }
                 Write-FPLog "command............... choco $params"
                 if (-not $TestMode) {
