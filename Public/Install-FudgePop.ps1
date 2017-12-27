@@ -15,16 +15,19 @@ function Install-FudgePop {
 .EXAMPLE
 	Install-FudgePop -UseDefaults
 .NOTES
-	1.0.10 - 11/15/2017 - David Stein
+	1.0.15 - 12/27/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $False, HelpMessage="Automatic configuration with default settings")]
         [switch] $UseDefaults
     )
-    Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
+    $ModuleData = Get-Module FudgePop
+    $ModuleVer  = $ModuleData.Version -join '.'
+
+    Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     Install-Chocolatey
-    Write-FPLog $Script:FPVersion
+    Write-FPLog $ModuleVer
     Write-FPLog $Script:FPRegRoot
     Write-FPLog $Script:FPRunJob
     Write-FPLog $Script:FPCFDefault
@@ -85,7 +88,7 @@ function Install-FudgePop {
             try {
                 SCHTASKS /Create /RU "SYSTEM" /SC hourly /MO $newHours /TN "$RunJobName" /TR "$filepath" /RL HIGHEST /F
                 if (Get-ScheduledTask -TaskName $RunJobName -ErrorAction SilentlyContinue) {
-                    Write-FPLog -Category "Info" -Message "task has been updated successfully."
+                    Write-FPLog "task has been updated successfully."
                     Set-FPConfiguration -Name "ScheduledTaskName" -Data $RunJobName | Out-Null
                     Write-Output $True
                 }
@@ -114,7 +117,7 @@ function Install-FudgePop {
             }
         }
         else {
-            Write-FPLog -Category 'Info' -Message "uhhhhhhhh. There is no scheduled task named $RunJobName to disable. No biggie."
+            Write-FPLog "uhhhhhhhh. There is no scheduled task named $RunJobName to disable. No biggie."
         }
     }
     Write-Host "Configuration has been updated" -ForegroundColor Green

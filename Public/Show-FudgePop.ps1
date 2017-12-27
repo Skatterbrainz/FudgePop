@@ -12,11 +12,13 @@ function Show-FudgePop {
     .EXAMPLE
         Show-FudgePop
     .NOTES
-        1.0.12 - 11/16/2017 - David Stein
+        1.0.15 - 12/27/2017 - David Stein
     #>
     param ()
-    Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
-    Write-Host "version................ $FPVersion" -ForegroundColor Cyan
+    $ModuleData = Get-Module FudgePop
+    $ModuleVer  = $ModuleData.Version -join '.'
+    Write-FPLog "running Show-FudgePop on $($env:COMPUTERNAME)"
+    Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     Write-Host "default control file... $FPCFDefault" -ForegroundColor Cyan
     Write-Host "registry path.......... $FPRegRoot" -ForegroundColor Cyan
     Write-Host "log file path.......... $FPLogFile" -ForegroundColor Cyan
