@@ -3,31 +3,34 @@
 
 function Invoke-FudgePop {
     <#
-.SYNOPSIS
-	Invokes a FudgePop Process
-.DESCRIPTION
-	Invokes the FudgePop client process. If Install-FudgePop has not yet been
-	executed, you will be prompted to do that first, in order to configure the
-	options required to support FudgePop.  Otherwise, it will import the control 
-	XML file and process the instructions it provides.
-.PARAMETER TestMode
-	Force WhatIf and Verbose output
-.EXAMPLE
-	Invoke-FudgePop
-.EXAMPLE
-	Invoke-FudgePop -TestMode
-.EXAMPLE
-	Invoke-FudgePop -Verbose
-.NOTES
-	1.0.10 - 11/15/2017 - David Stein
-#>
+    .SYNOPSIS
+        Invokes a FudgePop Process
+    .DESCRIPTION
+        Invokes the FudgePop client process. If Install-FudgePop has not yet been
+        executed, you will be prompted to do that first, in order to configure the
+        options required to support FudgePop.  Otherwise, it will import the control 
+        XML file and process the instructions it provides.
+    .PARAMETER TestMode
+        Force WhatIf and Verbose output
+    .EXAMPLE
+        Invoke-FudgePop
+    .EXAMPLE
+        Invoke-FudgePop -TestMode
+    .EXAMPLE
+        Invoke-FudgePop -Verbose
+    .NOTES
+        1.0.16 - 12/27/2017 - David Stein
+    #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
         [parameter(Mandatory = $False, HelpMessage="Run in Test Mode only")]
         [switch] $TestMode
     )
-    Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
-    Write-FPLog -Category 'Info' -Message 'Checking for newer module version'
+    $ModuleData = Get-Module FudgePop
+    $ModuleVer  = $ModuleData.Version -join '.'
+
+    Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
+    Write-FPLog 'Checking for newer module version'
     try {
         Update-Module -Name FudgePop -Confirm:$False
     }
@@ -58,7 +61,7 @@ function Invoke-FudgePop {
             Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME | Out-Null
         }
         else {
-            Write-Verbose "FudgePop is not currently active."
+            Write-FPLog "FudgePop is not currently active."
         }
     }
 }

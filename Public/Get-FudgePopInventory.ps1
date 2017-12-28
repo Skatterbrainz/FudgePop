@@ -20,7 +20,7 @@ function Get-FudgePopInventory {
 .EXAMPLE
 	Get-FudgePopInventory -Computer WS01,WS02 -FilePath "c:\users\dave\documents"
 .NOTES
-	1.0.10 - 11/15/2017 - David Stein
+	1.0.15 - 12/27/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
@@ -32,7 +32,10 @@ function Get-FudgePopInventory {
         [parameter(Mandatory=$False, HelpMessage="Path for custom CSS stylesheet")]
         [string] $StyleSheet = ""
     )
-    Write-Host "FudgePop $FPVersion - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
+    $ModuleData = Get-Module FudgePop
+    $ModuleVer  = $ModuleData.Version -join '.'
+    $ModulePath = $ModuleData.Path -replace 'FudgePop.psm1', ''
+    Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     $classes = [ordered]@{
         ComputerSystem  = ('Name', 'Manufacturer', 'Model', 'Domain', 'Description', 'TotalPhysicalMemory')
         OperatingSystem = ('Caption', 'CSDVersion', 'InstallDate', 'OSArchitecture', 'Organization')
@@ -45,7 +48,6 @@ function Get-FudgePopInventory {
     }
     $totalnum = $classes.Count
 	if ($StyleSheet -eq "") {
-        $ModulePath = $((Get-Module FudgePop).Path -replace ('FudgePop.psm1',''))
         $StyleSheet = "$ModulePath\assets\default.css"
     }
     foreach ($computer in $ComputerName) {
@@ -119,4 +121,5 @@ function Get-FudgePopInventory {
         Write-Host "file: $fullpath" -ForegroundColor Cyan
     }
 }
+
 Export-ModuleMember -Function Get-FudgePopInventory
