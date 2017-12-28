@@ -15,11 +15,11 @@ function Set-FPControlPackages {
         $DataSet
     )
     Write-FPLog "--------- installation assignments: begin ---------"
+    $itemcount = $DataSet.count
     foreach ($package in $DataSet) {
         $deviceName = $package.device
         $collection = $package.collection
         $runtime    = $package.when
-        $autoupdate = $package.autoupdate
         $username   = $package.user
         $extparams  = $package.params
         $update     = $package.update
@@ -27,10 +27,11 @@ function Set-FPControlPackages {
         Write-FPLog "collection............ $collection"
         Write-FPLog "user.................. $username"
         Write-FPLog "runtime............... $runtime"
-        Write-FPLog "autoupdate............ $autoupdate"
+        Write-FPLog "autoupdate............ $update"
         if (Test-FPControlRuntime -RunTime $runtime) {
             Write-FPLog "run: runtime is now or already passed"
             $pkglist = $package.InnerText -split ','
+            Write-FPLog "packages assigned..... $($pkglist.count)"
             if ($extparams.length -gt 0) { $parm = $extparam } else { $parm = ' -y -r' }
             foreach ($pkg in $pkglist) {
                 Write-FPLog "package............... $pkg"
@@ -41,7 +42,7 @@ function Set-FPControlPackages {
                     }
                     else {
                         Write-FPLog "package is already installed (no upgrade.. skip)"
-                        break
+                        $params = ""
                     }
                 }
                 else {
@@ -50,12 +51,14 @@ function Set-FPControlPackages {
                 }
                 Write-FPLog "command............... choco $params"
                 if (-not $TestMode) {
-                    $p = Start-Process -FilePath "choco.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru
-                    if ($p.ExitCode -eq 0) {
-                        Write-FPLog "result................ successful"
-                    }
-                    else {
-                        Write-FPLog -Category 'Error' -Message "package exit code: $($p.ExitCode)"
+                    if ($params -ne "") {
+                        $p = Start-Process -FilePath "choco.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru
+                        if ($p.ExitCode -eq 0) {
+                            Write-FPLog "result................ successful"
+                        }
+                        else {
+                            Write-FPLog -Category 'Error' -Message "package exit code: $($p.ExitCode)"
+                        }
                     }
                 }
                 else {
@@ -67,5 +70,8 @@ function Set-FPControlPackages {
             Write-FPLog "skip: not yet time to run this assignment"
         }
     } # foreach
+    if ($itemcount -eq 0) {
+        Write-FPLog "no assignments found"
+    }
     Write-FPLog "--------- installation assignments: finish ---------"
 }
