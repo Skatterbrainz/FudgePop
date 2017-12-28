@@ -8,6 +8,8 @@ function Set-FPControlPackages {
         XML data from control file import
     .EXAMPLE
         Set-FPControlPackages -DataSet $xmldata
+    .NOTES
+        1.0.16 - 12/27/2017 - bug fixes
     #>
     [CmdletBinding()]
     param (
