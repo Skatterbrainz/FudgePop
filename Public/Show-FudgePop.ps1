@@ -47,6 +47,7 @@ function Show-FudgePop {
             }
             $ns = (Get-Date $x1).AddHours(3).ToString("M/d/yyyy HH:mm:ss")
             Write-Host "schema version......... $x8" -ForegroundColor Cyan
+            Write-Host "module version......... $x5" -ForegroundColor Cyan
             Write-Host "control version........ $x9" -ForegroundColor Cyan
             Write-Host "-------------------------------------" -ForegroundColor Cyan
             Write-Host "last start time........ $x1" -ForegroundColor Cyan

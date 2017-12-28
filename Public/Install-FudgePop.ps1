@@ -15,7 +15,7 @@ function Install-FudgePop {
 .EXAMPLE
 	Install-FudgePop -UseDefaults
 .NOTES
-	1.0.15 - 12/27/2017 - David Stein
+	1.0.16 - 12/27/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
