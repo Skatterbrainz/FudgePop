@@ -28,11 +28,10 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 # Installation
 
   1. Use the Install-Module cmdlet to install FudgePop: **Install-Module FudgePop**
-  2. Import FudgePop: **Import-Module Fudgepop**
-  3. Copy and Edit the source **control.xml** and place it somewhere accessible to the remote computers
-  4. Run **Configure-FudgePop** to configure the control XML location and scheduled task options.
-  5. Run **Invoke-FudgePop** to test on the first machine
-  6. Repeat steps 3 and 4 for other devices.
+  2. Copy and Edit the source **control.xml** and place it somewhere accessible to the remote computers
+  3. Run **Configure-FudgePop** to configure the control XML location and scheduled task options.
+  4. Run **Invoke-FudgePop** to test on the first machine
+  5. Repeat steps 2 and 3 for other devices.
   
   * Note: You can use multiple control XML files for different devices or groups of devices if you prefer.
 
