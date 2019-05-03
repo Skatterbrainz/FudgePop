@@ -1,5 +1,9 @@
 # FudgePop (PowerShell Module)
-## README.md
+
+## The FudgePop project is not under active development.
+The repository remains available for reference, and pull requests will be considered, but no active work is being done on this project.
+
+# Overview
 
 Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
 
