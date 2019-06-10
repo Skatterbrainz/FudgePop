@@ -18,14 +18,14 @@ function Get-FPFilteredSet {
         [parameter(Mandatory = $False)]
         $Collections
     )
-    $thisDevice  = $env:COMPUTERNAME
-    if ($Collections -ne $null) {
+    $thisDevice = $env:COMPUTERNAME
+    if ($null -ne $Collections) {
         $result = $XmlData |
-            Where-Object {$_.enabled -eq 'true' -and ($Collections.Contains($_.collection)) }
+        Where-Object { $_.enabled -eq 'true' -and ($Collections.Contains($_.collection)) }
     }
     else {
-        $result = $XmlData | 
-            Where-Object {$_.enabled -eq 'true' -and ($_.device -eq 'all' -or $_.device -eq $thisDevice)}
+        $result = $XmlData |
+        Where-Object { $_.enabled -eq 'true' -and ($_.device -eq 'all' -or $_.device -eq $thisDevice) }
     }
     Write-Output $result
 }

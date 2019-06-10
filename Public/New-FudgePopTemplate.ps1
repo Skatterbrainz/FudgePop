@@ -16,7 +16,6 @@ function New-FudgePopTemplate {
 	.EXAMPLE
 		Clone-FudgePopTemplate -OutputFile 'c:\templates\custom.xml' -Overwrite
 	.NOTES
-		1.0.15 - 12/27/2017 - David Stein
 	#>
 	param (
 		[parameter(Mandatory=$True, HelpMessage="Path and Name for new template control file")]

@@ -12,11 +12,10 @@ function Show-FudgePop {
     .EXAMPLE
         Show-FudgePop
     .NOTES
-        1.0.15 - 12/27/2017 - David Stein
     #>
     param ()
     $ModuleData = Get-Module FudgePop
-    $ModuleVer  = $ModuleData.Version -join '.'
+    $ModuleVer = $ModuleData.Version -join '.'
     Write-FPLog "running Show-FudgePop on $($env:COMPUTERNAME)"
     Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     Write-Host "default control file... $FPCFDefault" -ForegroundColor Cyan
@@ -24,15 +23,15 @@ function Show-FudgePop {
     Write-Host "log file path.......... $FPLogFile" -ForegroundColor Cyan
     try {
         $reg = Get-ItemProperty -Path $Script:FPRegRoot -ErrorAction Stop
-        $x1  = $reg.LastStartTime
-        $x2  = $reg.InitialSetup
-        $x3  = $reg.LastFinishTime
-        $x4  = $reg.LastRunUpdates
-        $x5  = $reg.ModuleVersion
-        $x6  = $reg.EnableJob
-        $x7  = $reg.ScheduleHours
-        $x8  = $reg.TemplateVersion
-        $x9  = $reg.ControlVersion
+        $x1 = $reg.LastStartTime
+        $x2 = $reg.InitialSetup
+        $x3 = $reg.LastFinishTime
+        $x4 = $reg.LastRunUpdates
+        $x5 = $reg.ModuleVersion
+        $x6 = $reg.EnableJob
+        $x7 = $reg.ScheduleHours
+        $x8 = $reg.TemplateVersion
+        $x9 = $reg.ControlVersion
         $x10 = $reg.ControlFile
         Write-Host "current control file... $x10" -ForegroundColor Cyan
         Write-Host "date installed......... $x2" -ForegroundColor Cyan

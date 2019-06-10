@@ -15,35 +15,35 @@ function Get-FPConfiguration {
     .OUTPUTS
         Information returned from registry (or default value)
     #>
-        [CmdletBinding()]
-        param (
-            [parameter(Mandatory = $False)]
-            [ValidateNotNullOrEmpty()]
-            [string] $RegPath = $FPRegRoot,
-            [parameter(Mandatory = $True)]
-            [ValidateNotNullOrEmpty()]
-            [string] $Name,
-            [parameter(Mandatory = $False)]
-            [string] $Default = ""
-        )
-        if (Test-Path $RegPath) {
-            Write-Verbose "registry path confirmed: $RegPath ($Name)"
-            try {
-                $result = Get-ItemProperty -Path $RegPath -ErrorAction Stop |
-                    Select-Object -ExpandProperty $Name -ErrorAction Stop
-                if ($result -eq $null -or $result -eq "") {
-                    Write-Verbose "no data returned from query. using default: $Default"
-                    $result = $Default
-                }
-            }
-            catch {
-                Write-Verbose "error: returning $Default"
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory = $False)]
+        [ValidateNotNullOrEmpty()]
+        [string] $RegPath = $FPRegRoot,
+        [parameter(Mandatory = $True)]
+        [ValidateNotNullOrEmpty()]
+        [string] $Name,
+        [parameter(Mandatory = $False)]
+        [string] $Default = ""
+    )
+    if (Test-Path $RegPath) {
+        Write-Verbose "registry path confirmed: $RegPath ($Name)"
+        try {
+            $result = Get-ItemProperty -Path $RegPath -ErrorAction Stop |
+            Select-Object -ExpandProperty $Name -ErrorAction Stop
+            if ($null -eq $result -or $result -eq "") {
+                Write-Verbose "no data returned from query. using default: $Default"
                 $result = $Default
             }
         }
-        else {
-            Write-Verbose "registry path does not yet exist: $RegPath"
+        catch {
+            Write-Verbose "error: returning $Default"
             $result = $Default
         }
-        Write-Output $result
+    }
+    else {
+        Write-Verbose "registry path does not yet exist: $RegPath"
+        $result = $Default
+    }
+    Write-Output $result
 }

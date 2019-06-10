@@ -20,7 +20,6 @@ function Get-FudgePopInventory {
 .EXAMPLE
 	Get-FudgePopInventory -Computer WS01,WS02 -FilePath "c:\users\dave\documents"
 .NOTES
-	1.0.15 - 12/27/2017 - David Stein
 #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
@@ -29,11 +28,11 @@ function Get-FudgePopInventory {
         [parameter(Mandatory = $False, HelpMessage = "Path for storing report files")]
         [ValidateNotNullOrEmpty()]
         [string] $FilePath = "$($env:USERPROFILE)\Documents",
-        [parameter(Mandatory=$False, HelpMessage="Path for custom CSS stylesheet")]
+        [parameter(Mandatory = $False, HelpMessage = "Path for custom CSS stylesheet")]
         [string] $StyleSheet = ""
     )
     $ModuleData = Get-Module FudgePop
-    $ModuleVer  = $ModuleData.Version -join '.'
+    $ModuleVer = $ModuleData.Version -join '.'
     $ModulePath = $ModuleData.Path -replace 'FudgePop.psm1', ''
     Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     $classes = [ordered]@{
@@ -44,10 +43,10 @@ function Get-FudgePopInventory {
         Processor       = ('Manufacturer', 'Name', 'NumberOfCores', 'MaxClockSpeed')
         PhysicalMemory  = ('BankLabel', 'Capacity', 'DataWidth', 'Description', 'DeviceLocator', 'FormFactor', 'Manufacturer', 'MemoryType')
         LogicalDisk     = ('Name', 'DeviceID', 'FileSystem', 'VolumeName', 'VolumeSerialNumber', 'MediaType', 'Size', 'FreeSpace')
-		Product         = ('Vendor', 'Name', 'Version', 'PackageName', 'InstallDate2', 'InstallSource')
+        Product         = ('Vendor', 'Name', 'Version', 'PackageName', 'InstallDate2', 'InstallSource')
     }
     $totalnum = $classes.Count
-	if ($StyleSheet -eq "") {
+    if ($StyleSheet -eq "") {
         $StyleSheet = "$ModulePath\assets\default.css"
     }
     foreach ($computer in $ComputerName) {
@@ -59,10 +58,10 @@ function Get-FudgePopInventory {
             $cname = $computer
             $isLocal = $False
         }
-		
+
         $fullpath = $FilePath + "\$cname`_inventory.htm"
         $html = "<h1>$cname</h1>`n"
-	
+
         Write-Host "computer: $cname" -ForegroundColor Cyan
         if (!$isLocal) {
             Write-Verbose "$cname is remote"

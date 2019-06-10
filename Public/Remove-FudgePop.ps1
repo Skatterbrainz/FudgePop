@@ -13,7 +13,6 @@ function Remove-FudgePop {
     .EXAMPLE
         Remove-FudgePop -Complete
     .NOTES
-        1.0.15 - 12/27/2017 - David Stein
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     param (
@@ -24,7 +23,7 @@ function Remove-FudgePop {
     $ModuleVer  = $ModuleData.Version -join '.'
     Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
     try {
-        Get-ScheduledTask -TaskName "$FPRunJob" -ErrorAction SilentlyContinue |	
+        Get-ScheduledTask -TaskName "$FPRunJob" -ErrorAction SilentlyContinue |
             Unregister-ScheduledTask -Confirm:$False -ErrorAction Stop
     }
     catch {

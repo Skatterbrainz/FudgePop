@@ -1,4 +1,5 @@
 # FudgePop (PowerShell Module)
+1.0.17 - 2019.06.03
 
 ## The FudgePop project is not under active development.
 The repository remains available for reference, and pull requests will be considered, but no active work is being done on this project.
@@ -28,15 +29,15 @@ Centrally manage Windows 10 computers using a local script which reads instructi
 
   * Because it started with Chocolatey, and a strange bet with a colleague over beer and coffee.
   * I know that makes no sense at all, but it still tastes pretty darn good!
-  
+
 # Installation
 
-  1. Use the Install-Module cmdlet to install FudgePop: **Install-Module FudgePop**
+  1. Use the Install-Module cmdlet to install FudgePop: ```Install-Module FudgePop```
   2. Copy and Edit the source **control.xml** and place it somewhere accessible to the remote computers
-  3. Run **Configure-FudgePop** to configure the control XML location and scheduled task options.
-  4. Run **Invoke-FudgePop** to test on the first machine
+  3. Run ```Configure-FudgePop``` to configure the control XML location and scheduled task options.
+  4. Run ```Start-FudgePop``` to test on the first machine
   5. Repeat steps 2 and 3 for other devices.
-  
+
   * Note: You can use multiple control XML files for different devices or groups of devices if you prefer.
 
 # Management
@@ -44,12 +45,12 @@ Centrally manage Windows 10 computers using a local script which reads instructi
   * Edit the control XML file to provide the configuration data you desire.
   * Increment the [version] attribute within the [control] element (to insure XML data is read properly on clients)
   * Allow time for clients to run scheduled task to invoke control data updates (or force task to run)
-  
+
 # Functions
 
 Refer to Docs folder for more details about functions, parameters, and examples.
 
-## Invoke-FudgePop
+## Start-FudgePop
 
   * Runs a FudgePop policy cycle
 
@@ -68,4 +69,3 @@ Refer to Docs folder for more details about functions, parameters, and examples.
 ## Get-FudgePopInventory
 
   * Generates basic HTML inventory report of basic computer hardware, software and operating system information.
-
