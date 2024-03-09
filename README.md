@@ -1,12 +1,12 @@
 # FudgePop (PowerShell Module)
-1.0.17 - 2019.06.03
+1.0.18 - 2024.03.09
 
 ## The FudgePop project is not under active development.
 The repository remains available for reference, and pull requests will be considered, but no active work is being done on this project.
 
 # Overview
 
-Centrally manage Windows 10 computers using a local script which reads instructions from a remote XML control file.
+Centrally manage Windows 10 and 11 computers using a local script which reads instructions from a remote XML control file.
 
   * Install, Upgrade and Remove Chocolatey Packages
   * Create, Delete and Empty Folders

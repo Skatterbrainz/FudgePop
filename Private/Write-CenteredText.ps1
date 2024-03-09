@@ -1,5 +1,5 @@
 function Write-CenteredText {
-    <#
+	<#
     .SYNOPSIS
     Print Text with Center Justification sort of
     
@@ -21,23 +21,18 @@ function Write-CenteredText {
     .NOTES
     General notes
     #>
-
-    param (
-        [parameter(Mandatory=$True)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Caption,
-        [parameter(Mandatory=$False)]
-        [string] $Filler = "*",
-        [parameter(Mandatory=$False)]
-        [int] $MaxLen = 73
-    )
-    $caplen  = $Caption.Length + 2
-    $remlen  = $MaxLen - $caplen
-    $halflen = [math]::Round($remlen/2,0)
-    $text = "$($Filler*$halflen) $Caption $($Filler*$halflen)"
-    if ($text.Length -lt $MaxLen) {
-        $remx = $MaxLen - $text.Length
-        $text += "$($Filler*$remx)"
-    }
-    Write-Output $text
+	param (
+		[parameter(Mandatory = $True)][ValidateNotNullOrEmpty()][string] $Caption,
+		[parameter(Mandatory = $False)][string] $Filler = "*",
+		[parameter(Mandatory = $False)][int] $MaxLen = 73
+	)
+	$caplen  = $Caption.Length + 2
+	$remlen  = $MaxLen - $caplen
+	$halflen = [math]::Round($remlen / 2, 0)
+	$text    = "$($Filler*$halflen) $Caption $($Filler*$halflen)"
+	if ($text.Length -lt $MaxLen) {
+		$remx = $MaxLen - $text.Length
+		$text += "$($Filler*$remx)"
+	}
+	Write-Output $text
 }

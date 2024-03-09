@@ -1,7 +1,7 @@
 ---
 external help file: FudgePop-help.xml
 Module Name: FudgePop
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -21,7 +21,7 @@ Displays the current FudgePop client configuration and status
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Show-FudgePop
 ```
@@ -33,7 +33,5 @@ Show-FudgePop
 ## OUTPUTS
 
 ## NOTES
-1.0.15 - 12/27/2017 - David Stein
 
 ## RELATED LINKS
-

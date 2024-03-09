@@ -1,7 +1,7 @@
 ---
 external help file: FudgePop-help.xml
 Module Name: FudgePop
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Removes FudgePop Configuration
 ## SYNTAX
 
 ```
-Remove-FudgePop [-Complete] [-WhatIf] [-Confirm]
+Remove-FudgePop [-Complete] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,12 +23,12 @@ Does not remove the module itself.
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Remove-FudgePop
 ```
 
-### -------------------------- EXAMPLE 2 --------------------------
+### EXAMPLE 2
 ```
 Remove-FudgePop -Complete
 ```
@@ -41,7 +41,7 @@ Force complete removal of FudgePop
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -81,12 +81,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.15 - 12/27/2017 - David Stein
 
 ## RELATED LINKS
-

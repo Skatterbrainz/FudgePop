@@ -1,7 +1,7 @@
 ---
 external help file: FudgePop-help.xml
 Module Name: FudgePop
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,8 +13,8 @@ Create HTML inventory report of computer
 ## SYNTAX
 
 ```
-Get-FudgePopInventory [[-ComputerName] <String[]>] [[-FilePath] <String>] [[-StyleSheet] <String>] [-WhatIf]
- [-Confirm]
+Get-FudgePopInventory [[-ComputerName] <String[]>] [[-FilePath] <String>] [[-StyleSheet] <String>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,7 +23,7 @@ for the local computer, or a remote computer.
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Get-FudgePopInventory -Computer WS01,WS02 -FilePath "c:\users\dave\documents"
 ```
@@ -39,7 +39,7 @@ Default value is local computer.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -50,12 +50,12 @@ Accept wildcard characters: False
 
 ### -FilePath
 Path and filename for the inventory report.
-   If not specified, the default is $env:TEMP\computername_inventory.htm
+If not specified, the default is $env:TEMP\computername_inventory.htm
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
@@ -71,7 +71,7 @@ Default uses an internal "default.css" within the module structure
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 3
@@ -111,12 +111,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.15 - 12/27/2017 - David Stein
 
 ## RELATED LINKS
-

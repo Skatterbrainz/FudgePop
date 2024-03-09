@@ -1,7 +1,7 @@
 ---
 external help file: FudgePop-help.xml
 Module Name: FudgePop
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Configure FudgePop options and Scheduled Task
 ## SYNTAX
 
 ```
-Install-FudgePop [-UseDefaults] [-WhatIf] [-Confirm]
+Install-FudgePop [-UseDefaults] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -22,7 +22,7 @@ and Scheduled Task options.
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Install-FudgePop -UseDefaults
 ```
@@ -38,7 +38,7 @@ file path is the URI to the control.xml on the project Github site.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -78,12 +78,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ## OUTPUTS
 
 ## NOTES
-1.0.15 - 12/27/2017 - David Stein
 
 ## RELATED LINKS
-
