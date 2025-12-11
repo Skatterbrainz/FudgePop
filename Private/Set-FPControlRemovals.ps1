@@ -43,7 +43,7 @@ function Set-FPControlRemovals {
 				Write-FPLog "package............... $pkg"
 				if (Get-WinGetPackage -Name $pkg -ErrorAction SilentlyContinue) {
 					Write-FPLog "package is installed"
-					$params = "uninstall $pkg $paramext"
+					$params = "uninstall --name `"$pkg`" $paramext"
 				} else {
 					Write-FPLog "package is not installed (skip)"
 					continue
