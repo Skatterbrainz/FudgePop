@@ -12,7 +12,9 @@ function Invoke-FPControls {
 	param (
 		[parameter(Mandatory = $True)] 
 		[ValidateNotNullOrEmpty()] 
-		$DataSet
+		$DataSet,
+		[parameter(Mandatory = $false)]
+		[string]$ControlName
 	)
 	$ModuleData = Get-Module FudgePop
 	$ModuleVer  = $ModuleData.Version -join '.'
@@ -52,7 +54,11 @@ function Invoke-FPControls {
 	
 	Write-FPLog "priority list: $($priority -replace(',',' '))"
 	
-	foreach ($key in $priority -split ',') {
+	$keys = $priority -split ','
+	if (![string]::IsNullOrEmpty($ControlName)) {
+		$keys = $keys | Where-Object { $_ -eq $ControlName }
+	}
+	foreach ($key in $keys) {
 		switch ($key) {
 			'folders' { 
 				if ($folders) {

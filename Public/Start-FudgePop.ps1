@@ -19,7 +19,9 @@ function Start-FudgePop {
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (
 		[parameter(Mandatory = $False, HelpMessage = "Run in Test Mode only")]
-		[switch] $TestMode
+		[switch] $TestMode,
+		[parameter(Mandatory = $False, HelpMessage = "Run specific control group only")]
+		[string]$ControlName
 	)
 	$ModuleData = Get-Module FudgePop
 	$ModuleVer = $ModuleData.Version -join '.'
@@ -40,7 +42,7 @@ function Start-FudgePop {
 			} else {
 				Set-FPConfiguration -Name "LastRunMode" -Data 'Live' | Out-Null
 			}
-			Invoke-FPControls -DataSet $global:ControlData
+			Invoke-FPControls -DataSet $global:ControlData -ControlName $ControlName
 			Set-FPConfiguration -Name "LastFinishTime" -Data (Get-Date) | Out-Null
 			Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME | Out-Null
 		} else {
