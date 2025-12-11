@@ -1,6 +1,3 @@
-#requires -version 3
-#requires -RunAsAdministrator
-
 function Start-FudgePop {
 	<#
 	.SYNOPSIS
@@ -28,25 +25,13 @@ function Start-FudgePop {
 	$ModuleVer = $ModuleData.Version -join '.'
 
 	Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
-	Write-FPLog 'Checking for newer module version'
-	try {
-		if ($PSVersionTable.PSVersion.Major -lt 6) {
-			#throw "PowerShell version 5 or higher is required to run FudgePop."
-			Update-Module -Name FudgePop
-		} else {
-			Update-PSResource -Name FudgePop
-		}
-	} catch {
-		Write-Warning "Unable to update FudgePop PowerShell module. May require manual update."
-		Write-Error $_.Exception.Message
-		break
-	}
 	$ControlFile = Get-FPConfiguration -Name "ControlFile" -Default ""
 	if ($ControlFile -eq "") {
 		Write-FPLog -Category 'Warning' -Message 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
 		Write-Warning 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
 	} else {
-		$ControlData = Get-FPControlJSON -FilePath $ControlFile
+		$global:ControlData = Get-FPControlJSON -FilePath $ControlFile
+		Write-FPLog "FudgePop Control File: $ControlFile"
 		if (Get-FPServiceAvailable -DataSet $ControlData) {
 			Write-Verbose "FudgePop is active."
 			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null

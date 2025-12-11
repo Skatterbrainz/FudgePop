@@ -15,12 +15,13 @@ function Set-FPControlPackages {
 	)
 	Write-FPLog "--------- installation assignments: begin ---------"
 	$itemcount = $DataSet.count
+	$paramext = "--accept-source-agreements --accept-package-agreements --silent"
 	foreach ($package in $DataSet) {
 		$deviceName = $package.device
 		$collection = $package.collection
 		$runtime    = $package.when
 		$username   = $package.user
-		$extparams  = $package.params
+		#$extparams  = $package.params
 		$update     = $package.update
 		Write-FPLog "device................ $deviceName"
 		Write-FPLog "collection............ $collection"
@@ -29,31 +30,27 @@ function Set-FPControlPackages {
 		Write-FPLog "autoupdate............ $update"
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
-			$pkglist = $package.InnerText -split ','
+			$pkglist = $package.packages -split ','
 			Write-FPLog "packages assigned..... $($pkglist.count)"
-			if ($extparams.length -gt 0) { $parm = $extparam } else { $parm = ' -y -r' }
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
-				if (Test-Path "$($env:PROGRAMDATA)\chocolatey\lib\$pkg") {
-					if ($update -eq 'true') {
-						Write-FPLog "package is already installed (upgrade)"
-						$params = "upgrade $pkg $parm"
-					} else {
-						Write-FPLog "package is already installed (no upgrade.. skip)"
-						$params = ""
-					}
+				if (Get-WinGetPackage -Name $pkg -WarningAction SilentlyContinue) {
+					$params = "upgrade $pkg $parm $paramext"
 				} else {
-					Write-FPLog "package is not installed (install)"
-					$params = "install $pkg $parm"
+					$params = "install $pkg $parm $paramext"
 				}
-				Write-FPLog "command............... choco $params"
+				Write-FPLog "command............... winget $params"
 				if (-not $TestMode) {
 					if ($params -ne "") {
-						$p = Start-Process -FilePath "choco.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru
-						if ($p.ExitCode -eq 0) {
-							Write-FPLog "result................ successful"
-						} else {
-							Write-FPLog -Category 'Error' -Message "package exit code: $($p.ExitCode)"
+						try {
+							$p = Start-Process -FilePath "winget.exe" -NoNewWindow -ArgumentList "$params" -Wait -PassThru -ErrorAction Stop
+							if ($p.ExitCode -eq 0) {
+								Write-FPLog "result................ successful"
+							} else {
+								Write-FPLog -Category 'Error' -Message "package exit code: $($p.ExitCode)"
+							}
+						} catch {
+							Write-FPLog -Category 'Error' -Message "Failed to install package $pkg"
 						}
 					}
 				} else {

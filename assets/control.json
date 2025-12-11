@@ -12,15 +12,15 @@
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
 		},
 		"collections": {
-			"comment": "Computer Groups",
+			"comment": "computer groups",
 			"collection": [
 				{
-					"name": "Developers",
+					"name": "developers",
 					"members": "w11-rmm-dave",
 					"comment": "Developer Computers"
 				},
 				{
-					"name": "Engineers",
+					"name": "engineers",
 					"members": "computer3,computer4",
 					"comment": "Engineers and Designers workstations"
 				},
@@ -40,13 +40,14 @@
 					"enabled": true,
 					"when": "now",
 					"update": false,
-					"packages": "7zip.7zip,google.chrome,notepad++.notepad++,microsoft.office,"
+					"packages": "7zip.7zip,google.chrome,notepad++.notepad++,microsoft.office,Microsoft.Sysinternals.ZoomIt"
 				},
 				{
 					"collection": "developers",
 					"enabled": true,
 					"when": "now",
-					"packages": "Microsoft.VisualStudioCode,git.git,Microsoft.Azure.StorageExplorer,Microsoft.Sysinternals.ProcessExplorer,Microsoft.Sysinternals.ProcessMonitor,Microsoft.Sysinternals.ZoomIt,Microsoft.Sysinternals.AutoRuns"
+					"packages": "Microsoft.VisualStudioCode,git.git,Microsoft.Sysinternals.ProcessExplorer,Microsoft.Sysinternals.ProcessMonitor,Microsoft.Sysinternals.AutoRuns",
+					"update": false
 				}
 			]
 		},
@@ -56,15 +57,15 @@
 				{
 					"device": "all",
 					"user": "all",
-					"enabled": false,
+					"enabled": true,
 					"when": "now",
-					"packages": ""
+					"packages": "News,Movies & TV,Mail and Calendar,Microsoft 365 Copilot,Windows Maps"
 				},
 				{
 					"collection": "developers",
-					"enabled": false,
+					"enabled": true,
 					"when": "now",
-					"packages": "Feedback Hub"
+					"packages": "Feedback Hub,Windows Camera"
 				}
 			]
 		},
@@ -74,10 +75,10 @@
 				{
 					"device": "w11-rmm-dave",
 					"user": "David Stein",
-					"enabled": true,
+					"enabled": false,
 					"when": "now",
 					"comment": "",
-					"apps": "News,Movies & TV,Mail and Calendar,Feedback Hub,Microsoft 365 Copilot"
+					"apps": ""
 				}
 			]
 		},
@@ -86,9 +87,9 @@
 			"folder": [
 				{
 					"device": "all",
-					"enabled": false,
+					"enabled": true,
 					"action": "create",
-					"path": "c:\\programdata\\fudgepop",
+					"path": "c:\\temp",
 					"comment": ""
 				},
 				{

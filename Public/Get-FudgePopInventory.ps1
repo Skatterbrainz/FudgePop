@@ -1,6 +1,3 @@
-#requires -version 3
-#requires -RunAsAdministrator
-
 function Get-FudgePopInventory {
 	<#
 .SYNOPSIS

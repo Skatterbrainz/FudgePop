@@ -1,4 +1,3 @@
-#requires -version 3
 function New-FudgePopTemplate {
 	<#
 	.SYNOPSIS

@@ -1,6 +1,3 @@
-#requires -RunAsAdministrator
-#requires -version 3
-
 function Show-FudgePop {
 	<#
 	.SYNOPSIS

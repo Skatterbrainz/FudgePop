@@ -17,19 +17,24 @@ function Set-FPControlAppxRemovals {
 	Write-FPLog "--------- appx removal assignments: begin ---------"
 	foreach ($appx in $DataSet) {
 		$deviceName = $appx.device
-		$runtime = $appx.when
+		$runtime  = $appx.when
 		$username = $appx.user
 		$appxcomm = $appx.comment
+		$enabled  = $appx.enabled
 		Write-FPLog "device................ $deviceName"
 		Write-FPLog "user.................. $username"
 		Write-FPLog "runtime............... $runtime"
 		Write-FPLog "comment............... $appxcomm"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is not enabled"
+			continue
+		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
 			$pkglist = $appx.InnerText -split ','
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
-				if (-not $TestMode) {
+				if (-not $TestMode -and $PSCmdlet.ShouldProcess($pkg, "Remove Appx Package")) {
 					try {
 						Get-AppxPackage -AllUsers -ErrorAction Stop | Where-Object { $_.Name -match $pkg } | Remove-AppxPackage -AllUsers -Confirm:$False
 						Write-FPLog "device................ $scDevice"

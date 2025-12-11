@@ -13,7 +13,7 @@ function Set-FPControlModules {
 	param (
 		[parameter(Mandatory = $True, HelpMessage = "XML data")][ValidateNotNullOrEmpty()]$DataSet
 	)
-	Write-FPLog "--------- module assignments: begin ---------"
+	Write-FPLog "--------- mdodule assignments: begin ---------"
 	foreach ($module in $DataSet) {
 		$device     = $module.device
 		$collection = $module.collection

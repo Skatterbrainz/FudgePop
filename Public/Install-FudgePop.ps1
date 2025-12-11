@@ -1,20 +1,17 @@
-#requires -version 3
-#requires -RunAsAdministrator
-
 function Install-FudgePop {
 	<#
-.SYNOPSIS
-	Configure FudgePop options and Scheduled Task
-.DESCRIPTION
-	Configures FudgePop options, including source control XML file path,
-	and Scheduled Task options.
-.PARAMETER UseDefaults
-	Applies default settings and initializes the
-	scheduled client task at a 1 hour interval.  The default control XML
-	file path is the URI to the control.xml on the project Github site.
-.EXAMPLE
-	Install-FudgePop -UseDefaults
-#>
+	.SYNOPSIS
+		Configure FudgePop options and Scheduled Task
+	.DESCRIPTION
+		Configures FudgePop options, including source control XML file path,
+		and Scheduled Task options.
+	.PARAMETER UseDefaults
+		Applies default settings and initializes the
+		scheduled client task at a 1 hour interval.  The default control XML
+		file path is the URI to the control.xml on the project Github site.
+	.EXAMPLE
+		Install-FudgePop -UseDefaults
+	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (
 		[parameter(Mandatory = $False, HelpMessage="Automatic configuration with default settings")]
