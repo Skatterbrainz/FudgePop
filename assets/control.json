@@ -6,7 +6,7 @@
 			"enabled": true,
 			"exclude": "",
 			"comment": "kill switch",
-			"version": "2025.12.11.003"
+			"version": "2025.12.11.005"
 		},
 		"priority": {
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
@@ -32,7 +32,7 @@
 			]
 		},
 		"deployments": {
-			"comment": "packages to install or upgrade",
+			"comment": "WinGet packages to install or upgrade",
 			"deployment": [
 				{
 					"device": "all",
@@ -52,7 +52,7 @@
 			]
 		},
 		"removals": {
-			"comment": "packages to remove",
+			"comment": "WinGet packages to remove",
 			"removal": [
 				{
 					"device": "all",
@@ -70,15 +70,15 @@
 			]
 		},
 		"appxremovals": {
-			"comment": "store apps to remove",
+			"comment": "AppX store apps to remove",
 			"appxremoval": [
 				{
 					"device": "w11-rmm-dave",
 					"user": "all",
-					"enabled": true,
+					"enabled": false,
 					"when": "now",
 					"comment": "",
-					"apps": "Microsoft.Copilot,Microsoft.WindowsCamera,Microsoft.WindowsFeedbackHub,Microsoft.ZuneMusic,Microsoft.ZuneVideo,Microsoft.BingWeather,Microsoft.Todos"
+					"apps": ""
 				}
 			]
 		},
@@ -119,28 +119,28 @@
 			"comment": "files to create or manage",
 			"file": [
 				{
-					"device": "computer1",
+					"collection": "developers",
 					"enabled": false,
 					"action": "rename",
 					"source": "c:\\TestFolder\\test1.txt",
 					"target": "c:\\TestFolder\\test100.txt"
 				},
 				{
-					"device": "computer1",
+					"collection": "developers",
 					"enabled": false,
 					"action": "move",
 					"source": "c:\\TestFolder\\test2.txt",
 					"target": "c:\\TestFolder\\test2.txt"
 				},
 				{
-					"device": "computer1",
+					"collection": "developers",
 					"enabled": false,
 					"action": "copy",
 					"source": "\\\\server123\\data\\test123.txt",
 					"target": "c:\\TestFolder\\test123.txt"
 				},
 				{
-					"device": "computer1",
+					"collection": "developers",
 					"enabled": false,
 					"action": "delete",
 					"source": "c:\\TestFolder\\test3.txt"
@@ -149,7 +149,7 @@
 					"collection": "developers",
 					"enabled": false,
 					"action": "download",
-					"source": "http://www.7-zip.org/a/7z1701-x64.msi",
+					"source": "https://www.7-zip.org/a/7z2501-x64.exe",
 					"target": "c:\\windows\\temp\\"
 				}
 			]
@@ -159,7 +159,7 @@
 			"reg": [
 				{
 					"device": "all",
-					"enabled": false,
+					"enabled": true,
 					"action": "create",
 					"path": "HKLM:\\software\\fudgepop",
 					"value": "CustomValue",
@@ -168,7 +168,7 @@
 				},
 				{
 					"device": "all",
-					"enabled": false,
+					"enabled": true,
 					"action": "create",
 					"path": "HKLM:\\software\\fudgepop",
 					"value": "ControlVersion",
@@ -182,7 +182,15 @@
 			"module": [
 				{
 					"collection": "developers",
-					"enabled": false,
+					"enabled": true,
+					"name": "importexcel",
+					"version": "latest",
+					"when": "now",
+					"comment": "Excel Workbook Functions"
+				},
+				{
+					"collection": "developers",
+					"enabled": true,
 					"name": "psdates",
 					"version": "latest",
 					"when": "now",
@@ -190,16 +198,24 @@
 				},
 				{
 					"collection": "developers",
-					"enabled": false,
+					"enabled": true,
 					"name": "pswindowsupdate",
 					"version": "latest",
 					"when": "now",
-					"comment": "Azure RM powershell"
+					"comment": "Windows Update Functions"
+				},
+				{
+					"collection": "developers",
+					"enabled": false,
+					"name": "pnp.powershell",
+					"version": "1.2.0",
+					"when": "now",
+					"comment": "SharePoint Online powershell"
 				}
 			]
 		},
 		"services": {
-			"comment": "services to configure or manage",
+			"comment": "Windows services to configure or manage",
 			"service": [
 				{
 					"device": "all",
@@ -228,6 +244,16 @@
 			"comment": "shortcuts to create, modify or remove. for path ref: https://msdn.microsoft.com/en-us/library/system.environment.specialfolder.aspx",
 			"shortcut": [
 				{
+					"collection": "developers",
+					"enabled": true,
+					"action": "create",
+					"name": "M365",
+					"type": "url",
+					"target": "http://m365.cloud.microsoft/",
+					"path": "commondesktop",
+					"force": true
+				},
+				{
 					"device": "all",
 					"enabled": false,
 					"action": "create",
@@ -240,15 +266,6 @@
 					"windowstyle": "normal",
 					"args": "",
 					"workingpath": ""
-				},
-				{
-					"collection": "engineers",
-					"enabled": false,
-					"action": "create",
-					"name": "Autodesk",
-					"type": "url",
-					"path": "http://www.autodesk.com",
-					"force": true
 				}
 			]
 		},
