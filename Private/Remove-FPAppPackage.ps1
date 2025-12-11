@@ -1,4 +1,14 @@
 function Remove-FPAppPackage {
+	<#
+	.SYNOPSIS
+		Removes an application package using winget.
+	.DESCRIPTION
+		Removes an application package using winget.
+	.PARAMETER PackageName
+		Specifies the name of the application package to remove.
+	.EXAMPLE
+		Remove-FPAppPackage -PackageName "Movies & TV"
+	#>
 	[CmdletBinding()]
 	param (
 		[parameter(Mandatory = $true)][string]$PackageName

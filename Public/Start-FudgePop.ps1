@@ -30,7 +30,12 @@ function Start-FudgePop {
 	Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
 	Write-FPLog 'Checking for newer module version'
 	try {
-		Update-Module -Name FudgePop -Confirm:$False
+		if ($PSVersionTable.PSVersion.Major -lt 6) {
+			#throw "PowerShell version 5 or higher is required to run FudgePop."
+			Update-Module -Name FudgePop
+		} else {
+			Update-PSResource -Name FudgePop
+		}
 	} catch {
 		Write-Warning "Unable to update FudgePop PowerShell module. May require manual update."
 		Write-Error $_.Exception.Message

@@ -1,6 +1,6 @@
 $Script:FPRegRoot   = 'HKLM:\SOFTWARE\FudgePop'
 $Script:FPRunJob    = 'FudgePop Agent'
-$Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/assets/control1.xml'
+$Script:FPCFDefault = 'https://raw.githubusercontent.com/Skatterbrainz/FudgePop/master/assets/control.json'
 $Script:FPLogFile   = "c:\windows\temp\fudgepop.log"
 
 # if (-not(Test-Path "c:\windows")) {
