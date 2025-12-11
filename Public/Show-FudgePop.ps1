@@ -35,7 +35,6 @@ function Show-FudgePop {
 		Write-Host "current control file... $x10" -ForegroundColor Cyan
 		Write-Host "date installed......... $x2" -ForegroundColor Cyan
 		Write-Host "schema version......... $x8" -ForegroundColor Cyan
-		Write-Host "module version......... $x5" -ForegroundColor Cyan
 		Write-Host "control version........ $x9" -ForegroundColor Cyan
 		if ($x6 -eq 1) {
 			Write-Host "schedule enabled....... yes" -ForegroundColor Cyan
