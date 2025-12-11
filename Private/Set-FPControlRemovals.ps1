@@ -15,6 +15,9 @@ function Set-FPControlRemovals {
 	)
 	Write-FPLog "--------- removal assignments: begin ---------"
 	$paramext = "--accept-source-agreements --silent"
+	$package = $null
+	$pkglist = $null
+	$pkg     = $null
 	foreach ($package in $DataSet) {
 		$deviceName = $package.device
 		$collection = $package.collection
@@ -35,6 +38,7 @@ function Set-FPControlRemovals {
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
 			$pkglist = $package.packages -split ','
+			Write-FPLog "packages.............. $($pkglist.Count)"
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
 				if (Get-WinGetPackage -Name $pkg -ErrorAction SilentlyContinue) {
