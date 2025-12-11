@@ -21,12 +21,17 @@ function Set-FPControlModules {
 		$modver     = $module.version
 		$runtime    = $module.when
 		$comment    = $module.comment
+		$enabled    = $module.enabled
 		Write-FPLog "device................ $device"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "module................ $modname"
 		Write-FPLog "version............... $modver"
 		Write-FPLog "runtime............... $runtime"
 		Write-FPLog "comment............... $comment"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "Runtime is now or overdue"
 			if ($m = Get-Module -Name $modname -ListAvailable) {

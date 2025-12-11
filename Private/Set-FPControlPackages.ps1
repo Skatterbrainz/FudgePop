@@ -23,11 +23,16 @@ function Set-FPControlPackages {
 		$username   = $package.user
 		#$extparams  = $package.params
 		$update     = $package.update
+		$enabled    = $package.enabled
 		Write-FPLog "device................ $deviceName"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "user.................. $username"
 		Write-FPLog "runtime............... $runtime"
 		Write-FPLog "autoupdate............ $update"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment disabled"
+			continue
+		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
 			$pkglist = $package.packages -split ','

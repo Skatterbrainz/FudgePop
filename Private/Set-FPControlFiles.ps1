@@ -20,12 +20,17 @@ function Set-FPControlFiles {
 		$collection = $file.collection
 		$fileSource = $file.source
 		$fileTarget = $file.target
-		$action = $file.action
+		$action     = $file.action
+		$enabled    = $file.enabled
 		Write-FPLog "device................ $fileDevice"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "action................ $action"
 		Write-FPLog "source................ $fileSource"
 		Write-FPLog "target................ $fileTarget"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		if ($TestMode) {
 			Write-FPLog  "TEST MODE: no changes will be applied"
 		} else {

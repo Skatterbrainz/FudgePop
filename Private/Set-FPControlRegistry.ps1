@@ -22,10 +22,15 @@ function Set-FPControlRegistry {
 		$regval     = $reg.value
 		$regdata    = $reg.data
 		$regtype    = $reg.type
+		$enabled    = $reg.enabled
 		Write-FPLog "device name........... $deviceName"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "keypath............... $regpath"
 		Write-FPLog "action................ $regAction"
+		if (-not $enabled) {
+			Write-FPLog "control disabled, skipping"
+			continue
+		}
 		switch ($regAction) {
 			'create' {
 				if ($regdata -eq '$controlversion') { $regdata = $controlversion }

@@ -22,6 +22,7 @@ function Set-FPControlWin32Apps {
 		$appRun     = $app.run
 		$appParams  = $app.params
 		$runtime    = $app.when
+		$enabled    = $app.enabled
 		Write-FPLog "device................ $device"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "appname............... $appName"
@@ -29,6 +30,10 @@ function Set-FPControlWin32Apps {
 		Write-FPLog "action................ $action"
 		Write-FPLog "platform.............. $appPlat"
 		Write-FPLog "runtime............... $runtime"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		switch ($action) {
 			'install' {
 				if ($appRun.EndsWith('.msi')) {

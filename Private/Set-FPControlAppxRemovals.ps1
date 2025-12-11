@@ -17,16 +17,16 @@ function Set-FPControlAppxRemovals {
 	Write-FPLog "--------- appx removal assignments: begin ---------"
 	foreach ($appx in $DataSet) {
 		$deviceName = $appx.device
-		$runtime  = $appx.when
-		$username = $appx.user
-		$appxcomm = $appx.comment
-		$enabled  = $appx.enabled
+		$runtime    = $appx.when
+		$username   = $appx.user
+		$appxcomm   = $appx.comment
+		$enabled    = $appx.enabled
 		Write-FPLog "device................ $deviceName"
 		Write-FPLog "user.................. $username"
 		Write-FPLog "runtime............... $runtime"
 		Write-FPLog "comment............... $appxcomm"
 		if (-not $enabled) {
-			Write-FPLog "skip: assignment is not enabled"
+			Write-FPLog "skip: assignment is disabled"
 			continue
 		}
 		if (Test-FPControlRuntime -RunTime $runtime) {

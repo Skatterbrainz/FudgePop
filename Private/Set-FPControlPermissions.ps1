@@ -19,6 +19,7 @@ function Set-FPControlPermissions {
 		$privPath   = $priv.path
 		$privPrinc  = $priv.principals
 		$privRights = $priv.rights
+		$enabled    = $priv.enabled
 		if ($privPath.StartsWith('HK')) {
 			$privType = 'registry'
 		} else {
@@ -29,6 +30,10 @@ function Set-FPControlPermissions {
 		Write-FPLog "priv path............. $privPath"
 		Write-FPLog "priv principals....... $privPrinc"
 		Write-FPLog "priv rights........... $privRights"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		if (Test-Path $privPath) {
 			switch ($privType) {
 				'filesystem' {

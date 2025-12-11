@@ -26,9 +26,14 @@ function Set-FPControlShortcuts {
 		$scArgs     = $sc.args
 		$scWindow   = $sc.windowstyle
 		$scWorkPath = $sc.workingpath
+		$enabled    = $sc.enabled
 		Write-FPLog "device................ $scDevice"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "shortcut name......... $scName"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		try {
 			if (-not (Test-Path $scPath)) {
 				$scRealPath = [environment]::GetFolderPath($scPath)

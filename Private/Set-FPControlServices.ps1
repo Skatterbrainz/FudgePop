@@ -17,14 +17,19 @@ function Set-FPControlServices {
 	foreach ($service in $DataSet) {
 		$deviceName = $service.device
 		$collection = $service.collection
-		$svcName = $service.name
-		$svcConfig = $service.config
-		$svcAction = $service.action
+		$svcName    = $service.name
+		$svcConfig  = $service.config
+		$svcAction  = $service.action
+		$enabled    = $service.enabled
 		Write-FPLog "device name........... $deviceName"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "service name.......... $svcName"
 		Write-FPLog "action................ $svcAction"
 		Write-FPLog "config type........... $svcConfig"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		try {
 			$scfg = Get-Service -Name $svcName
 			switch ($svcAction) {

@@ -18,11 +18,16 @@ function Set-FPControlFolders {
 	foreach ($folder in $DataSet) {
 		$deviceName = $folder.device
 		$collection = $folder.collection
-		$action = $folder.action
+		$action     = $folder.action
+		$enabled    = $folder.enabled
 		$folderPath = $folder.path
 		Write-FPLog "device name........... $deviceName"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "folder action......... $action"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		switch ($action) {
 			'create' {
 				Write-FPLog "folder path........... $folderPath"

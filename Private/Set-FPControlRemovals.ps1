@@ -21,12 +21,17 @@ function Set-FPControlRemovals {
 		$runtime    = $package.when
 		$autoupdate = $package.autoupdate
 		$username   = $package.user
+		$enabled    = $package.enabled
 		#$extparams  = $package.params
 		Write-FPLog "device................ $deviceName"
 		Write-FPLog "collection............ $collection"
 		Write-FPLog "user.................. $username"
 		Write-FPLog "autoupdate............ $autoupdate"
 		Write-FPLog "runtime............... $runtime"
+		if (-not $enabled) {
+			Write-FPLog "skip: assignment is disabled"
+			continue
+		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
 			$pkglist = $package.InnerText -split ','
