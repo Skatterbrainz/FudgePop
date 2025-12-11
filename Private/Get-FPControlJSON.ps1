@@ -8,7 +8,8 @@ function Get-FPControlJSON {
 	Write-FPLog "preparing to import control file: $FilePath"
 	if ($FilePath.StartsWith("http")) {
 		try {
-			$result = ((New-Object System.Net.WebClient).DownloadString($FilePath) | ConvertFrom-Json)
+			Write-FPLog "Downloading control file from: $FilePath"
+			$result = Invoke-WebRequest -Uri $FilePath -UseBasicParsing -ErrorAction Stop | ConvertFrom-Json
 		} catch {
 			Write-FPLog -Category 'Error' -Message "failed to import data from Uri: $FilePath"
 			Write-Output -3
