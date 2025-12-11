@@ -31,7 +31,7 @@ function Set-FPControlAppxRemovals {
 		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
-			$pkglist = $appx.InnerText -split ','
+			$pkglist = $appx.packages -split ','
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
 				if (-not $TestMode -and $PSCmdlet.ShouldProcess($pkg, "Remove Appx Package")) {

@@ -32,7 +32,7 @@ function Start-FudgePop {
 	} else {
 		$global:ControlData = Get-FPControlJSON -FilePath $ControlFile
 		Write-FPLog "FudgePop Control File: $ControlFile"
-		if (Get-FPServiceAvailable -DataSet $ControlData) {
+		if (Get-FPServiceAvailable -DataSet $global:ControlData) {
 			Write-Verbose "FudgePop is active."
 			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null
 			if ($TestMode) {
@@ -40,7 +40,7 @@ function Start-FudgePop {
 			} else {
 				Set-FPConfiguration -Name "LastRunMode" -Data 'Live' | Out-Null
 			}
-			Invoke-FPControls -DataSet $ControlData
+			Invoke-FPControls -DataSet $global:ControlData
 			Set-FPConfiguration -Name "LastFinishTime" -Data (Get-Date) | Out-Null
 			Set-FPConfiguration -Name "LastRunUser" -Data $env:USERNAME | Out-Null
 		} else {

@@ -34,8 +34,7 @@ function Set-FPControlRemovals {
 		}
 		if (Test-FPControlRuntime -RunTime $runtime) {
 			Write-FPLog "run: runtime is now or already passed"
-			$pkglist = $package.InnerText -split ','
-			#if ($extparams.length -gt 0) { $params = $extparam } else { $params = ' -y -r' }
+			$pkglist = $package.packages -split ','
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
 				if (Get-WinGetPackage -Name $pkg -ErrorAction SilentlyContinue) {
