@@ -37,7 +37,7 @@ function Start-FudgePop {
 		if (Get-FPServiceAvailable -DataSet $global:ControlData) {
 			Write-Verbose "FudgePop is active."
 			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null
-			if ($TestMode) {
+			if ($TestMode -or $PSCmdlet.ShouldProcess("FudgePop", "Run in Test Mode")) {
 				Set-FPConfiguration -Name "LastRunMode" -Data 'TestMode' | Out-Null
 			} else {
 				Set-FPConfiguration -Name "LastRunMode" -Data 'Live' | Out-Null

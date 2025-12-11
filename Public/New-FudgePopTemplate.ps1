@@ -22,7 +22,7 @@ function New-FudgePopTemplate {
 		[parameter(Mandatory=$False, HelpMessage="Overwrite existing destination file if it exists")]
 			[switch] $Overwrite
 	)
-	if (!($OutputFile.EndsWith('.xml'))) {
+	if (!($OutputFile.EndsWith('.json'))) {
 		Write-Warning "$OutputFile requires an .json extension"
 		break
 	}
@@ -35,7 +35,6 @@ function New-FudgePopTemplate {
 	$ModuleData = Get-Module FudgePop
 	$ModuleVer  = $ModuleData.Version -join '.'
 	$ModulePath = $ModuleData.Path -replace 'FudgePop.psm1', ''
-	#$SourceFile = "$ModulePath\assets\control1.xml"
 	$SourceFile = "$(ModulePath)\assets\control.json"
 	Write-FPLog "module version... $ModuleVer"
 	Write-FPLog "sourcefile....... $SourceFile"

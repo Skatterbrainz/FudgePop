@@ -3,12 +3,12 @@ function Install-FudgePop {
 	.SYNOPSIS
 		Configure FudgePop options and Scheduled Task
 	.DESCRIPTION
-		Configures FudgePop options, including source control XML file path,
+		Configures FudgePop options, including source control JSON file path,
 		and Scheduled Task options.
 	.PARAMETER UseDefaults
 		Applies default settings and initializes the
-		scheduled client task at a 1 hour interval.  The default control XML
-		file path is the URI to the control.xml on the project Github site.
+		scheduled client task at a 1 hour interval.  The default control JSON
+		file path is the URI to the control.json on the project Github site.
 	.EXAMPLE
 		Install-FudgePop -UseDefaults
 	#>
@@ -21,7 +21,6 @@ function Install-FudgePop {
 	$ModuleVer  = $ModuleData.Version -join '.'
 
 	Write-Host "FudgePop $ModuleVer - https://github.com/Skatterbrainz/FudgePop" -ForegroundColor Cyan
-	Install-Chocolatey
 	Write-FPLog $ModuleVer
 	Write-FPLog $Script:FPRegRoot
 	Write-FPLog $Script:FPRunJob

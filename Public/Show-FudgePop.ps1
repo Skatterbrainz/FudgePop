@@ -19,18 +19,18 @@ function Show-FudgePop {
 	Write-Host "registry path.......... $FPRegRoot" -ForegroundColor Cyan
 	Write-Host "log file path.......... $FPLogFile" -ForegroundColor Cyan
 	try {
-		$os = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
-		$cs = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+		$os  = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+		$cs  = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
 		$reg = Get-ItemProperty -Path $Script:FPRegRoot -ErrorAction Stop
-		$x1 = $reg.LastStartTime
-		$x2 = $reg.InitialSetup
-		$x3 = $reg.LastFinishTime
-		$x4 = $reg.LastRunUpdates
-		$x5 = $reg.ModuleVersion
-		$x6 = $reg.EnableJob
-		$x7 = $reg.ScheduleHours
-		$x8 = $reg.TemplateVersion
-		$x9 = $reg.ControlVersion
+		$x1  = $reg.LastStartTime
+		$x2  = $reg.InitialSetup
+		$x3  = $reg.LastFinishTime
+		$x4  = $reg.LastRunUpdates
+		$x5  = $reg.ModuleVersion
+		$x6  = $reg.EnableJob
+		$x7  = $reg.ScheduleHours
+		$x8  = $reg.TemplateVersion
+		$x9  = $reg.ControlVersion
 		$x10 = $reg.ControlFile
 		Write-Host "current control file... $x10" -ForegroundColor Cyan
 		Write-Host "date installed......... $x2" -ForegroundColor Cyan
