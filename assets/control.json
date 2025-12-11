@@ -6,7 +6,7 @@
 			"enabled": true,
 			"exclude": "",
 			"comment": "kill switch",
-			"version": "2025.12.10.001"
+			"version": "2025.12.10.004"
 		},
 		"priority": {
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
