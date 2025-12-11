@@ -6,7 +6,7 @@
 			"enabled": true,
 			"exclude": "",
 			"comment": "kill switch",
-			"version": "2025.12.10.004"
+			"version": "2025.12.10.005"
 		},
 		"priority": {
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
@@ -74,11 +74,11 @@
 			"appxremoval": [
 				{
 					"device": "w11-rmm-dave",
-					"user": "David Stein",
-					"enabled": false,
+					"user": "all",
+					"enabled": true,
 					"when": "now",
 					"comment": "",
-					"apps": ""
+					"apps": "Microsoft.Copilot,Microsoft.WindowsCamera,Microsoft.WindowsFeedbackHub,Microsoft.ZuneMusic,Microsoft.ZuneVideo,Microsoft.BingWeather,Microsoft.Todos"
 				}
 			]
 		},
