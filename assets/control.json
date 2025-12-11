@@ -6,7 +6,7 @@
 			"enabled": true,
 			"exclude": "",
 			"comment": "kill switch",
-			"version": "2025.12.10.005"
+			"version": "2025.12.11.003"
 		},
 		"priority": {
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
@@ -59,7 +59,7 @@
 					"user": "all",
 					"enabled": true,
 					"when": "now",
-					"packages": "News,Movies & TV,Mail and Calendar,Microsoft 365 Copilot,Windows Maps"
+					"packages": "News,Movies & TV,Mail and Calendar,Copilot,Cortana,Windows Maps,Microsoft Photos,Microsoft To Do,Microsoft People,MSN Weather"
 				},
 				{
 					"collection": "developers",
