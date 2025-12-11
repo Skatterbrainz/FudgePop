@@ -12,9 +12,9 @@ function New-FudgePopTemplate {
 	.PARAMETER NoScrub
 		Copy templates without clearing settings
 	.EXAMPLE
-		Clone-FudgePopTemplate -OutputFile 'c:\templates\custom.xml'
+		Clone-FudgePopTemplate -OutputFile 'c:\templates\custom.json'
 	.EXAMPLE
-		Clone-FudgePopTemplate -OutputFile 'c:\templates\custom.xml' -Overwrite
+		Clone-FudgePopTemplate -OutputFile 'c:\templates\custom.json' -Overwrite
 	#>
 	param (
 		[parameter(Mandatory=$True, HelpMessage="Path and Name for new template control file")]
@@ -24,7 +24,7 @@ function New-FudgePopTemplate {
 			[switch] $Overwrite
 	)
 	if (!($OutputFile.EndsWith('.xml'))) {
-		Write-Warning "$OutputFile requires an .xml extension"
+		Write-Warning "$OutputFile requires an .json extension"
 		break
 	}
 	if (Test-Path -Path $OutputFile) {
@@ -36,7 +36,8 @@ function New-FudgePopTemplate {
 	$ModuleData = Get-Module FudgePop
 	$ModuleVer  = $ModuleData.Version -join '.'
 	$ModulePath = $ModuleData.Path -replace 'FudgePop.psm1', ''
-	$SourceFile = "$ModulePath\assets\control1.xml"
+	#$SourceFile = "$ModulePath\assets\control1.xml"
+	$SourceFile = "$(ModulePath)\assets\control.json"
 	Write-FPLog "module version... $ModuleVer"
 	Write-FPLog "sourcefile....... $SourceFile"
 	Write-FPLog "outputfile....... $OutputFile"

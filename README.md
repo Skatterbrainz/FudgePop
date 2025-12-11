@@ -1,7 +1,10 @@
 # FudgePop (PowerShell Module)
+
 1.0.18 - 2024.03.09
+2.0.0  - 2025.12.10
 
 ## The FudgePop project is not under active development.
+
 The repository remains available for reference, and pull requests will be considered, but no active work is being done on this project.
 
 # Overview
@@ -42,8 +45,8 @@ Centrally manage Windows 10 and 11 computers using a local script which reads in
 
 # Management
 
-  * Edit the control XML file to provide the configuration data you desire.
-  * Increment the [version] attribute within the [control] element (to insure XML data is read properly on clients)
+  * Edit the control JSON file to provide the configuration data you desire.
+  * Increment the [version] attribute within the [control] element (to insure JSON data is read properly on clients)
   * Allow time for clients to run scheduled task to invoke control data updates (or force task to run)
 
 # Functions

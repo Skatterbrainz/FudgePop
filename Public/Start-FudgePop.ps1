@@ -41,7 +41,7 @@ function Start-FudgePop {
 		Write-FPLog -Category 'Warning' -Message 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
 		Write-Warning 'FudgePop has not been configured yet. Run Install-FudgePop to set default options.'
 	} else {
-		$ControlData = Get-FPControlData -FilePath $ControlFile
+		$ControlData = Get-FPControlJSON -FilePath $ControlFile
 		if (Get-FPServiceAvailable -DataSet $ControlData) {
 			Write-Verbose "FudgePop is active."
 			Set-FPConfiguration -Name "LastStartTime" -Data (Get-Date) | Out-Null

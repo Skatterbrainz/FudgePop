@@ -8,12 +8,14 @@ function Install-Chocolatey {
 		Install-Chocolatey
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
-	param ()
+	param (
+		[parameter(Mandatory = $false)][string]$SourceURL = "https://chocolatey.org/install.ps1"
+	)
 	Write-FPLog -Category Info -Message "verifying chocolatey is installed"
 	if (!(Test-Path "$($env:ProgramData)\chocolatey\choco.exe")) {
 		Write-FPLog -Category Info -Message "installing chocolatey..."
 		try {
-			Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+			Invoke-Expression (Invoke-WebRequest -Uri $SourceURL -UseBasicParsing -ErrorAction Stop)
 		} catch {
 			Write-FPLog -Category Error -Message $_.Exception.Message
 		}
