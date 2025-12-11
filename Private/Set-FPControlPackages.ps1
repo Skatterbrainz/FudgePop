@@ -40,9 +40,9 @@ function Set-FPControlPackages {
 			foreach ($pkg in $pkglist) {
 				Write-FPLog "package............... $pkg"
 				if (Get-WinGetPackage -Name $pkg -WarningAction SilentlyContinue) {
-					$params = "upgrade $pkg $parm $paramext"
+					$params = "upgrade $pkg $paramext"
 				} else {
-					$params = "install $pkg $parm $paramext"
+					$params = "install $pkg $paramext"
 				}
 				Write-FPLog "command............... winget $params"
 				if (-not $TestMode) {

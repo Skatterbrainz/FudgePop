@@ -14,7 +14,7 @@ function Set-FPControlRemovals {
 		[parameter(Mandatory = $True)]$DataSet
 	)
 	Write-FPLog "--------- removal assignments: begin ---------"
-	$paramext = "--accept-source-agreements --accept-package-agreements --silent"
+	$paramext = "--accept-source-agreements --silent"
 	foreach ($package in $DataSet) {
 		$deviceName = $package.device
 		$collection = $package.collection
