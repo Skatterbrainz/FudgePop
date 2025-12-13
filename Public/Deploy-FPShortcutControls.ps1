@@ -1,13 +1,13 @@
-function Set-FPControlShortcuts {
+function Deploy-FPShortcutControls {
 	<#
 	.SYNOPSIS
 		Process Shortcut Controls
 	.DESCRIPTION
 		Process Configuration Control: File and URL Shortcuts
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
-		Set-FPControlShortcuts -DataSet $xmldata
+		Deploy-FPShortcutControls -DataSet $controldata
 	#>
 	param (
 		[parameter(Mandatory = $True)]$DataSet

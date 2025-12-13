@@ -1,13 +1,12 @@
-function Set-FPControlAppxRemovals {
+function Remove-FPAppxPackages {
 	<#
 	.SYNOPSIS
 		Remove Appx Packages
 	.DESCRIPTION
-		Process Configuration Control: Chocolatey Package Removals
+		Process Configuration Control: Appx Package Removals
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
-		Set-FPControlAppxRemovals -DataSet $xmldata
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (

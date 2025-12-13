@@ -23,23 +23,23 @@ function Invoke-FPControls {
 	$MyPC = $env:COMPUTERNAME
 	Write-FPLog "module version.....: $ModuleVer"
 	Write-FPLog "device name........: $MyPC"
-	$collections = Get-FPDeviceCollections -XmlData $DataSet
+	$collections = Get-FPDeviceCollections -ControlData $DataSet
 	if ($collections -ne "") {
 		Write-FPLog -Category 'Info' -Message "collections........: $($collections -join ',')"
 	}
 	$priority    = $DataSet.configuration.priority.order
-	$installs    = Get-FPFilteredSet -XmlData $DataSet.configuration.deployments.deployment -Collections $collections
-	$removals    = Get-FPFilteredSet -XmlData $DataSet.configuration.removals.removal -Collections $collections
-	$folders     = Get-FPFilteredSet -XmlData $DataSet.configuration.folders.folder -Collections $collections
-	$files       = Get-FPFilteredSet -XmlData $DataSet.configuration.files.file -Collections $collections
-	$registry    = Get-FPFilteredSet -XmlData $DataSet.configuration.registry.reg -Collections $collections
-	$services    = Get-FPFilteredSet -XmlData $DataSet.configuration.services.service -Collections $collections
-	$shortcuts   = Get-FPFilteredSet -XmlData $DataSet.configuration.shortcuts.shortcut -Collections $collections
-	$opapps      = Get-FPFilteredSet -XmlData $DataSet.configuration.opapps.opapp -Collections $collections
-	$updates     = Get-FPFilteredSet -XmlData $DataSet.configuration.updates.update -Collections $collections
-	$appx        = Get-FPFilteredSet -XmlData $DataSet.configuration.appxremovals.appxremoval -Collections $collections
-	$modules     = Get-FPFilteredSet -XmlData $DataSet.configuration.modules.module -Collections $collections
-	$permissions = Get-FPFilteredSet -XmlData $DataSet.configuration.permissions.permission -Collections $collections
+	$installs    = Get-FPFilteredSet -ControlData $DataSet.configuration.deployments.deployment -Collections $collections
+	$removals    = Get-FPFilteredSet -ControlData $DataSet.configuration.removals.removal -Collections $collections
+	$folders     = Get-FPFilteredSet -ControlData $DataSet.configuration.folders.folder -Collections $collections
+	$files       = Get-FPFilteredSet -ControlData $DataSet.configuration.files.file -Collections $collections
+	$registry    = Get-FPFilteredSet -ControlData $DataSet.configuration.registry.reg -Collections $collections
+	$services    = Get-FPFilteredSet -ControlData $DataSet.configuration.services.service -Collections $collections
+	$shortcuts   = Get-FPFilteredSet -ControlData $DataSet.configuration.shortcuts.shortcut -Collections $collections
+	$opapps      = Get-FPFilteredSet -ControlData $DataSet.configuration.opapps.opapp -Collections $collections
+	$updates     = Get-FPFilteredSet -ControlData $DataSet.configuration.updates.update -Collections $collections
+	$appx        = Get-FPFilteredSet -ControlData $DataSet.configuration.appxremovals.appxremoval -Collections $collections
+	$modules     = Get-FPFilteredSet -ControlData $DataSet.configuration.modules.module -Collections $collections
+	$permissions = Get-FPFilteredSet -ControlData $DataSet.configuration.permissions.permission -Collections $collections
 	
 	Write-FPLog "template version...: $($DataSet.configuration.version)"
 	Write-FPLog "template comment...: $($DataSet.configuration.comment)"
@@ -62,7 +62,7 @@ function Invoke-FPControls {
 		switch ($key) {
 			'folders' { 
 				if ($folders) {
-					Set-FPControlFolders -DataSet $folders
+					Deploy-FPFolderControls -DataSet $folders
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Folders"
 				}
@@ -70,7 +70,7 @@ function Invoke-FPControls {
 			}
 			'files' { 
 				if ($files) {
-					Set-FPControlFiles -DataSet $files
+					Deploy-FPFileControls -DataSet $files
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Files"
 				}
@@ -78,23 +78,39 @@ function Invoke-FPControls {
 			}
 			'registry' {
 				if ($registry) {
-					Set-FPControlRegistry -DataSet $registry
+					Deploy-FPRegistryControls -DataSet $registry
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Registry"
 				}
 				break
 			}
-			'deployments' {
+			'winget_installs' {
 				if ($installs) {
-					Set-FPControlPackages -DataSet $installs
+					Install-FPWingetPackages -DataSet $installs
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
 				}
 				break
 			}
-			'removals' { 
+			'choco_installs' {
+				if ($installs) {
+					Install-FPChocolateyPackages -DataSet $installs
+				} else {
+					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
+				}
+				break
+			}
+			'winget_removals' { 
 				if ($removals) {
-					Set-FPControlRemovals -DataSet $removals
+					Remove-FPWingetPackages -DataSet $removals
+				} else {
+					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Removals"
+				}
+				break
+			}
+			'choco_removals' { 
+				if ($removals) {
+					Remove-FPChocolateyPackages -DataSet $removals
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Removals"
 				}
@@ -134,7 +150,7 @@ function Invoke-FPControls {
 			}
 			'permissions' { 
 				if ($permissions) {
-					Set-FPControlPermissions -DataSet $permissions
+					Deploy-FPAccessControls -DataSet $permissions
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Permissions"
 				}

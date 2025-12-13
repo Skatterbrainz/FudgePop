@@ -7,16 +7,16 @@ function Get-FPDeviceCollections {
 	.PARAMETER XmlData
 		Control Data XML
 	.EXAMPLE
-		$colls = Get-FPDeviceCollections -XmlData $ControlData
+		$colls = Get-FPDeviceCollections -ControlData $ControlData
 	.NOTES
 	#>
 	param (
 		[parameter(Mandatory = $True)]
 		[ValidateNotNullOrEmpty()]
-		$XmlData
+		$ControlData
 	)
 	try {
-		$( $XmlData.configuration.collections.collection | Where-Object { $_.members -match $env:COMPUTERNAME }).name
+		$( $ControlData.configuration.collections.collection | Where-Object { $_.members -match $env:COMPUTERNAME }).name
 	} catch {
 		Write-Output ""
 	}

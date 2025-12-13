@@ -1,13 +1,13 @@
-function Set-FPControlWindowsUpdate {
+function Install-FPWindowsUpdates {
 	<#
 	.SYNOPSIS
 		Run Windows Update Scan and Install Cycle
 	.DESCRIPTION
 		Process Configuration Control: Windows Updates
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
-		Set-FPControlWindowsUpdate -DataSet $xmldata
+		Install-FPWindowsUpdates -DataSet $controldata
 	#>
 	param (
 		[parameter(Mandatory = $True)] $DataSet

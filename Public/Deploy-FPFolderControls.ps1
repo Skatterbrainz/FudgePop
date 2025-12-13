@@ -1,4 +1,4 @@
-function Set-FPControlFolders {
+function Deploye-FPFolderControls {
 	<#
 	.SYNOPSIS
 		Create Folders
@@ -7,7 +7,7 @@ function Set-FPControlFolders {
 	.PARAMETER DataSet
 		XML data from control file import
 	.EXAMPLE
-		Set-FPControlFolders -DataSet $xmldata
+		Deploy-FPFolderControls -DataSet $controldata
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (

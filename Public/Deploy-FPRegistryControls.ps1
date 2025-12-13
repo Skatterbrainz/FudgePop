@@ -1,4 +1,4 @@
-function Set-FPControlRegistry {
+function Deploy-FPRegistryControls {
 	<#
 	.SYNOPSIS
 		Process Configuration Control: Registry Settings
@@ -7,7 +7,7 @@ function Set-FPControlRegistry {
 	.PARAMETER DataSet
 		XML data from control file import
 	.EXAMPLE
-		Set-FPControlRegistry -DataSet $xmldata
+		Deploy-FPRegistryControls -DataSet $controldata
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (

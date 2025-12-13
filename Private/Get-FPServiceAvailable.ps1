@@ -3,11 +3,11 @@ function Get-FPServiceAvailable {
 	.SYNOPSIS
 		Verify FudgePop Control Item is Enabled
 	.DESCRIPTION
-		Return TRUE if enabled="true" in control section of XML
+		Return TRUE if enabled="true" in control section of Control data
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.INPUTS
-		XML data
+		Control data
 	.OUTPUTS
 		$True or $null
 	#>
@@ -15,7 +15,7 @@ function Get-FPServiceAvailable {
 		[parameter(Mandatory = $True)]
 		$DataSet
 	)
-	if ($DataSet.configuration.control.enabled -eq 'true') {
+	if ($DataSet.configuration.control.enabled) {
 		if (($DataSet.configuration.control.exclude -split ',') -contains $MyPC) {
 			Write-FPLog 'FudgePop services are enabled, but this device is excluded'
 			break

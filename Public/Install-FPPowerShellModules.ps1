@@ -1,17 +1,18 @@
-function Set-FPControlModules {
+function Install-FPPowerShellModules {
 	<#
 	.SYNOPSIS
 	Install PowerShell Modules
 	.DESCRIPTION
 	Install Specified PowerShell Modules
 	.PARAMETER DataSet
-	XML data
+	Control data from control file import
 	.EXAMPLE
-	Set-FPControlModules -DataSet $xmldata
+	Install-FPPowerShellModules -DataSet $controldata
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (
-		[parameter(Mandatory = $True, HelpMessage = "XML data")][ValidateNotNullOrEmpty()]$DataSet
+		[parameter(Mandatory = $True, HelpMessage = "Control data from control file import")]
+		[ValidateNotNullOrEmpty()]$DataSet
 	)
 	Write-FPLog "--------- mdodule assignments: begin ---------"
 	foreach ($module in $DataSet) {

@@ -1,19 +1,19 @@
-function Set-FPControlServices {
+function Deploy-FPServiceControls {
 	<#
 	.SYNOPSIS
 		Process Control Changes on Services
 	.DESCRIPTION
 		Process Configuration Control: Windows Services
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
-		Set-FPControlServices -DataSet $xmldata
+		Deploy-FPServiceControls -DataSet $controldata
 	#>
 	[CmdletBinding()]
 	param (
 		[parameter(Mandatory = $True)]$DataSet
 	)
-	Write-FPLog "--------- services assignments: begin ---------"
+	Write-FPLog "--------- services control assignments: begin ---------"
 	foreach ($service in $DataSet) {
 		$deviceName = $service.device
 		$collection = $service.collection
@@ -94,5 +94,5 @@ function Set-FPControlServices {
 			Write-FPLog -Category "Error" -Message "service not found: $svcName"
 		}
 	} # foreach
-	Write-FPLog "--------- services assignments: finish ---------"
+	Write-FPLog "--------- services control assignments: finish ---------"
 }

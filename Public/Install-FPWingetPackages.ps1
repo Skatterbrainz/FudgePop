@@ -1,19 +1,19 @@
-function Set-FPControlPackages {
+function Install-FPWingetPackages {
 	<#
 	.SYNOPSIS
-		Install Chocolatey Packages
+		Install Winget Packages
 	.DESCRIPTION
-		Process Configuration Control: Chocolatey Package Installs and Upgrades
+		Process Configuration Control: Winget Package Installs and Upgrades
 	.PARAMETER DataSet
 		XML data from control file import
 	.EXAMPLE
-		Set-FPControlPackages -DataSet $xmldata
+		Install-FPWingetPackages -DataSet $configdata
 	#>
 	[CmdletBinding()]
 	param (
 		[parameter(Mandatory = $True)]$DataSet
 	)
-	Write-FPLog "--------- installation assignments: begin ---------"
+	Write-FPLog "--------- winget installation assignments: begin ---------"
 	$itemcount = $DataSet.count
 	$paramext = "--accept-source-agreements --accept-package-agreements --silent"
 	foreach ($package in $DataSet) {
@@ -21,7 +21,6 @@ function Set-FPControlPackages {
 		$collection = $package.collection
 		$runtime    = $package.when
 		$username   = $package.user
-		#$extparams  = $package.params
 		$update     = $package.update
 		$enabled    = $package.enabled
 		Write-FPLog "device................ $deviceName"
@@ -69,5 +68,5 @@ function Set-FPControlPackages {
 	if ($itemcount -eq 0) {
 		Write-FPLog "no assignments found"
 	}
-	Write-FPLog "--------- installation assignments: finish ---------"
+	Write-FPLog "--------- winget installation assignments: finish ---------"
 }

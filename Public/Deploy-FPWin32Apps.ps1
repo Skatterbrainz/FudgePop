@@ -1,13 +1,13 @@
-function Set-FPControlWin32Apps {
+function Deploy-FPWin32Apps {
 	<#
 	.SYNOPSIS
 		Install Win32 Applications
 	.DESCRIPTION
 		Process Configuration Control: Windows Application Installs and Uninstalls
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
-		Set-FPControlWin32Apps -DataSet $xmldata
+		Deploy-FPWin32Apps -DataSet $controldata
 	#>
 	param (
 		[parameter(Mandatory = $True)]$DataSet

@@ -1,4 +1,4 @@
-function Set-FPControlPermissions {
+function Deploy-FPAccessControls {
 	<#
 	.SYNOPSIS
 		Apply Folder and File Permissions Controls
@@ -7,12 +7,12 @@ function Set-FPControlPermissions {
 	.PARAMETER DataSet
 		XML data from control file import
 	.EXAMPLE
-		Set-FPControlPermissions -DataSet $xmldata
+		Deploy-FPAccessControls -DataSet $controldata
 	#>
 	param (
 		[parameter(Mandatory = $True)]$DataSet
 	)
-	Write-FPLog "--------- permissions assignments: begin ---------"
+	Write-FPLog "--------- access assignments: begin ---------"
 	foreach ($priv in $DataSet) {
 		$device     = $priv.device
 		$collection = $priv.collection
@@ -59,7 +59,7 @@ function Set-FPControlPermissions {
 					break
 				}
 				'registry' {
-					Write-FPLog "registry permissions feature is not yet fully baked"
+					Write-FPLog "registry access feature is not yet fully baked"
 					break
 				}
 			} # switch
@@ -67,5 +67,5 @@ function Set-FPControlPermissions {
 			Write-FPLog -Category "Error" -Message ""
 		}
 	} # switch
-	Write-FPLog "--------- permissions assignments: finish ---------"
+	Write-FPLog "--------- access assignments: finish ---------"
 }

@@ -1,19 +1,19 @@
-function Set-FPControlRemovals {
+function Remove-FPWingetPackages {
 	<#
 	.SYNOPSIS
-		Uninstall Chocolatey Packages
+		Uninstall Winget Packages
 	.DESCRIPTION
-		Uninstall Chocolatey Packages applicable to this computer
+		Uninstall Winget Packages applicable to this computer
 	.PARAMETER DataSet
-		XML data
+		Control data
 	.EXAMPLE
-		Set-FPControlRemovals -DataSet $xmldata
+		Remove-FPWingetPackages -DataSet $controldata
 	#>
 	[CmdletBinding()]
 	param (
 		[parameter(Mandatory = $True)]$DataSet
 	)
-	Write-FPLog "--------- removal assignments: begin ---------"
+	Write-FPLog "--------- winget removal assignments: begin ---------"
 	$paramext = "--accept-source-agreements --silent"
 	$package = $null
 	$pkglist = $null
@@ -68,5 +68,5 @@ function Set-FPControlRemovals {
 			Write-FPLog "skip: not yet time to run this assignment"
 		}
 	} # foreach
-	Write-FPLog "--------- removal assignments: finish ---------"
+	Write-FPLog "--------- winget removal assignments: finish ---------"
 }

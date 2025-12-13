@@ -1,4 +1,4 @@
-function Set-FPControlFiles {
+function Deploy-FPFileControls {
 	<#
 	.SYNOPSIS
 		Create and Manipulate Files
@@ -7,7 +7,7 @@ function Set-FPControlFiles {
 	.PARAMETER DataSet
 		XML data from control file import
 	.EXAMPLE
-		Set-FPControlFiles -DataSet $xmldata
+		Set-FPControlFiles -DataSet $controldata
 	#>
 	[CmdletBinding(SupportsShouldProcess = $True)]
 	param (
