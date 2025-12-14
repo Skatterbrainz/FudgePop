@@ -1,8 +1,9 @@
 # FudgePop (PowerShell Module)
 
-2.0.0  - 2025.12.10
+2.0.0  - 2025.12.14
 - Replaced XML configuration model with JSON
 - Added support for Winget and Chocolatey
+- Replaced Get-FudgePopInventory
 - Added support for deploying Python3 packages
 - Massive code updates and rewrites
 
