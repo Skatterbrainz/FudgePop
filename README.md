@@ -1,6 +1,6 @@
 # FudgePop (PowerShell Module)
 
-2.0.0  - 2025.12.14
+2.0.0  - 2025.12.19
 - Replaced XML configuration model with JSON
 - Added support for Winget and Chocolatey
 - Replaced Get-FudgePopInventory
@@ -17,18 +17,20 @@ The repository remains available for reference, and pull requests will be consid
 
 Centrally manage Windows 10 and 11 computers using a local script which reads instructions from a remote XML control file.
 
-  * Install, Upgrade and Remove Chocolatey Packages
+  * Install, Upgrade and Remove Chocolatey Packages (Windows)
+  * Install, Upgrade and Remove APT and Flatpak packages (Linux)
   * Create, Delete and Empty Folders
   * Copy, Rename, Move or Delete Files
-  * Start, Stop and Reconfigure Services
-  * Add, Modify, Delete Shortcuts
-  * Add, Modify Registry Keys and Values
-  * Install or Remove Win32 Applications (on-prem sources or local)
-  * Uninstall Local Apps (exe, msi)
-  * Uninstall Appx Store Apps (Candy Crush, MineCraft, etc.)
-  * Modify Folder and File Permissions
-  * Install PowerShell modules
-  * Force Windows Update Scan/Download/Install Cycle
+  * Start, Stop and Reconfigure Services (Windows)
+  * Add, Modify, Delete Shortcuts (Windows)
+  * Add, Modify Registry Keys and Values (Windows)
+  * Install or Remove Win32 Applications (Windows: on-prem sources or local)
+  * Uninstall Local Apps (Windows: .exe, .msi)
+  * Uninstall Appx Store Apps (Windows: Candy Crush, MineCraft, etc.)
+  * Modify Folder and File Permissions (Windows)
+  * Install PowerShell modules (Windows, Linux)
+  * Force Windows Update Scan/Download/Install Cycle (Windows)
+  * Install updates for APT, Flatpak, Snap (Linux)
 
 # Targeting
 

@@ -12,7 +12,7 @@ function Install-FPWindowsUpdates {
 	param (
 		[parameter(Mandatory = $True)] $DataSet
 	)
-	Write-FPLog -Category "Info" -Message "--------- updates assignments: begin ---------"
+	Write-FPLog -Category "Info" -Message "--------- windows updates assignments: begin ---------"
 	foreach ($dvc in $DataSet) {
 		$device     = $dvc.device
 		$collection = $dvc.collection
@@ -51,5 +51,5 @@ function Install-FPWindowsUpdates {
 			Write-FPLog -Category "Info" -Message "skip: not yet time to run this assignment"
 		}
 	} # foreach
-	Write-FPLog -Category "Info" -Message "--------- updates assignments: finish ---------"
+	Write-FPLog -Category "Info" -Message "--------- windows updates assignments: finish ---------"
 }

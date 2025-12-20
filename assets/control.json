@@ -6,7 +6,7 @@
 			"enabled": true,
 			"exclude": "",
 			"comment": "kill switch",
-			"version": "2025.12.13.001"
+			"version": "2025.12.19.001"
 		},
 		"priority": {
 			"order": "files,folders,modules,deployments,removals,upgrades,appxremovals,registry,services,shortcuts,opapps,permissions,updates"
@@ -28,6 +28,11 @@
 					"name": "general",
 					"members": "computer5,computer6",
 					"comment": "General user computers"
+				},
+				{
+					"name": "linuxdesktops",
+					"members": "mint22,zorin18",
+					"comment": "Linux desktop machines"
 				}
 			]
 		},
@@ -35,18 +40,17 @@
 			"comment": "WinGet packages to install or upgrade",
 			"deployment": [
 				{
-					"device": "all",
-					"user": "all",
+					"collection": "administration",
 					"enabled": true,
 					"when": "now",
 					"update": false,
-					"packages": "7zip.7zip,google.chrome,notepad++.notepad++,microsoft.office,Microsoft.Sysinternals.ZoomIt"
+					"packages": "7zip.7zip,google.chrome,microsoft.office"
 				},
 				{
 					"collection": "developers",
 					"enabled": true,
 					"when": "now",
-					"packages": "Microsoft.VisualStudioCode,git.git,Microsoft.Sysinternals.ProcessExplorer,Microsoft.Sysinternals.ProcessMonitor,Microsoft.Sysinternals.AutoRuns",
+					"packages": "7zip.7zip,google.chrome,notepad++.notepad++,microsoft.office,Microsoft.Sysinternals.ZoomIt,Microsoft.VisualStudioCode,git.git,Microsoft.Sysinternals.ProcessExplorer,Microsoft.Sysinternals.ProcessMonitor,Microsoft.Sysinternals.AutoRuns",
 					"update": false
 				}
 			]
@@ -55,8 +59,7 @@
 			"comment": "Chocolatey packages to install or upgrade",
 			"deployment": [
 				{
-					"device": "all",
-					"user": "all",
+					"collection": "administration",
 					"enabled": false,
 					"when": "now",
 					"update": false,
@@ -71,12 +74,35 @@
 				}
 			]
 		},
+		"apt_installs": {
+			"comment": "APT packages to install or upgrade",
+			"deployment": [
+				{
+					"collection": "linuxdesktops",
+					"enabled": true,
+					"when": "now",
+					"update": false,
+					"packages": "git,ffmpeg,fastfetch,shutter,yad"
+				}
+			]
+		},
+		"flatpak_installs": {
+			"comment": "Flatpak packages to install or upgrade",
+			"deployment": [
+				{
+					"collection": "linuxdesktops",
+					"enabled": true,
+					"when": "now",
+					"update": false,
+					"packages": "com.brave.Browser,com.jgraph.drawio.desktop,com.github.IsmaelMartinez.teams_for_linux"
+				}
+			]
+		},
 		"winget_removals": {
 			"comment": "WinGet packages to remove",
 			"removal": [
 				{
-					"device": "all",
-					"user": "all",
+					"collection": "administration",
 					"enabled": true,
 					"when": "now",
 					"packages": "News,Movies & TV,Mail and Calendar,Copilot,Cortana,Windows Maps,Microsoft Photos,Microsoft To Do,Microsoft People,MSN Weather"
@@ -93,8 +119,29 @@
 			"comment": "Chocolatey packages to remove",
 			"removal": [
 				{
-					"device": "all",
-					"user": "all",
+					"collection": "developers",
+					"enabled": false,
+					"when": "now",
+					"packages": "someoldapp,anotheroldapp"
+				}
+			]
+		},
+		"apt_removals": {
+			"comment": "APT packages to remove",
+			"removal": [
+				{
+					"collection": "linuxdesktops",
+					"enabled": false,
+					"when": "now",
+					"packages": "someoldapp,anotheroldapp"
+				}
+			]
+		},
+		"flatpak_removals": {
+			"comment": "Flatpak packages to remove",
+			"removal": [
+				{
+					"collection": "linuxdesktops",
 					"enabled": false,
 					"when": "now",
 					"packages": "someoldapp,anotheroldapp"
@@ -386,7 +433,7 @@
 			"comment": "force microsoft updates download and install cycle",
 			"update": [
 				{
-					"device": "all",
+					"collection": "developers",
 					"enabled": false,
 					"when": "daily"
 				}

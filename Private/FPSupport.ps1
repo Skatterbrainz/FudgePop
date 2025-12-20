@@ -429,22 +429,24 @@ function Invoke-FPControls {
 	if ($collections -ne "") {
 		Write-FPLog -Category 'Info' -Message "collections........: $($collections -join ',')"
 	}
-	$priority       = $DataSet.configuration.priority.order
-	$wingetinstalls = Get-FPFilteredSet -ControlData $DataSet.configuration.winget_installs.deployment -Collections $collections
-	$chocoinstalls  = Get-FPFilteredSet -ControlData $DataSet.configuration.choco_installs.deployment -Collections $collections
-	$wingetremovals = Get-FPFilteredSet -ControlData $DataSet.configuration.winget_removals.removal -Collections $collections
-	$chocoremovals  = Get-FPFilteredSet -ControlData $DataSet.configuration.choco_removals.removal -Collections $collections
-	$folders        = Get-FPFilteredSet -ControlData $DataSet.configuration.folders.folder -Collections $collections
-	$files          = Get-FPFilteredSet -ControlData $DataSet.configuration.files.file -Collections $collections
-	$registry       = Get-FPFilteredSet -ControlData $DataSet.configuration.registry.reg -Collections $collections
-	$services       = Get-FPFilteredSet -ControlData $DataSet.configuration.services.service -Collections $collections
-	$shortcuts      = Get-FPFilteredSet -ControlData $DataSet.configuration.shortcuts.shortcut -Collections $collections
-	$opapps         = Get-FPFilteredSet -ControlData $DataSet.configuration.opapps.opapp -Collections $collections
-	$updates        = Get-FPFilteredSet -ControlData $DataSet.configuration.updates.update -Collections $collections
-	$appx           = Get-FPFilteredSet -ControlData $DataSet.configuration.appxremovals.appxremoval -Collections $collections
-	$modules        = Get-FPFilteredSet -ControlData $DataSet.configuration.modules.module -Collections $collections
-	$pythonpackages = Get-FPFilteredSet -ControlData $DataSet.configuration.pythonpackages.pythonpackage -Collections $collections
-	$permissions    = Get-FPFilteredSet -ControlData $DataSet.configuration.permissions.permission -Collections $collections
+	$priority        = $DataSet.configuration.priority.order
+	$wingetinstalls  = Get-FPFilteredSet -ControlData $DataSet.configuration.winget_installs.deployment -Collections $collections
+	$chocoinstalls   = Get-FPFilteredSet -ControlData $DataSet.configuration.choco_installs.deployment -Collections $collections
+	$aptinstalls	 = Get-FPFilteredSet -ControlData $DataSet.configuration.apt_installs.deployment -Collections $collections
+	$flatpakinstalls = Get-FPFilteredSet -ControlData $DataSet.configuration.flatpak_installs.deployment -Collections $collections
+	$wingetremovals  = Get-FPFilteredSet -ControlData $DataSet.configuration.winget_removals.removal -Collections $collections
+	$chocoremovals   = Get-FPFilteredSet -ControlData $DataSet.configuration.choco_removals.removal -Collections $collections
+	$folders         = Get-FPFilteredSet -ControlData $DataSet.configuration.folders.folder -Collections $collections
+	$files           = Get-FPFilteredSet -ControlData $DataSet.configuration.files.file -Collections $collections
+	$registry        = Get-FPFilteredSet -ControlData $DataSet.configuration.registry.reg -Collections $collections
+	$services        = Get-FPFilteredSet -ControlData $DataSet.configuration.services.service -Collections $collections
+	$shortcuts       = Get-FPFilteredSet -ControlData $DataSet.configuration.shortcuts.shortcut -Collections $collections
+	$opapps          = Get-FPFilteredSet -ControlData $DataSet.configuration.opapps.opapp -Collections $collections
+	$updates         = Get-FPFilteredSet -ControlData $DataSet.configuration.updates.update -Collections $collections
+	$appx            = Get-FPFilteredSet -ControlData $DataSet.configuration.appxremovals.appxremoval -Collections $collections
+	$modules         = Get-FPFilteredSet -ControlData $DataSet.configuration.modules.module -Collections $collections
+	$pythonpackages  = Get-FPFilteredSet -ControlData $DataSet.configuration.pythonpackages.pythonpackage -Collections $collections
+	$permissions     = Get-FPFilteredSet -ControlData $DataSet.configuration.permissions.permission -Collections $collections
 	
 	Write-FPLog "template version...: $($DataSet.configuration.version)"
 	Write-FPLog "template comment...: $($DataSet.configuration.comment)"
@@ -471,7 +473,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Folders"
 				}
-				break
 			}
 			'files' { 
 				if ($files) {
@@ -479,7 +480,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Files"
 				}
-				break
 			}
 			'registry' {
 				if ($registry) {
@@ -487,7 +487,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Registry"
 				}
-				break
 			}
 			'winget_installs' {
 				if ($wingetinstalls) {
@@ -495,7 +494,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
 				}
-				break
 			}
 			'choco_installs' {
 				if ($chocoinstalls) {
@@ -503,7 +501,20 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
 				}
-				break
+			}
+			'apt_installs' {
+				if ($aptinstalls) {
+					Install-FPAptPackages -DataSet $aptinstalls
+				} else {
+					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
+				}
+			}
+			'flatpak_installs' {
+				if ($flatpakinstalls) {
+					Install-FPFlatpakPackages -DataSet $flatpakinstalls
+				} else {
+					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Installs"
+				}
 			}
 			'winget_removals' { 
 				if ($wingetremovals) {
@@ -511,7 +522,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Removals"
 				}
-				break
 			}
 			'choco_removals' { 
 				if ($chocoremovals) {
@@ -519,7 +529,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Package Removals"
 				}
-				break
 			}
 			'appxremovals' { 
 				if ($appx) {
@@ -527,7 +536,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: AppxRemovals"
 				}
-				break
 			}
 			'services' { 
 				if ($services) {
@@ -535,7 +543,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Services"
 				}
-				break
 			}
 			'shortcuts' { 
 				if ($shortcuts) {
@@ -543,7 +550,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Shortcuts"
 				}
-				break
 			}
 			'opapps' { 
 				if ($opapps) {
@@ -551,7 +557,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Win32 Apps"
 				}
-				break
 			}
 			'permissions' { 
 				if ($permissions) {
@@ -559,7 +564,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Permissions"
 				}
-				break
 			}
 			'updates' { 
 				if ($updates) {
@@ -567,7 +571,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: WindowsUpdate"
 				}
-				break
 			}
 			'modules' { 
 				if ($modules) {
@@ -575,7 +578,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: PowerShell Modules"
 				}
-				break
 			}
 			'python_packages' { 
 				if ($pythonpackages) {
@@ -583,7 +585,6 @@ function Invoke-FPControls {
 				} else {
 					Write-FPLog -Category 'Info' -Message "no assignments for group: Python Packages"
 				}
-				break
 			}
 			'upgrades' { 
 				break

@@ -5,7 +5,7 @@ function Install-FPWingetPackages {
 	.DESCRIPTION
 		Process Configuration Control: Winget Package Installs and Upgrades
 	.PARAMETER DataSet
-		XML data from control file import
+		Control data from control file import
 	.EXAMPLE
 		Install-FPWingetPackages -DataSet $configdata
 	#>
